@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='utf-8'?>
+<TextureAtlas imagePath="bush-sheet.png">
+    <Texture>Images/bush-sheet</Texture>
+    <Regions>
+        <Region name="bush 0" x="0" y="0" width="16" height="16" />
+        <Region name="bush 1" x="16" y="0" width="16" height="16" />
+        <Region name="bush 2" x="32" y="0" width="16" height="16" />
+        <Region name="bush 3" x="48" y="0" width="16" height="16" />
+    </Regions>
+    <Animations>
+        <Animation name="bush" delay="400">
+            <Frame region="bush 0" />
+            <Frame region="bush 1" />
+        </Animation>
+        <Animation name="bushberry" delay="400">
+            <Frame region="bush 2" />
+            <Frame region="bush 3" />
+        </Animation>
+    </Animations>
+    
+</TextureAtlas>

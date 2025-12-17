@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding='utf-8'?>
+<TextureAtlas>
+    <Texture>Images/mine1</Texture>
+    <Regions>
+        <Region name="Sprite-0001 0" x="0" y="0" width="48" height="48" />
+        <Region name="Sprite-0001 1" x="48" y="0" width="48" height="48" />
+        <Region name="Sprite-0001 2" x="96" y="0" width="48" height="48" />
+        <Region name="Sprite-0001 3" x="0" y="48" width="48" height="48" />
+        <Region name="Sprite-0001 4" x="48" y="48" width="48" height="48" />
+    </Regions>
+    <Animations>
+        <Animation name="Stone" delay="100">
+            <Frame region="Sprite-0001 0"/>
+        </Animation>
+        <Animation name="brozen" delay="100">
+            <Frame region="Sprite-0001 1"/>
+        </Animation>
+        <Animation name="silver" delay="100">
+            <Frame region="Sprite-0001 2"/>
+        </Animation>
+        <Animation name="gold" delay="100">
+            <Frame region="Sprite-0001 3"/>
+        </Animation>
+        <Animation name="diamond" delay="100">
+            <Frame region="Sprite-0001 4"/>
+        </Animation>
+    </Animations>
+</TextureAtlas>

@@ -1,0 +1,116 @@
+<?xml version='1.0' encoding='utf-8'?>
+<TextureAtlas>
+    <Texture>Images/BowmanTemplate-sheet</Texture>
+    <Regions>
+        <Region name="BowmanTemplate 0" x="0" y="0" width="16" height="16" />
+        <Region name="BowmanTemplate 1" x="16" y="0" width="16" height="16" />
+        <Region name="BowmanTemplate 2" x="16" y="0" width="16" height="16" />
+        <Region name="BowmanTemplate 3" x="32" y="0" width="16" height="16" />
+        <Region name="BowmanTemplate 4" x="16" y="0" width="16" height="16" />
+        <Region name="BowmanTemplate 5" x="48" y="0" width="16" height="16" />
+        <Region name="BowmanTemplate 6" x="64" y="0" width="16" height="16" />
+        <Region name="BowmanTemplate 7" x="80" y="0" width="16" height="16" />
+        <Region name="BowmanTemplate 8" x="80" y="0" width="16" height="16" />
+        <Region name="BowmanTemplate 9" x="0" y="16" width="16" height="16" />
+        <Region name="BowmanTemplate 10" x="80" y="0" width="16" height="16" />
+        <Region name="BowmanTemplate 11" x="16" y="16" width="16" height="16" />
+        <Region name="BowmanTemplate 12" x="32" y="16" width="16" height="16" />
+        <Region name="BowmanTemplate 13" x="48" y="16" width="16" height="16" />
+        <Region name="BowmanTemplate 14" x="48" y="16" width="16" height="16" />
+        <Region name="BowmanTemplate 15" x="64" y="16" width="16" height="16" />
+        <Region name="BowmanTemplate 16" x="48" y="16" width="16" height="16" />
+        <Region name="BowmanTemplate 17" x="80" y="16" width="16" height="16" />
+        <Region name="BowmanTemplate 18" x="0" y="32" width="16" height="16" />
+        <Region name="BowmanTemplate 19" x="16" y="32" width="16" height="16" />
+        <Region name="BowmanTemplate 20" x="16" y="32" width="16" height="16" />
+        <Region name="BowmanTemplate 21" x="32" y="32" width="16" height="16" />
+        <Region name="BowmanTemplate 22" x="16" y="32" width="16" height="16" />
+        <Region name="BowmanTemplate 23" x="48" y="32" width="16" height="16" />
+        <Region name="BowmanTemplate 24" x="64" y="32" width="16" height="16" />
+        <Region name="BowmanTemplate 25" x="80" y="32" width="16" height="16" />
+        <Region name="BowmanTemplate 26" x="0" y="48" width="16" height="16" />
+        <Region name="BowmanTemplate 27" x="16" y="48" width="16" height="16" />
+        <Region name="BowmanTemplate 28" x="32" y="48" width="16" height="16" />
+        <Region name="BowmanTemplate 29" x="48" y="48" width="16" height="16" />
+        <Region name="BowmanTemplate 30" x="64" y="48" width="16" height="16" />
+        <Region name="BowmanTemplate 31" x="80" y="48" width="16" height="16" />
+        <Region name="BowmanTemplate 32" x="0" y="64" width="16" height="16" />
+        <Region name="BowmanTemplate 33" x="16" y="64" width="16" height="16" />
+        <Region name="BowmanTemplate 34" x="32" y="64" width="16" height="16" />
+        <Region name="BowmanTemplate 35" x="48" y="64" width="16" height="16" />
+        <Region name="BowmanTemplate 36" x="64" y="64" width="16" height="16" />
+        <Region name="BowmanTemplate 37" x="80" y="64" width="16" height="16" />
+        <Region name="BowmanTemplate 38" x="0" y="80" width="16" height="16" />
+        <Region name="BowmanTemplate 39" x="16" y="80" width="16" height="16" />
+    </Regions>
+    <Animations>
+        <Animation name="idle-font" delay="200">
+            <Frame region="BowmanTemplate 0"/>
+            <Frame region="BowmanTemplate 1"/>
+        </Animation>
+        <Animation name="walk-font" delay="200">
+            <Frame region="BowmanTemplate 2"/>
+            <Frame region="BowmanTemplate 3"/>
+            <Frame region="BowmanTemplate 4"/>
+            <Frame region="BowmanTemplate 5"/>
+        </Animation>
+        <Animation name="idle-back" delay="200">
+            <Frame region="BowmanTemplate 6"/>
+            <Frame region="BowmanTemplate 7"/>
+        </Animation>
+        <Animation name="walk-back" delay="200">
+            <Frame region="BowmanTemplate 8"/>
+            <Frame region="BowmanTemplate 9"/>
+            <Frame region="BowmanTemplate 10"/>
+            <Frame region="BowmanTemplate 11"/>
+        </Animation>
+        <Animation name="idle-right" delay="200">
+            <Frame region="BowmanTemplate 12"/>
+            <Frame region="BowmanTemplate 13"/>
+        </Animation>
+        <Animation name="walk-right" delay="200">
+            <Frame region="BowmanTemplate 14"/>
+            <Frame region="BowmanTemplate 15"/>
+            <Frame region="BowmanTemplate 16"/>
+            <Frame region="BowmanTemplate 17"/>
+        </Animation>
+        <Animation name="idle-left" delay="200">
+            <Frame region="BowmanTemplate 18"/>
+            <Frame region="BowmanTemplate 19"/>
+        </Animation>
+        <Animation name="walk-left" delay="200">
+            <Frame region="BowmanTemplate 20"/>
+            <Frame region="BowmanTemplate 21"/>
+            <Frame region="BowmanTemplate 22"/>
+            <Frame region="BowmanTemplate 23"/>
+        </Animation>
+        <Animation name="attack-font" delay="200">
+            <Frame region="BowmanTemplate 24"/>
+            <Frame region="BowmanTemplate 25"/>
+            <Frame region="BowmanTemplate 26"/>
+        </Animation>
+        <Animation name="attack-back" delay="200">
+            <Frame region="BowmanTemplate 27"/>
+            <Frame region="BowmanTemplate 28"/>
+            <Frame region="BowmanTemplate 29"/>
+        </Animation>
+        <Animation name="attack-right" delay="200">
+            <Frame region="BowmanTemplate 30"/>
+            <Frame region="BowmanTemplate 31"/>
+            <Frame region="BowmanTemplate 32"/>
+        </Animation>
+        <Animation name="attack-left" delay="200">
+            <Frame region="BowmanTemplate 33"/>
+            <Frame region="BowmanTemplate 34"/>
+            <Frame region="BowmanTemplate 35"/>
+        </Animation>
+        <Animation name="arrow-height" delay="100">
+            <Frame region="BowmanTemplate 36"/>
+            <Frame region="BowmanTemplate 37"/>
+        </Animation>
+        <Animation name="arrow-width" delay="100">
+            <Frame region="BowmanTemplate 38"/>
+            <Frame region="BowmanTemplate 39"/>
+        </Animation>
+    </Animations>
+</TextureAtlas>

@@ -1,0 +1,26 @@
+Source File,Dest File,Processor Type,Content Type,Source File Size,Dest File Size,Build Seconds
+"D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Font/Baskic8.spritefont","D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/bin/DesktopGL/Content/Font/Baskic8.xnb","FontDescriptionProcessor","SpriteFontContent",2074,21529,0.1152471
+"D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Font/Essentle4.spritefont","D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/bin/DesktopGL/Content/Font/Essentle4.xnb","FontDescriptionProcessor","SpriteFontContent",2076,37913,0.142767
+"D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Font/File.spritefont","D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/bin/DesktopGL/Content/Font/File.xnb","FontDescriptionProcessor","SpriteFontContent",2076,37913,0.0156471
+"D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/Boar-sheet.png","D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/bin/DesktopGL/Content/Images/Boar-sheet.xnb","TextureProcessor","Texture2DContent",2146,20565,0.1272468
+"D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/boar.xml","D:\tai_lieu_hoc\Game_Dev\TribeBuild\Content\bin\DesktopGL\Content\Images/boar.xml","CopyItem","File",4571,4571,0.0053657
+"D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/Bowman.xml","D:\tai_lieu_hoc\Game_Dev\TribeBuild\Content\bin\DesktopGL\Content\Images/Bowman.xml","CopyItem","File",6419,6419,0.0022114
+"D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/BowmanTemplate-sheet.png","D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/bin/DesktopGL/Content/Images/BowmanTemplate-sheet.xnb","TextureProcessor","Texture2DContent",3306,36949,0.0056692
+"D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/bush-sheet.png","D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/bin/DesktopGL/Content/Images/bush-sheet.xnb","TextureProcessor","Texture2DContent",558,4181,0.2604974
+"D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/Bush.xml","D:\tai_lieu_hoc\Game_Dev\TribeBuild\Content\bin\DesktopGL\Content\Images/Bush.xml","CopyItem","File",788,788,0.0021518
+"D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/Chick-sheet.png","D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/bin/DesktopGL/Content/Images/Chick-sheet.xnb","TextureProcessor","Texture2DContent",926,12373,0.0017832
+"D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/Chick.xml","D:\tai_lieu_hoc\Game_Dev\TribeBuild\Content\bin\DesktopGL\Content\Images/Chick.xml","CopyItem","File",4467,4467,0.0017442
+"D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/chicken-sheet - Copy.png","D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/bin/DesktopGL/Content/Images/chicken-sheet - Copy.xnb","TextureProcessor","Texture2DContent",444,12373,0.0521078
+"D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/chicken-sheet.png","D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/bin/DesktopGL/Content/Images/chicken-sheet.xnb","TextureProcessor","Texture2DContent",444,12373,0.0017909
+"D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/Chicken.xml","D:\tai_lieu_hoc\Game_Dev\TribeBuild\Content\bin\DesktopGL\Content\Images/Chicken.xml","CopyItem","File",3109,3109,0.0007673
+"D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/farmer.xml","D:\tai_lieu_hoc\Game_Dev\TribeBuild\Content\bin\DesktopGL\Content\Images/farmer.xml","CopyItem","File",6220,6220,0.0025353
+"D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/FarmerTemplate-sheet.png","D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/bin/DesktopGL/Content/Images/FarmerTemplate-sheet.xnb","TextureProcessor","Texture2DContent",2747,36949,0.00206
+"D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/Mine.xml","D:\tai_lieu_hoc\Game_Dev\TribeBuild\Content\bin\DesktopGL\Content\Images/Mine.xml","CopyItem","File",1129,1129,0.0008236
+"D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/mine1.png","D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/bin/DesktopGL/Content/Images/mine1.xnb","TextureProcessor","Texture2DContent",1285,55381,0.0527129
+"D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/object-sheet.png","D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/bin/DesktopGL/Content/Images/object-sheet.xnb","TextureProcessor","Texture2DContent",2403,30805,0.0027325
+"D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/object.xml","D:\tai_lieu_hoc\Game_Dev\TribeBuild\Content\bin\DesktopGL\Content\Images/object.xml","CopyItem","File",2547,2547,0.0007429
+"D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/punyworld-overworld-tiles.xml","D:\tai_lieu_hoc\Game_Dev\TribeBuild\Content\bin\DesktopGL\Content\Images/punyworld-overworld-tiles.xml","CopyItem","File",26620,26620,0.0010023
+"D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/punyworld-overworld-tileset.png","D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/bin/DesktopGL/Content/Images/punyworld-overworld-tileset.xnb","TextureProcessor","Texture2DContent",100779,1797205,0.1705893
+"D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/samplemap5.tmx","D:\tai_lieu_hoc\Game_Dev\TribeBuild\Content\bin\DesktopGL\Content\Images/samplemap5.tmx","CopyItem","File",3306,3306,0.0008988
+"D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/Sheep-sheet.png","D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/bin/DesktopGL/Content/Images/Sheep-sheet.xnb","TextureProcessor","Texture2DContent",1676,16469,0.0023212
+"D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/sheep.xml","D:\tai_lieu_hoc\Game_Dev\TribeBuild\Content\bin\DesktopGL\Content\Images/sheep.xml","CopyItem","File",2987,2987,0.0014113

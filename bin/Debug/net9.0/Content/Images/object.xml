@@ -1,0 +1,54 @@
+<?xml version='1.0' encoding='utf-8'?>
+<TextureAtlas imagePath="object-sheet.png">
+    <Texture>Images/object-sheet</Texture>
+    <Regions>
+        <Region name="Sprite-0001 0" x="64" y="0" width="16" height="32"/>
+        <Region name="Sprite-0001 1" x="80" y="32" width="16" height="16"/>
+        <Region name="Sprite-0001 2" x="80" y="48" width="16" height="16"/>
+        <Region name="Sprite-0001 3" x="0" y="64" width="16" height="16"/>
+        <Region name="Sprite-0001 4" x="16" y="64" width="16" height="16"/>
+        <Region name="Sprite-0001 5" x="0" y="0" width="32" height="32"/>
+        <Region name="Sprite-0001 6" x="32" y="0" width="32" height="32"/>
+        <Region name="Sprite-0001 7" x="32" y="64" width="16" height="16"/>
+        <Region name="Sprite-0001 8" x="80" y="0" width="16" height="32"/>
+        <Region name="Sprite-0001 9" x="0" y="32" width="16" height="32"/>
+        <Region name="Sprite-0001 10" x="16" y="32" width="16" height="32"/>
+        <Region name="Sprite-0001 11" x="32" y="32" width="16" height="32"/>
+        <Region name="Sprite-0001 12" x="48" y="32" width="16" height="32"/>
+        <Region name="Sprite-0001 13" x="64" y="32" width="16" height="32"/>
+    </Regions>
+    <Animations>
+        <Animation name="Tree" delay="200">
+            <Frame region="Sprite-0001 0"/>
+        </Animation>
+        <Animation name="root" delay="200">
+            <Frame region="Sprite-0001 1"/>
+        </Animation>
+        <Animation name="rock1" delay="200">
+            <Frame region="Sprite-0001 2"/>
+        </Animation>
+        <Animation name="rock2" delay="200">
+            <Frame region="Sprite-0001 3"/>
+        </Animation>
+        <Animation name="rock3" delay="200">
+            <Frame region="Sprite-0001 4"/>
+        </Animation>
+        <Animation name="camp" delay="200">
+            <Frame region="Sprite-0001 5"/>
+        </Animation>
+        <Animation name="simpleHome" delay="200">
+            <Frame region="Sprite-0001 6"/>
+        </Animation>
+        <Animation name="unactiviteCamp" delay="200">
+            <Frame region="Sprite-0001 7"/>
+        </Animation>
+        <Animation name="campFire" delay="200">
+            <Frame region="Sprite-0001 8"/>
+            <Frame region="Sprite-0001 9"/>
+            <Frame region="Sprite-0001 10"/>
+            <Frame region="Sprite-0001 11"/>
+            <Frame region="Sprite-0001 12"/>
+            <Frame region="Sprite-0001 13"/>
+        </Animation>
+    </Animations>
+</TextureAtlas>

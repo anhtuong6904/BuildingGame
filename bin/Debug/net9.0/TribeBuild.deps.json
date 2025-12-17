@@ -1,0 +1,311 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v9.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v9.0": {
+      "TribeBuild/1.0.0": {
+        "dependencies": {
+          "Gum.MonoGame": "2025.8.3.3",
+          "MonoGame.Content.Builder.Task": "3.8.4.1",
+          "MonoGame.Framework.DesktopGL": "3.8.4.1",
+          "MonoGameLibrary": "1.0.0"
+        },
+        "runtime": {
+          "TribeBuild.dll": {}
+        }
+      },
+      "FlatRedBall.GumCommon/2025.8.3.3": {
+        "dependencies": {
+          "FlatRedBall.InterpolationCore": "2025.4.22.1",
+          "System.Numerics.Vectors": "4.5.0"
+        },
+        "runtime": {
+          "lib/net6.0/GumCommon.dll": {
+            "assemblyVersion": "2025.8.3.3",
+            "fileVersion": "2025.8.3.3"
+          }
+        }
+      },
+      "FlatRedBall.InterpolationCore/2025.4.22.1": {
+        "dependencies": {
+          "Microsoft.CSharp": "4.7.0",
+          "System.Data.DataSetExtensions": "4.5.0"
+        },
+        "runtime": {
+          "lib/netstandard2.0/FlatRedBall.InterpolationCore.dll": {
+            "assemblyVersion": "1.1.0.0",
+            "fileVersion": "1.1.0.0"
+          }
+        }
+      },
+      "Gum.MonoGame/2025.8.3.3": {
+        "dependencies": {
+          "FlatRedBall.GumCommon": "2025.8.3.3",
+          "TextCopy": "6.2.1"
+        },
+        "runtime": {
+          "lib/net6.0/MonoGameGum.dll": {
+            "assemblyVersion": "2025.8.3.3",
+            "fileVersion": "2025.8.3.3"
+          }
+        }
+      },
+      "Microsoft.CSharp/4.7.0": {},
+      "Microsoft.Extensions.DependencyInjection.Abstractions/7.0.0": {
+        "runtime": {
+          "lib/net7.0/Microsoft.Extensions.DependencyInjection.Abstractions.dll": {
+            "assemblyVersion": "7.0.0.0",
+            "fileVersion": "7.0.22.51805"
+          }
+        }
+      },
+      "MonoGame.Content.Builder.Task/3.8.4.1": {},
+      "MonoGame.Framework.DesktopGL/3.8.4.1": {
+        "dependencies": {
+          "MonoGame.Library.OpenAL": "1.24.3.2",
+          "MonoGame.Library.SDL": "2.32.2.1",
+          "NVorbis": "0.10.4"
+        },
+        "runtime": {
+          "lib/net8.0/MonoGame.Framework.dll": {
+            "assemblyVersion": "3.8.4.1",
+            "fileVersion": "3.8.4.1"
+          }
+        }
+      },
+      "MonoGame.Library.OpenAL/1.24.3.2": {
+        "runtimeTargets": {
+          "runtimes/android-arm/native/libopenal.so": {
+            "rid": "android-arm",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/android-arm64/native/libopenal.so": {
+            "rid": "android-arm64",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/android-x64/native/libopenal.so": {
+            "rid": "android-x64",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/android-x86/native/libopenal.so": {
+            "rid": "android-x86",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/ios-arm64/native/libopenal.a": {
+            "rid": "ios-arm64",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/iossimulator-arm64/native/libopenal.a": {
+            "rid": "iossimulator-arm64",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/iossimulator-x64/native/libopenal.a": {
+            "rid": "iossimulator-x64",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/linux-arm64/native/libopenal.so": {
+            "rid": "linux-arm64",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/linux-x64/native/libopenal.so": {
+            "rid": "linux-x64",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/osx/native/libopenal.dylib": {
+            "rid": "osx",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/win-x64/native/openal.dll": {
+            "rid": "win-x64",
+            "assetType": "native",
+            "fileVersion": "1.24.3.0"
+          }
+        }
+      },
+      "MonoGame.Library.SDL/2.32.2.1": {
+        "runtimeTargets": {
+          "runtimes/linux-x64/native/libSDL2-2.0.so.0": {
+            "rid": "linux-x64",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/osx/native/libSDL2-2.0.0.dylib": {
+            "rid": "osx",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/win-x64/native/SDL2.dll": {
+            "rid": "win-x64",
+            "assetType": "native",
+            "fileVersion": "2.32.2.0"
+          }
+        }
+      },
+      "NVorbis/0.10.4": {
+        "dependencies": {
+          "System.Memory": "4.5.3",
+          "System.ValueTuple": "4.5.0"
+        },
+        "runtime": {
+          "lib/netstandard2.0/NVorbis.dll": {
+            "assemblyVersion": "0.10.4.0",
+            "fileVersion": "0.10.4.0"
+          }
+        }
+      },
+      "System.Data.DataSetExtensions/4.5.0": {},
+      "System.Memory/4.5.3": {},
+      "System.Numerics.Vectors/4.5.0": {},
+      "System.ValueTuple/4.5.0": {},
+      "TextCopy/6.2.1": {
+        "dependencies": {
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "7.0.0"
+        },
+        "runtime": {
+          "lib/net6.0/TextCopy.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "MonoGameLibrary/1.0.0": {
+        "runtime": {
+          "MonoGameLibrary.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "TribeBuild/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "FlatRedBall.GumCommon/2025.8.3.3": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-2r93e6rb+eoGnyDLR/GqBWSzFujgqPl9wIlFmrndr7W9K/3crOwcWz/TKDEP9YGgVqfFq+XiyYvQvBmMKo77jA==",
+      "path": "flatredball.gumcommon/2025.8.3.3",
+      "hashPath": "flatredball.gumcommon.2025.8.3.3.nupkg.sha512"
+    },
+    "FlatRedBall.InterpolationCore/2025.4.22.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-x95teSPBlV88KKbivY+peQ8AjqfXFgmGFnHw4Adds8UaO81zJKZAZZrXeetp5K+5mgd4t2hdtW4ItBFJ7ZwWig==",
+      "path": "flatredball.interpolationcore/2025.4.22.1",
+      "hashPath": "flatredball.interpolationcore.2025.4.22.1.nupkg.sha512"
+    },
+    "Gum.MonoGame/2025.8.3.3": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-fj3IGafr8SwhfKyOU1DYXI6lUpDWr1Vq0nJWRYn1s8vyqcN02Yazq4B8YKpPr0B9UfZBdNcObKf1NvCqTm2KlA==",
+      "path": "gum.monogame/2025.8.3.3",
+      "hashPath": "gum.monogame.2025.8.3.3.nupkg.sha512"
+    },
+    "Microsoft.CSharp/4.7.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-pTj+D3uJWyN3My70i2Hqo+OXixq3Os2D1nJ2x92FFo6sk8fYS1m1WLNTs0Dc1uPaViH0YvEEwvzddQ7y4rhXmA==",
+      "path": "microsoft.csharp/4.7.0",
+      "hashPath": "microsoft.csharp.4.7.0.nupkg.sha512"
+    },
+    "Microsoft.Extensions.DependencyInjection.Abstractions/7.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-h3j/QfmFN4S0w4C2A6X7arXij/M/OVw3uQHSOFxnND4DyAzO1F9eMX7Eti7lU/OkSthEE0WzRsfT/Dmx86jzCw==",
+      "path": "microsoft.extensions.dependencyinjection.abstractions/7.0.0",
+      "hashPath": "microsoft.extensions.dependencyinjection.abstractions.7.0.0.nupkg.sha512"
+    },
+    "MonoGame.Content.Builder.Task/3.8.4.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-jf6IZXMiOhuybRaWQt//u+804yzMRGk3ZRvlBJG/0iusRwTunJsQvA6tMMJJc7gjUrY6rUkzRqwinKWXugyHfA==",
+      "path": "monogame.content.builder.task/3.8.4.1",
+      "hashPath": "monogame.content.builder.task.3.8.4.1.nupkg.sha512"
+    },
+    "MonoGame.Framework.DesktopGL/3.8.4.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-YybxIIT5+Ky78E/XdkS0glyluMr2EeDZwx2LqXULAOCqiKt1+aDrjPZaqLL5qpNgBcMEHUeZJ4YjWe4TAZlWLw==",
+      "path": "monogame.framework.desktopgl/3.8.4.1",
+      "hashPath": "monogame.framework.desktopgl.3.8.4.1.nupkg.sha512"
+    },
+    "MonoGame.Library.OpenAL/1.24.3.2": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-nGRsXQXs+NSUC3C5w90hFQfyKdZPpBnHnyg2w+Dw/2pUH7s+CoRWTJNYbzzdJf3+aeUvfvG4rTbFvMKDDj5olA==",
+      "path": "monogame.library.openal/1.24.3.2",
+      "hashPath": "monogame.library.openal.1.24.3.2.nupkg.sha512"
+    },
+    "MonoGame.Library.SDL/2.32.2.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-T4E2ppGlSTC2L9US1rxtdg3qTbarRzNId31xZoumUW9cf9Nq8nRQPMu9GzvZGrhfSySf0+UWPEj1rlicps+P/w==",
+      "path": "monogame.library.sdl/2.32.2.1",
+      "hashPath": "monogame.library.sdl.2.32.2.1.nupkg.sha512"
+    },
+    "NVorbis/0.10.4": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-WYnil3DhQHzjCY0dM9I2B3r1vWip90AOuQd25KE4NrjPQBg0tBJFluRLm5YPnO5ZLDmwrfosY8jCQGQRmWI/Pg==",
+      "path": "nvorbis/0.10.4",
+      "hashPath": "nvorbis.0.10.4.nupkg.sha512"
+    },
+    "System.Data.DataSetExtensions/4.5.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-221clPs1445HkTBZPL+K9sDBdJRB8UN8rgjO3ztB0CQ26z//fmJXtlsr6whGatscsKGBrhJl5bwJuKSA8mwFOw==",
+      "path": "system.data.datasetextensions/4.5.0",
+      "hashPath": "system.data.datasetextensions.4.5.0.nupkg.sha512"
+    },
+    "System.Memory/4.5.3": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-3oDzvc/zzetpTKWMShs1AADwZjQ/36HnsufHRPcOjyRAAMLDlu2iD33MBI2opxnezcVUtXyqDXXjoFMOU9c7SA==",
+      "path": "system.memory/4.5.3",
+      "hashPath": "system.memory.4.5.3.nupkg.sha512"
+    },
+    "System.Numerics.Vectors/4.5.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-QQTlPTl06J/iiDbJCiepZ4H//BVraReU4O4EoRw1U02H5TLUIT7xn3GnDp9AXPSlJUDyFs4uWjWafNX6WrAojQ==",
+      "path": "system.numerics.vectors/4.5.0",
+      "hashPath": "system.numerics.vectors.4.5.0.nupkg.sha512"
+    },
+    "System.ValueTuple/4.5.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-okurQJO6NRE/apDIP23ajJ0hpiNmJ+f0BwOlB/cSqTLQlw5upkf+5+96+iG2Jw40G1fCVCyPz/FhIABUjMR+RQ==",
+      "path": "system.valuetuple/4.5.0",
+      "hashPath": "system.valuetuple.4.5.0.nupkg.sha512"
+    },
+    "TextCopy/6.2.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-ryejViUBmHQ2XMie2AiRBn7KVKu2Gh/hqrctGSAUf1BufwfPjr+MWuACNBaiG+40TMbWRDJZgV73Tpl9hggeRw==",
+      "path": "textcopy/6.2.1",
+      "hashPath": "textcopy.6.2.1.nupkg.sha512"
+    },
+    "MonoGameLibrary/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

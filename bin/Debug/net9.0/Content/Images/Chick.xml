@@ -1,0 +1,85 @@
+<?xml version='1.0' encoding='utf-8'?>
+<TextureAtlas >
+    <Texture>Images/Chick-sheet</Texture>
+    <Regions>
+        <Region name="Chick 0" x="0" y="0" width="16" height="16" />
+        <Region name="Chick 1" x="0" y="0" width="16" height="16" />
+        <Region name="Chick 2" x="16" y="0" width="16" height="16" />
+        <Region name="Chick 3" x="0" y="0" width="16" height="16" />
+        <Region name="Chick 4" x="32" y="0" width="16" height="16" />
+        <Region name="Chick 5" x="48" y="0" width="16" height="16" />
+        <Region name="Chick 6" x="48" y="0" width="16" height="16" />
+        <Region name="Chick 7" x="0" y="16" width="16" height="16" />
+        <Region name="Chick 8" x="48" y="0" width="16" height="16" />
+        <Region name="Chick 9" x="16" y="16" width="16" height="16" />
+        <Region name="Chick 10" x="32" y="16" width="16" height="16" />
+        <Region name="Chick 11" x="32" y="16" width="16" height="16" />
+        <Region name="Chick 12" x="48" y="16" width="16" height="16" />
+        <Region name="Chick 13" x="32" y="16" width="16" height="16" />
+        <Region name="Chick 14" x="48" y="16" width="16" height="16" />
+        <Region name="Chick 15" x="0" y="32" width="16" height="16" />
+        <Region name="Chick 16" x="0" y="32" width="16" height="16" />
+        <Region name="Chick 17" x="16" y="32" width="16" height="16" />
+        <Region name="Chick 18" x="0" y="32" width="16" height="16" />
+        <Region name="Chick 19" x="16" y="32" width="16" height="16" />
+        <Region name="Chicken 0" x="0" y="0" width="16" height="16" />
+        <Region name="Chicken 1" x="0" y="0" width="16" height="16" />
+        <Region name="Chicken 2" x="16" y="0" width="16" height="16" />
+        <Region name="Chicken 3" x="0" y="0" width="16" height="16" />
+        <Region name="Chicken 4" x="32" y="0" width="16" height="16" />
+        <Region name="Chicken 5" x="48" y="0" width="16" height="16" />
+        <Region name="Chicken 6" x="48" y="0" width="16" height="16" />
+        <Region name="Chicken 7" x="0" y="16" width="16" height="16" />
+        <Region name="Chicken 8" x="48" y="0" width="16" height="16" />
+        <Region name="Chicken 9" x="16" y="16" width="16" height="16" />
+        <Region name="Chicken 10" x="32" y="16" width="16" height="16" />
+        <Region name="Chicken 11" x="32" y="16" width="16" height="16" />
+        <Region name="Chicken 12" x="48" y="16" width="16" height="16" />
+        <Region name="Chicken 13" x="32" y="16" width="16" height="16" />
+        <Region name="Chicken 14" x="48" y="16" width="16" height="16" />
+        <Region name="Chicken 15" x="0" y="32" width="16" height="16" />
+        <Region name="Chicken 16" x="0" y="32" width="16" height="16" />
+        <Region name="Chicken 17" x="16" y="32" width="16" height="16" />
+        <Region name="Chicken 18" x="0" y="32" width="16" height="16" />
+        <Region name="Chicken 19" x="16" y="32" width="16" height="16" />
+    </Regions>
+    
+    <Animations>
+        <Animation name="idle-font" delay="200">
+            <Frame region="Chick 0"/>
+        </Animation>
+        <Animation name="walk-font" delay="200">
+            <Frame region="Chick 1"/>
+            <Frame region="Chick 2"/>
+            <Frame region="Chick 3"/>
+            <Frame region="Chick 4"/>
+        </Animation>
+        <Animation name="idle-back" delay="200">
+            <Frame region="Chick 5"/>
+        </Animation>
+        <Animation name="walk-back" delay="200">
+            <Frame region="Chick 6"/>
+            <Frame region="Chick 7"/>
+            <Frame region="Chick 8"/>
+            <Frame region="Chick 9"/>
+        </Animation>
+        <Animation name="idle-right" delay="200">
+            <Frame region="Chick 10"/>
+        </Animation>
+        <Animation name="walk-right" delay="200">
+            <Frame region="Chick 11"/>
+            <Frame region="Chick 12"/>
+            <Frame region="Chick 13"/>
+            <Frame region="Chick 14"/>
+        </Animation>
+        <Animation name="idle-left" delay="200">
+            <Frame region="Chick 15"/>
+        </Animation>
+        <Animation name="walk-left" delay="200">
+            <Frame region="Chick 16"/>
+            <Frame region="Chick 17"/>
+            <Frame region="Chick 18"/>
+            <Frame region="Chick 19"/>
+        </Animation>
+    </Animations>
+</TextureAtlas>

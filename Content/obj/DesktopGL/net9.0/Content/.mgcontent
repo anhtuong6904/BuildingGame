@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SourceFileCollection xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Profile>Reach</Profile>
+  <Platform>DesktopGL</Platform>
+  <Config />
+  <SourceFiles>
+    <File>D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Font/Baskic8.spritefont</File>
+    <File>D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Font/Essentle4.spritefont</File>
+    <File>D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Font/File.spritefont</File>
+    <File>D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/Boar-sheet.png</File>
+    <File>D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/BowmanTemplate-sheet.png</File>
+    <File>D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/bush-sheet.png</File>
+    <File>D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/Chick-sheet.png</File>
+    <File>D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/chicken-sheet - Copy.png</File>
+    <File>D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/chicken-sheet.png</File>
+    <File>D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/FarmerTemplate-sheet.png</File>
+    <File>D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/mine1.png</File>
+    <File>D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/object-sheet.png</File>
+    <File>D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/punyworld-overworld-tileset.png</File>
+    <File>D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/Sheep-sheet.png</File>
+  </SourceFiles>
+  <DestFiles>
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+  </DestFiles>
+</SourceFileCollection>

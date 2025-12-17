@@ -1,0 +1,112 @@
+<?xml version='1.0' encoding='utf-8'?>
+<TextureAtlas >
+    <Texture>Images/FarmerTemplate-sheet</Texture>
+    <Regions>
+        <Region name="FarmerTemplate 0" x="0" y="0" width="16" height="16"/>
+        <Region name="FarmerTemplate 1" x="16" y="0" width="16" height="16"/>
+        <Region name="FarmerTemplate 2" x="0" y="0" width="16" height="16"/>
+        <Region name="FarmerTemplate 3" x="16" y="0" width="16" height="16"/>
+        <Region name="FarmerTemplate 4" x="32" y="0" width="16" height="16"/>
+        <Region name="FarmerTemplate 5" x="0" y="0" width="16" height="16"/>
+        <Region name="FarmerTemplate 6" x="48" y="0" width="16" height="16"/>
+        <Region name="FarmerTemplate 7" x="64" y="0" width="16" height="16"/>
+        <Region name="FarmerTemplate 8" x="80" y="0" width="16" height="16"/>
+        <Region name="FarmerTemplate 9" x="64" y="0" width="16" height="16"/>
+        <Region name="FarmerTemplate 10" x="80" y="0" width="16" height="16"/>
+        <Region name="FarmerTemplate 11" x="0" y="16" width="16" height="16"/>
+        <Region name="FarmerTemplate 12" x="16" y="16" width="16" height="16"/>
+        <Region name="FarmerTemplate 13" x="32" y="16" width="16" height="16"/>
+        <Region name="FarmerTemplate 14" x="48" y="16" width="16" height="16"/>
+        <Region name="FarmerTemplate 15" x="64" y="16" width="16" height="16"/>
+        <Region name="FarmerTemplate 16" x="48" y="16" width="16" height="16"/>
+        <Region name="FarmerTemplate 17" x="64" y="16" width="16" height="16"/>
+        <Region name="FarmerTemplate 18" x="80" y="16" width="16" height="16"/>
+        <Region name="FarmerTemplate 19" x="0" y="32" width="16" height="16"/>
+        <Region name="FarmerTemplate 20" x="16" y="32" width="16" height="16"/>
+        <Region name="FarmerTemplate 21" x="32" y="32" width="16" height="16"/>
+        <Region name="FarmerTemplate 22" x="48" y="32" width="16" height="16"/>
+        <Region name="FarmerTemplate 23" x="32" y="32" width="16" height="16"/>
+        <Region name="FarmerTemplate 24" x="48" y="32" width="16" height="16"/>
+        <Region name="FarmerTemplate 25" x="64" y="32" width="16" height="16"/>
+        <Region name="FarmerTemplate 26" x="80" y="32" width="16" height="16"/>
+        <Region name="FarmerTemplate 27" x="0" y="48" width="16" height="16"/>
+        <Region name="FarmerTemplate 28" x="16" y="48" width="16" height="16"/>
+        <Region name="FarmerTemplate 29" x="32" y="48" width="16" height="16"/>
+        <Region name="FarmerTemplate 30" x="48" y="48" width="16" height="16"/>
+        <Region name="FarmerTemplate 31" x="64" y="48" width="16" height="16"/>
+        <Region name="FarmerTemplate 32" x="80" y="48" width="16" height="16"/>
+        <Region name="FarmerTemplate 33" x="0" y="64" width="16" height="16"/>
+        <Region name="FarmerTemplate 34" x="16" y="64" width="16" height="16"/>
+        <Region name="FarmerTemplate 35" x="32" y="64" width="16" height="16"/>
+        <Region name="FarmerTemplate 36" x="48" y="64" width="16" height="16"/>
+        <Region name="FarmerTemplate 37" x="64" y="64" width="16" height="16"/>
+        <Region name="FarmerTemplate 38" x="80" y="64" width="16" height="16"/>
+        <Region name="FarmerTemplate 39" x="0" y="80" width="16" height="16"/>
+    </Regions>
+    <Animations>
+        <Animation name="idle-font" delay="200">
+            <Frame region="FarmerTemplate 0"/>
+            <Frame region="FarmerTemplate 1"/>
+        </Animation>
+        <Animation name="walk-font" delay="200">
+            <Frame region="FarmerTemplate 2"/>
+            <Frame region="FarmerTemplate 3"/>
+            <Frame region="FarmerTemplate 4"/>
+            <Frame region="FarmerTemplate 5"/>
+            <Frame region="FarmerTemplate 6"/>
+        </Animation>
+        <Animation name="idle-back" delay="200">
+            <Frame region="FarmerTemplate 7"/>
+            <Frame region="FarmerTemplate 8"/>
+        </Animation>
+        <Animation name="walk-back" delay="200">
+            <Frame region="FarmerTemplate 9"/>
+            <Frame region="FarmerTemplate 10"/>
+            <Frame region="FarmerTemplate 11"/>
+            <Frame region="FarmerTemplate 12"/>
+            <Frame region="FarmerTemplate 13"/>
+        </Animation>
+        <Animation name="idle-right" delay="200">
+            <Frame region="FarmerTemplate 14"/>
+            <Frame region="FarmerTemplate 15"/>
+        </Animation>
+        <Animation name="walk-right" delay="200">
+            <Frame region="FarmerTemplate 16"/>
+            <Frame region="FarmerTemplate 17"/>
+            <Frame region="FarmerTemplate 18"/>
+            <Frame region="FarmerTemplate 19"/>
+            <Frame region="FarmerTemplate 20"/>
+        </Animation>
+        <Animation name="idle-left" delay="200">
+            <Frame region="FarmerTemplate 21"/>
+            <Frame region="FarmerTemplate 22"/>
+        </Animation>
+        <Animation name="walk-left" delay="200">
+            <Frame region="FarmerTemplate 23"/>
+            <Frame region="FarmerTemplate 24"/>
+            <Frame region="FarmerTemplate 25"/>
+            <Frame region="FarmerTemplate 26"/>
+            <Frame region="FarmerTemplate 27"/>
+        </Animation>
+        <Animation name="work-font" delay="200">
+            <Frame region="FarmerTemplate 28"/>
+            <Frame region="FarmerTemplate 29"/>
+            <Frame region="FarmerTemplate 30"/>
+        </Animation>
+        <Animation name="work-back" delay="200">
+            <Frame region="FarmerTemplate 31"/>
+            <Frame region="FarmerTemplate 32"/>
+            <Frame region="FarmerTemplate 33"/>
+        </Animation>
+        <Animation name="work-right" delay="200">
+            <Frame region="FarmerTemplate 34"/>
+            <Frame region="FarmerTemplate 35"/>
+            <Frame region="FarmerTemplate 36"/>
+        </Animation>
+        <Animation name="work-left" delay="200">
+            <Frame region="FarmerTemplate 37"/>
+            <Frame region="FarmerTemplate 38"/>
+            <Frame region="FarmerTemplate 39"/>
+        </Animation>
+    </Animations>
+</TextureAtlas>

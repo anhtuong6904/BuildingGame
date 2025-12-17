@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <SourceFile>d:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/punyworld-overworld-tileset.png</SourceFile>
+  <SourceTime>2024-01-12T10:23:22.1806902+07:00</SourceTime>
+  <DestFile>d:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/bin/DesktopGL/Images/punyworld-overworld-tileset.xnb</DestFile>
+  <DestTime>2025-12-17T17:33:59.8828861+07:00</DestTime>
+  <Importer>TextureImporter</Importer>
+  <ImporterTime>2025-10-20T21:25:32+07:00</ImporterTime>
+  <Processor>TextureProcessor</Processor>
+  <ProcessorTime>2025-10-20T21:25:32+07:00</ProcessorTime>
+  <Parameters>
+    <Key>ColorKeyColor</Key>
+    <Value>255,0,255,255</Value>
+  </Parameters>
+  <Parameters>
+    <Key>ColorKeyEnabled</Key>
+    <Value>True</Value>
+  </Parameters>
+  <Parameters>
+    <Key>GenerateMipmaps</Key>
+    <Value>False</Value>
+  </Parameters>
+  <Parameters>
+    <Key>PremultiplyAlpha</Key>
+    <Value>True</Value>
+  </Parameters>
+  <Parameters>
+    <Key>ResizeToPowerOfTwo</Key>
+    <Value>False</Value>
+  </Parameters>
+  <Parameters>
+    <Key>MakeSquare</Key>
+    <Value>False</Value>
+  </Parameters>
+  <Parameters>
+    <Key>TextureFormat</Key>
+    <Value>Color</Value>
+  </Parameters>
+  <Dependencies />
+  <BuildAsset />
+  <BuildOutput />
+</PipelineBuildEvent>

@@ -1,0 +1,236 @@
+<?xml version='1.0' encoding='utf-8'?>
+<TextureAtlas>
+    <Texture>images/Pawn_Blue</Texture>
+        <Regions>
+            <Region name="Pawn_Blue #Original.aseprite" x="0" y="0" width="58" height="59" offsetX="30" offsetY="20" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Village_Idle 0.aseprite" x="0" y="59" width="58" height="59" offsetX="30" offsetY="20" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Village_Idle 1.aseprite" x="58" y="59" width="58" height="57" offsetX="29" offsetY="22" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Village_Idle 2.aseprite" x="116" y="59" width="58" height="56" offsetX="29" offsetY="23" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Village_Idle 3.aseprite" x="174" y="59" width="58" height="57" offsetX="30" offsetY="22" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Village_Idle 4.aseprite" x="232" y="59" width="58" height="58" offsetX="31" offsetY="21" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Village_Idle 5.aseprite" x="290" y="59" width="58" height="59" offsetX="31" offsetY="20" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #VIllage_Run 0.aseprite" x="0" y="118" width="58" height="60" offsetX="28" offsetY="19" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #VIllage_Run 1.aseprite" x="58" y="118" width="58" height="59" offsetX="29" offsetY="20" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #VIllage_Run 2.aseprite" x="116" y="118" width="58" height="55" offsetX="30" offsetY="24" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #VIllage_Run 3.aseprite" x="174" y="118" width="62" height="60" offsetX="29" offsetY="19" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #VIllage_Run 4.aseprite" x="236" y="118" width="59" height="59" offsetX="30" offsetY="20" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #VIllage_Run 5.aseprite" x="295" y="118" width="58" height="55" offsetX="30" offsetY="24" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Village_Build 0.aseprite" x="0" y="178" width="65" height="75" offsetX="27" offsetY="4" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Village_Build 1.aseprite" x="65" y="178" width="65" height="77" offsetX="26" offsetY="2" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Village_Build 2.aseprite" x="130" y="178" width="65" height="77" offsetX="26" offsetY="2" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Village_Build 3.aseprite" x="195" y="178" width="92" height="66" offsetX="27" offsetY="13" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Village_Build 4.aseprite" x="287" y="178" width="89" height="56" offsetX="28" offsetY="23" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Village_Build 5.aseprite" x="376" y="178" width="76" height="58" offsetX="33" offsetY="21" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Village_Chop 0.aseprite" x="0" y="255" width="81" height="60" offsetX="6" offsetY="19" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Village_Chop 1.aseprite" x="81" y="255" width="88" height="64" offsetX="0" offsetY="15" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Village_Chop 2.aseprite" x="169" y="255" width="88" height="64" offsetX="0" offsetY="15" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Village_Chop 3.aseprite" x="257" y="255" width="110" height="54" offsetX="16" offsetY="25" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Village_Chop 4.aseprite" x="367" y="255" width="99" height="56" offsetX="26" offsetY="23" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Village_Chop 5.aseprite" x="466" y="255" width="69" height="66" offsetX="22" offsetY="21" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Village_CarryIdle 0.aseprite" x="0" y="321" width="58" height="60" offsetX="30" offsetY="19" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Village_CarryIdle 1.aseprite" x="58" y="321" width="58" height="59" offsetX="29" offsetY="20" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Village_CarryIdle 2.aseprite" x="116" y="321" width="58" height="58" offsetX="29" offsetY="21" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Village_CarryIdle 3.aseprite" x="174" y="321" width="58" height="57" offsetX="30" offsetY="22" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Village_CarryIdle 4.aseprite" x="232" y="321" width="58" height="58" offsetX="31" offsetY="21" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Village_CarryIdle 5.aseprite" x="290" y="321" width="58" height="59" offsetX="31" offsetY="20" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #VIllage_CarryRun 0.aseprite" x="0" y="381" width="58" height="60" offsetX="28" offsetY="19" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #VIllage_CarryRun 1.aseprite" x="58" y="381" width="58" height="60" offsetX="29" offsetY="19" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #VIllage_CarryRun 2.aseprite" x="116" y="381" width="58" height="56" offsetX="30" offsetY="23" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #VIllage_CarryRun 3.aseprite" x="174" y="381" width="58" height="60" offsetX="32" offsetY="19" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #VIllage_CarryRun 4.aseprite" x="232" y="381" width="58" height="60" offsetX="31" offsetY="19" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #VIllage_CarryRun 5.aseprite" x="290" y="381" width="58" height="56" offsetX="30" offsetY="23" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Fisher_Cast 0.aseprite" x="0" y="441" width="71" height="59" offsetX="17" offsetY="20" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Fisher_Cast 1.aseprite" x="71" y="441" width="70" height="59" offsetX="17" offsetY="20" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Fisher_Cast 2.aseprite" x="141" y="441" width="70" height="59" offsetX="17" offsetY="20" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Fisher_Cast 3.aseprite" x="211" y="441" width="96" height="57" offsetX="17" offsetY="22" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Fisher_Cast 4.aseprite" x="307" y="441" width="82" height="58" offsetX="31" offsetY="21" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Fisher_Cast 5.aseprite" x="389" y="441" width="71" height="65" offsetX="31" offsetY="20" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Fisher_Wait 0.aseprite" x="0" y="506" width="72" height="65" offsetX="30" offsetY="20" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Fisher_Wait 1.aseprite" x="72" y="506" width="70" height="61" offsetX="29" offsetY="22" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Fisher_Wait 2.aseprite" x="142" y="506" width="69" height="59" offsetX="29" offsetY="23" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Fisher_Wait 3.aseprite" x="211" y="506" width="69" height="61" offsetX="30" offsetY="22" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Fisher_Wait 4.aseprite" x="280" y="506" width="68" height="62" offsetX="31" offsetY="21" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Fisher_Wait 5.aseprite" x="348" y="506" width="70" height="67" offsetX="31" offsetY="20" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Fisher_Hold 0.aseprite" x="0" y="573" width="70" height="60" offsetX="29" offsetY="23" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Fisher_Hold 1.aseprite" x="70" y="573" width="69" height="61" offsetX="30" offsetY="22" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Fisher_Drag 0.aseprite" x="0" y="634" width="89" height="62" offsetX="31" offsetY="21" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Fisher_Drag 1.aseprite" x="89" y="634" width="89" height="62" offsetX="31" offsetY="21" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Fisher_Drag 2.aseprite" x="178" y="634" width="89" height="77" offsetX="31" offsetY="6" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Fisher_Drag 3.aseprite" x="267" y="634" width="89" height="78" offsetX="31" offsetY="5" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Fisher_Idle 0.aseprite" x="0" y="712" width="67" height="59" offsetX="30" offsetY="20" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Fisher_Idle 1.aseprite" x="67" y="712" width="68" height="57" offsetX="29" offsetY="22" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Fisher_Idle 2.aseprite" x="135" y="712" width="68" height="56" offsetX="29" offsetY="23" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Fisher_Idle 3.aseprite" x="203" y="712" width="67" height="57" offsetX="30" offsetY="22" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Fisher_Idle 4.aseprite" x="270" y="712" width="66" height="58" offsetX="31" offsetY="21" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Fisher_Idle 5.aseprite" x="336" y="712" width="66" height="59" offsetX="31" offsetY="20" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Fisher_Run 0.aseprite" x="0" y="771" width="63" height="60" offsetX="28" offsetY="19" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Fisher_Run 1.aseprite" x="63" y="771" width="70" height="59" offsetX="29" offsetY="20" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Fisher_Run 2.aseprite" x="133" y="771" width="82" height="55" offsetX="30" offsetY="24" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Fisher_Run 3.aseprite" x="215" y="771" width="83" height="60" offsetX="29" offsetY="19" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Fisher_Run 4.aseprite" x="298" y="771" width="69" height="59" offsetX="30" offsetY="20" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Fisher_Run 5.aseprite" x="367" y="771" width="81" height="55" offsetX="30" offsetY="24" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Farmer_Idle 0.aseprite" x="0" y="831" width="71" height="61" offsetX="23" offsetY="18" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Farmer_Idle 1.aseprite" x="71" y="831" width="71" height="56" offsetX="23" offsetY="23" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Farmer_Idle 2.aseprite" x="142" y="831" width="69" height="56" offsetX="21" offsetY="23" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Farmer_Idle 3.aseprite" x="211" y="831" width="71" height="57" offsetX="24" offsetY="22" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Farmer_Idle 4.aseprite" x="282" y="831" width="70" height="60" offsetX="23" offsetY="19" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Farmer_Idle 5.aseprite" x="352" y="831" width="71" height="61" offsetX="23" offsetY="18" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Farmer_Run 0.aseprite" x="0" y="892" width="71" height="63" offsetX="22" offsetY="16" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Farmer_Run 1.aseprite" x="71" y="892" width="71" height="60" offsetX="24" offsetY="19" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Farmer_Run 2.aseprite" x="142" y="892" width="69" height="56" offsetX="21" offsetY="23" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Farmer_Run 3.aseprite" x="211" y="892" width="71" height="60" offsetX="25" offsetY="19" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Farmer_Run 4.aseprite" x="282" y="892" width="70" height="60" offsetX="23" offsetY="19" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Farmer_Run 5.aseprite" x="352" y="892" width="71" height="61" offsetX="23" offsetY="18" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Farmer_Work 0.aseprite" x="0" y="955" width="71" height="65" offsetX="23" offsetY="14" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Farmer_Work 1.aseprite" x="71" y="955" width="71" height="65" offsetX="23" offsetY="14" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Farmer_Work 2.aseprite" x="142" y="955" width="69" height="65" offsetX="21" offsetY="14" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Farmer_Work 3.aseprite" x="211" y="955" width="71" height="86" offsetX="24" offsetY="0" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Farmer_Work 4.aseprite" x="282" y="955" width="70" height="67" offsetX="23" offsetY="19" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Farmer_Work 5.aseprite" x="352" y="955" width="71" height="61" offsetX="23" offsetY="18" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Farmer_Collect 0.aseprite" x="0" y="1041" width="93" height="61" offsetX="1" offsetY="18" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Farmer_Collect 1.aseprite" x="93" y="1041" width="94" height="60" offsetX="0" offsetY="19" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Farmer_Collect 2.aseprite" x="187" y="1041" width="90" height="60" offsetX="0" offsetY="19" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Farmer_Collect 3.aseprite" x="277" y="1041" width="110" height="57" offsetX="16" offsetY="22" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Farmer_Collect 4.aseprite" x="387" y="1041" width="102" height="60" offsetX="23" offsetY="19" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Farmer_Collect 5.aseprite" x="489" y="1041" width="77" height="70" offsetX="17" offsetY="18" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Farmer_Irrigate 0.aseprite" x="0" y="1111" width="97" height="65" offsetX="23" offsetY="18" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Farmer_Irrigate 1.aseprite" x="97" y="1111" width="97" height="60" offsetX="23" offsetY="23" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Farmer_Irrigate 2.aseprite" x="194" y="1111" width="99" height="60" offsetX="21" offsetY="23" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Farmer_Irrigate 3.aseprite" x="293" y="1111" width="96" height="61" offsetX="24" offsetY="22" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Farmer_Irrigate 4.aseprite" x="389" y="1111" width="97" height="64" offsetX="23" offsetY="19" sourceWidth="126" sourceHeight="88" />
+            <Region name="Pawn_Blue #Farmer_Irrigate 5.aseprite" x="486" y="1111" width="97" height="65" offsetX="23" offsetY="18" sourceWidth="126" sourceHeight="88" />
+        </Regions>
+        <Animations>
+            <Animation name="Original" delay="100">
+                <Frame region="Pawn_Blue #Original.aseprite" />
+            </Animation>
+            <Animation name="Village_Idle" delay="100">
+                <Frame region="Pawn_Blue #Village_Idle 0.aseprite" />
+                <Frame region="Pawn_Blue #Village_Idle 1.aseprite" />
+                <Frame region="Pawn_Blue #Village_Idle 2.aseprite" />
+                <Frame region="Pawn_Blue #Village_Idle 3.aseprite" />
+                <Frame region="Pawn_Blue #Village_Idle 4.aseprite" />
+                <Frame region="Pawn_Blue #Village_Idle 5.aseprite" />
+            </Animation>
+            <Animation name="VIllage_Run" delay="100">
+                <Frame region="Pawn_Blue #VIllage_Run 0.aseprite" />
+                <Frame region="Pawn_Blue #VIllage_Run 1.aseprite" />
+                <Frame region="Pawn_Blue #VIllage_Run 2.aseprite" />
+                <Frame region="Pawn_Blue #VIllage_Run 3.aseprite" />
+                <Frame region="Pawn_Blue #VIllage_Run 4.aseprite" />
+                <Frame region="Pawn_Blue #VIllage_Run 5.aseprite" />
+            </Animation>
+            <Animation name="Village_Build" delay="100">
+                <Frame region="Pawn_Blue #Village_Build 0.aseprite" />
+                <Frame region="Pawn_Blue #Village_Build 1.aseprite" />
+                <Frame region="Pawn_Blue #Village_Build 2.aseprite" />
+                <Frame region="Pawn_Blue #Village_Build 3.aseprite" />
+                <Frame region="Pawn_Blue #Village_Build 4.aseprite" />
+                <Frame region="Pawn_Blue #Village_Build 5.aseprite" />
+            </Animation>
+            <Animation name="Village_Chop" delay="100">
+                <Frame region="Pawn_Blue #Village_Chop 0.aseprite" />
+                <Frame region="Pawn_Blue #Village_Chop 1.aseprite" />
+                <Frame region="Pawn_Blue #Village_Chop 2.aseprite" />
+                <Frame region="Pawn_Blue #Village_Chop 3.aseprite" />
+                <Frame region="Pawn_Blue #Village_Chop 4.aseprite" />
+                <Frame region="Pawn_Blue #Village_Chop 5.aseprite" />
+            </Animation>
+            <Animation name="Village_CarryIdle" delay="100">
+                <Frame region="Pawn_Blue #Village_CarryIdle 0.aseprite" />
+                <Frame region="Pawn_Blue #Village_CarryIdle 1.aseprite" />
+                <Frame region="Pawn_Blue #Village_CarryIdle 2.aseprite" />
+                <Frame region="Pawn_Blue #Village_CarryIdle 3.aseprite" />
+                <Frame region="Pawn_Blue #Village_CarryIdle 4.aseprite" />
+                <Frame region="Pawn_Blue #Village_CarryIdle 5.aseprite" />
+            </Animation>
+            <Animation name="VIllage_CarryRun" delay="100">
+                <Frame region="Pawn_Blue #VIllage_CarryRun 0.aseprite" />
+                <Frame region="Pawn_Blue #VIllage_CarryRun 1.aseprite" />
+                <Frame region="Pawn_Blue #VIllage_CarryRun 2.aseprite" />
+                <Frame region="Pawn_Blue #VIllage_CarryRun 3.aseprite" />
+                <Frame region="Pawn_Blue #VIllage_CarryRun 4.aseprite" />
+                <Frame region="Pawn_Blue #VIllage_CarryRun 5.aseprite" />
+            </Animation>
+            <Animation name="Fisher_Cast" delay="100">
+                <Frame region="Pawn_Blue #Fisher_Cast 0.aseprite" />
+                <Frame region="Pawn_Blue #Fisher_Cast 1.aseprite" />
+                <Frame region="Pawn_Blue #Fisher_Cast 2.aseprite" />
+                <Frame region="Pawn_Blue #Fisher_Cast 3.aseprite" />
+                <Frame region="Pawn_Blue #Fisher_Cast 4.aseprite" />
+                <Frame region="Pawn_Blue #Fisher_Cast 5.aseprite" />
+            </Animation>
+            <Animation name="Fisher_Wait" delay="100">
+                <Frame region="Pawn_Blue #Fisher_Wait 0.aseprite" />
+                <Frame region="Pawn_Blue #Fisher_Wait 1.aseprite" />
+                <Frame region="Pawn_Blue #Fisher_Wait 2.aseprite" />
+                <Frame region="Pawn_Blue #Fisher_Wait 3.aseprite" />
+                <Frame region="Pawn_Blue #Fisher_Wait 4.aseprite" />
+                <Frame region="Pawn_Blue #Fisher_Wait 5.aseprite" />
+            </Animation>
+            <Animation name="Fisher_Hold" delay="100">
+                <Frame region="Pawn_Blue #Fisher_Hold 0.aseprite" />
+                <Frame region="Pawn_Blue #Fisher_Hold 1.aseprite" />
+            </Animation>
+            <Animation name="Fisher_Drag" delay="100">
+                <Frame region="Pawn_Blue #Fisher_Drag 0.aseprite" />
+                <Frame region="Pawn_Blue #Fisher_Drag 1.aseprite" />
+                <Frame region="Pawn_Blue #Fisher_Drag 2.aseprite" />
+                <Frame region="Pawn_Blue #Fisher_Drag 3.aseprite" />
+            </Animation>
+            <Animation name="Fisher_Idle" delay="100">
+                <Frame region="Pawn_Blue #Fisher_Idle 0.aseprite" />
+                <Frame region="Pawn_Blue #Fisher_Idle 1.aseprite" />
+                <Frame region="Pawn_Blue #Fisher_Idle 2.aseprite" />
+                <Frame region="Pawn_Blue #Fisher_Idle 3.aseprite" />
+                <Frame region="Pawn_Blue #Fisher_Idle 4.aseprite" />
+                <Frame region="Pawn_Blue #Fisher_Idle 5.aseprite" />
+            </Animation>
+            <Animation name="Fisher_Run" delay="100">
+                <Frame region="Pawn_Blue #Fisher_Run 0.aseprite" />
+                <Frame region="Pawn_Blue #Fisher_Run 1.aseprite" />
+                <Frame region="Pawn_Blue #Fisher_Run 2.aseprite" />
+                <Frame region="Pawn_Blue #Fisher_Run 3.aseprite" />
+                <Frame region="Pawn_Blue #Fisher_Run 4.aseprite" />
+                <Frame region="Pawn_Blue #Fisher_Run 5.aseprite" />
+            </Animation>
+            <Animation name="Farmer_Idle" delay="100">
+                <Frame region="Pawn_Blue #Farmer_Idle 0.aseprite" />
+                <Frame region="Pawn_Blue #Farmer_Idle 1.aseprite" />
+                <Frame region="Pawn_Blue #Farmer_Idle 2.aseprite" />
+                <Frame region="Pawn_Blue #Farmer_Idle 3.aseprite" />
+                <Frame region="Pawn_Blue #Farmer_Idle 4.aseprite" />
+                <Frame region="Pawn_Blue #Farmer_Idle 5.aseprite" />
+            </Animation>
+            <Animation name="Farmer_Run" delay="100">
+                <Frame region="Pawn_Blue #Farmer_Run 0.aseprite" />
+                <Frame region="Pawn_Blue #Farmer_Run 1.aseprite" />
+                <Frame region="Pawn_Blue #Farmer_Run 2.aseprite" />
+                <Frame region="Pawn_Blue #Farmer_Run 3.aseprite" />
+                <Frame region="Pawn_Blue #Farmer_Run 4.aseprite" />
+                <Frame region="Pawn_Blue #Farmer_Run 5.aseprite" />
+            </Animation>
+            <Animation name="Farmer_Work" delay="100">
+                <Frame region="Pawn_Blue #Farmer_Work 0.aseprite" />
+                <Frame region="Pawn_Blue #Farmer_Work 1.aseprite" />
+                <Frame region="Pawn_Blue #Farmer_Work 2.aseprite" />
+                <Frame region="Pawn_Blue #Farmer_Work 3.aseprite" />
+                <Frame region="Pawn_Blue #Farmer_Work 4.aseprite" />
+                <Frame region="Pawn_Blue #Farmer_Work 5.aseprite" />
+            </Animation>
+            <Animation name="Farmer_Collect" delay="100">
+                <Frame region="Pawn_Blue #Farmer_Collect 0.aseprite" />
+                <Frame region="Pawn_Blue #Farmer_Collect 1.aseprite" />
+                <Frame region="Pawn_Blue #Farmer_Collect 2.aseprite" />
+                <Frame region="Pawn_Blue #Farmer_Collect 3.aseprite" />
+                <Frame region="Pawn_Blue #Farmer_Collect 4.aseprite" />
+                <Frame region="Pawn_Blue #Farmer_Collect 5.aseprite" />
+            </Animation>
+            <Animation name="Farmer_Irrigate" delay="100">
+                <Frame region="Pawn_Blue #Farmer_Irrigate 0.aseprite" />
+                <Frame region="Pawn_Blue #Farmer_Irrigate 1.aseprite" />
+                <Frame region="Pawn_Blue #Farmer_Irrigate 2.aseprite" />
+                <Frame region="Pawn_Blue #Farmer_Irrigate 3.aseprite" />
+                <Frame region="Pawn_Blue #Farmer_Irrigate 4.aseprite" />
+                <Frame region="Pawn_Blue #Farmer_Irrigate 5.aseprite" />
+            </Animation></Animations></TextureAtlas>
