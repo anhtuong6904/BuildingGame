@@ -16,31 +16,50 @@ namespace TribeBuild.Entity.Resource
 
     public class Mine : Entity, IPosition
     {
-        /// <summary>
-        /// các thuộc tính của cớ chế mining    
-        /// </summary>
-        public int MaxWorkers {get; private set;} // luong NPC co the lam viec ben trong mo 
-        public float MiningDuration{get; private set;} //thoi gian mining 1 lan
+        public int MaxWorkers { get; private set; }
+        public float MiningDuration { get; private set; }
+        public List<MineWorker> CurrentWorkers { get; private set; }
+        public Vector2 EntrancePosition { get; private set; }
+        public Rectangle WorkArea { get; private set; }
 
-        //worker management
-        public List<MineWorker> CurrentWorkers{get; private set;}
-
-        public Vector2 EntrancePosition {get; private set;}
-        public Rectangle WorkArea {get; private set;}
-
-        //lootTable
         private LootTable lootTable;
         private Random random = new Random();
 
-        public Mine (int id, Vector2 pos, Sprite sprite = null) : base(id, pos)
+        public Mine(int id, Vector2 pos, Sprite sprite = null) : base(id, pos)
         {
             Sprite = sprite;
-            MaxWorkers = 4; //tối đa 4 người khai thác mỏ;
-            MiningDuration = 10f; //10s mỗi lần khai thác;
+            MaxWorkers = 4;
+            MiningDuration = 10f;
             CurrentWorkers = new List<MineWorker>();
-            WorkArea = Sprite._region.Bound;
-            EntrancePosition = new Vector2((int)WorkArea.Width / 3 , (int) WorkArea.Height); 
-            Collider = new Rectangle (WorkArea.X + 8, WorkArea.Y + 8, WorkArea.Width - 16, WorkArea.Height - 16);
+            
+            // FIXED: Setup work area and collider properly
+            if (sprite != null)
+            {
+                WorkArea = new Rectangle(
+                    (int)pos.X,
+                    (int)pos.Y,
+                    (int)sprite.Width,
+                    (int)sprite.Height
+                );
+                
+                EntrancePosition = new Vector2(
+                    pos.X + sprite.Width / 3,
+                    pos.Y + sprite.Height
+                );
+                
+                Collider = new Rectangle(
+                    (int)pos.X + 8,
+                    (int)pos.Y + 8,
+                    (int)sprite.Width - 16,
+                    (int)sprite.Height - 16
+                );
+            }
+            else
+            {
+                WorkArea = new Rectangle((int)pos.X, (int)pos.Y, 64, 64);
+                EntrancePosition = pos + new Vector2(20, 64);
+                Collider = new Rectangle((int)pos.X, (int)pos.Y, 64, 64);
+            }
 
             SetupLootTable();
         }
@@ -48,25 +67,27 @@ namespace TribeBuild.Entity.Resource
         private void SetupLootTable()
         {
             lootTable = new LootTable();
-            lootTable.AddEntry ("Stone", 3, 5, 1f);
-            lootTable.AddEntry ("Coal", 1, 3, 0.5f );
-            lootTable.AddEntry ("Bronze Ore", 1, 1, 0.3f);
-            lootTable.AddEntry ("Iron Ore", 1, 1 ,0.2f);
-            lootTable.AddEntry ("Gold Ore", 1, 1, 0.1f);
-            lootTable.AddEntry ("Ruby", 1, 1, 0.05f);
-            lootTable.AddEntry ("Emerald", 1, 1, 0.01f);
-            lootTable.AddEntry ("Diamond", 1, 1, 0.02f);
+            lootTable.AddEntry("Stone", 3, 5, 1f);
+            lootTable.AddEntry("Coal", 1, 3, 0.5f);
+            lootTable.AddEntry("Bronze Ore", 1, 1, 0.3f);
+            lootTable.AddEntry("Iron Ore", 1, 1, 0.2f);
+            lootTable.AddEntry("Gold Ore", 1, 1, 0.1f);
+            lootTable.AddEntry("Ruby", 1, 1, 0.05f);
+            lootTable.AddEntry("Emerald", 1, 1, 0.01f);
+            lootTable.AddEntry("Diamond", 1, 1, 0.02f);
         }
+
         public override void Update(GameTime gameTime)
         {
             if (!IsActive || CurrentWorkers.Count == 0)
-            {
                 return;
-            }
-            for(int i = CurrentWorkers.Count; i >= 0; i--)
+            
+            // FIXED: Loop backwards properly
+            for (int i = CurrentWorkers.Count - 1; i >= 0; i--)
             {
                 var worker = CurrentWorkers[i];
                 worker.Update(gameTime);
+                
                 if (!worker.IsWorking)
                 {
                     CurrentWorkers.RemoveAt(i);
@@ -76,30 +97,36 @@ namespace TribeBuild.Entity.Resource
 
         public override void Draw(SpriteBatch spriteBatch, GameTime gameTime)
         {
-            if(!IsActive) return;
-            base.Draw(spriteBatch, gameTime);
+            if (!IsActive) return;
+            
+            // Draw mine sprite
+            if (Sprite != null)
+            {
+                Sprite.Draw(spriteBatch, Position);
+            }
+            
             DrawWorkerInfo(spriteBatch);
-            foreach(var worker in CurrentWorkers)
+            
+            foreach (var worker in CurrentWorkers)
             {
                 worker.Draw(spriteBatch);
             }
         }
+
         public void DrawWorkerInfo(SpriteBatch spriteBatch)
         {
-            // hien thong tin của mo
+            // TODO: Display worker count indicator
         }
-        public bool StartMining(NPC.NPCBody NPC)
+
+        public bool StartMining(NPCBody npc)
         {
             if (CurrentWorkers.Count >= MaxWorkers)
-            {
-                return false; // Mine is full
-            }
+                return false;
             
-            var worker = new MineWorker(NPC, this, MiningDuration);
+            var worker = new MineWorker(npc, this, MiningDuration);
             CurrentWorkers.Add(worker);
             
-            // Move NPC to entrance
-            NPC.MoveTo(EntrancePosition);
+            npc.MoveTo(EntrancePosition);
             
             return true;
         }

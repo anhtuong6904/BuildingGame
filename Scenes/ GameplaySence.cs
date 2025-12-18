@@ -7,6 +7,7 @@ using MonoGameLibrary.Graphics;
 using MonoGameLibrary.Scenes;
 using MonoGameLibrary.Input;
 using TribeBuild;
+using MonoGameLibrary.PathFinding;
 
 namespace TribeBuild.Scenes
 {
@@ -45,7 +46,8 @@ namespace TribeBuild.Scenes
             tilemap = Tilemap.FromFile(
                 Core.Content, 
                 "Images/samplemap5.tmx", 
-                "Images/punyworld-overworld-tiles.xml"
+                "Images/punyworld-overworld-tiles.xml",
+                waterTileIdStart: 260
             );
             tilemap.FitToWindow(Core.GraphicsDevice.Viewport.Width, Core.GraphicsDevice.Viewport.Height);
             
@@ -82,8 +84,13 @@ namespace TribeBuild.Scenes
             
             // Initialize GameManager with tilemap
             gameManager = new GameManager(tilemap);
-            gameManager.Initialize(tilemap.MapWidthInPixels, tilemap.MapHeightInPixels);
+            gameManager.Initialize((int)tilemap.ScaleMapWidth, (int)tilemap.ScaleMapHeight);
             gameWorld = gameManager.World;
+
+            gameWorld.SyncPathfinderWithTilemap(tilemap, gameWorld.Pathfinder);
+            
+
+
             
             // Set world reference for all NPCs
             foreach (var npc in gameWorld.GetEntitiesOfType<Entity.NPC.NPCBody>())

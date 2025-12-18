@@ -6,29 +6,33 @@ using MonoGameLibrary.Spatial;
 
 namespace TribeBuild.Entity.Resource
 {
-
     public enum TreeType
     {
         Oak,
-        other,
-    };
+        Other,
+    }
 
-    public enum TreeState
-    {
-        baseState,
-        stump,
-    };
 
-    public class Tree : ResourceEntity,IPosition
+    public class Tree : ResourceEntity, IPosition
     {   
-        public TreeType treeType {get; private set;}
-
-        public Sprite spirteRoot {get; private set;}
+        public TreeType treeType { get; private set; }
+        public Sprite spriteRoot { get; set; }
+        private Vector2 Scale;
         
-        public Tree (int id, Vector2 pos, TreeType Type = TreeType.Oak, Sprite sprite = null) : base(id, pos, ResourceType.Tree)
+        public Tree(int id, Vector2 pos, Vector2 scale, TreeType type = TreeType.Oak, TextureAtlas atlas = null) 
+            : base(id, pos, ResourceType.Tree, atlas)
         {
-            treeType = Type;
-            Sprite = sprite;
+            treeType = type;
+            Scale = scale;
+
+            // Load sprites from atlas if available
+            if (atlas != null)
+            {
+                Sprite = atlas.CreateSprite("Sprite-0001 1");   
+                Sprite._scale = Scale;     // Tree sprite
+                spriteRoot = atlas.CreateSprite("Sprite-0001 0");    // Stump sprite
+                spriteRoot._scale = Scale;
+            }
 
             switch (treeType) 
             {
@@ -36,54 +40,65 @@ namespace TribeBuild.Entity.Resource
                     MaxHealth = 100f;
                     YieldAmount = 5;
                     YieldItem = "wood";
-                    RespawnTime = 120f; // 2 minutes
+                    RespawnTime = 120f;
+                    CanRespawn = false;  // Trees don't respawn by default
                     break;
-                // case TreeType.other:
-                //      MaxHealth = 100f;
-                //     YieldAmount = 5;
-                //     YieldItem = "wood";
-                //     RespawnTime = 120f; // 2 minutes
-                //     break;
             }
-            if (sprite != null)
+            
+            Health = MaxHealth;
+            
+            // Setup collider at world coordinates
+            if (Sprite != null)
             {
+                int offsetX = (int)Sprite.Width / 3;
+                int offsetY = (int)Sprite.Height * 2 / 3;
+                int width = (int)Sprite.Width / 3;
+                int height = (int)Sprite.Height / 3;
+                
                 Collider = new Rectangle(
-                    (int)sprite.Width / 3,
-                    (int)sprite.Height * 2 / 3,
-                    (int)sprite.Width / 3,
-                    (int)sprite.Height / 3
+                    (int)pos.X + offsetX,
+                    (int)pos.Y + offsetY,
+                    width,
+                    height
                 );
             }
             else
             {
-                Collider  = new Rectangle(0, 0, 32, 48);
-            }            
+                Collider = new Rectangle((int)pos.X, (int)pos.Y, 32, 48);
+            }
         }
 
         public override void Draw(SpriteBatch spriteBatch, GameTime gameTime)
         {
-            if (Health < 10f)
+            // Don't draw if completely destroyed
+            if (!IsActive && Health <= 0)
             {
-                // Draw stump if depleted
-                DrawStump(spriteBatch);
+                if (CanRespawn && spriteRoot != null)
+                {
+                    DrawStump(spriteBatch);
+                }
                 return;
             }
-            if(Health <= 0)
+            
+            // Draw tree sprite
+            if (Sprite != null && IsActive)
             {
-                Destroy();
-                return;
+                Sprite.Draw(spriteBatch, Position);
             }
-            base.Draw(spriteBatch);
-            if (IsBeingHarvested)
+            
+            // Draw health bar if being harvested
+            if (IsBeingHarvested && Health < MaxHealth)
             {
-                
                 DrawHealthBar(spriteBatch);
             }
         }
 
-        public void DrawStump(SpriteBatch spriteBatch)
+        private void DrawStump(SpriteBatch spriteBatch)
         {
-           spirteRoot.Draw(spriteBatch, Position);
+            if (spriteRoot != null)
+            {
+                spriteRoot.Draw(spriteBatch, Position);
+            }
         }
 
         private void DrawHealthBar(SpriteBatch spriteBatch)
@@ -91,15 +106,18 @@ namespace TribeBuild.Entity.Resource
             float healthPercent = Health / MaxHealth; 
             int barWidth = 40;
             int barHeight = 4;
-            int barX = (int) (Position.X + (Collider.Width + barWidth) / 2);
-            int barY = (int) (Position.Y - 10);
+            int barX = (int)Position.X - barWidth / 2;
+            int barY = (int)Position.Y - 20;
 
-            var whitePixel = new Texture2D(Core.GraphicsDevice, barWidth, barHeight);
+            var whitePixel = new Texture2D(Core.GraphicsDevice, 1, 1);
+            whitePixel.SetData(new[] { Color.White });
+            
+            // Background (red)
             var bgRect = new Rectangle(barX, barY, barWidth, barHeight);
-
             spriteBatch.Draw(whitePixel, bgRect, Color.Red);
 
-            var fgRect = new Rectangle(barX, barY, (int) (barWidth * healthPercent), barHeight);
+            // Foreground (green)
+            var fgRect = new Rectangle(barX, barY, (int)(barWidth * healthPercent), barHeight);
             spriteBatch.Draw(whitePixel, fgRect, Color.Green);
         }
     }

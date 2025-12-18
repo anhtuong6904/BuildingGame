@@ -11,13 +11,39 @@ namespace TribeBuild.Entity.NPC.Animals
     /// </summary>
     public class PassiveAnimal : AnimalEntity
     {
-        private float grazeTimer = 0f;
-        private float grazeDuration = 3f;
+        private Vector2 Scale;
+        private AnimalState lastState;
+        private static readonly Random rng = new Random();
 
-        public PassiveAnimal(int id, Vector2 pos, AnimalType type, TextureAtlas atlas) 
+        // Walk system
+        private Vector2? currentWanderTarget = null;
+        private float wanderPauseTimer = 0f;
+        private const float MIN_WANDER_DISTANCE = 30f;
+        private const float MAX_WANDER_DISTANCE = 80f;
+        private const float MIN_PAUSE_TIME = 2f;
+        private const float MAX_PAUSE_TIME = 5f;
+        private Direction lastDirection;
+
+
+        private float territoryRadius = 250f;
+        private BehaviorTree behaviorTree;
+        private BehaviorContext behaviorContext;
+        
+
+        // Grazing
+
+        private float grazeTimer = 0f;
+        private const float GRAZE_DURATION = 3f;
+
+        // AI tick
+        private float aiTickTimer = 0f;
+        private const float AI_TICK_INTERVAL = 0.4f;
+
+        public PassiveAnimal(int id, Vector2 pos, AnimalType type, TextureAtlas atlas, Vector2 scale)
             : base(id, pos, type, atlas)
         {
             IsAggressive = false;
+            Scale = scale;
 
             // Setup stats based on type
             switch (type)
@@ -45,6 +71,7 @@ namespace TribeBuild.Entity.NPC.Animals
 
             // Load initial animation
             AnimatedSprite = GetAnimatedSprite(GetAnimationName());
+            AnimatedSprite._scale = Scale;
 
             // Set collider based on sprite
             if (AnimatedSprite != null)
@@ -62,6 +89,11 @@ namespace TribeBuild.Entity.NPC.Animals
             }
 
             InitializeBehaviorTree();
+            InitializeBehaviorTree();
+                behaviorContext = new BehaviorContext(
+                target: this,
+                gameTime: null // sẽ set lại mỗi frame
+            );
 
             //GameLogger.Instance?.Debug("Animal", $"Created {type} at ({pos.X:F0}, {pos.Y:F0})");
         }
@@ -74,20 +106,102 @@ namespace TribeBuild.Entity.NPC.Animals
                 .Selector($"{Type} Behavior")
                     // 1. FLEE from threats
                     .Sequence("Flee")
-                        .Condition(ctx => ThreatTarget != null, "Threat Detected?")
+                        .Condition(ctx => ThreatTarget != null && ThreatTarget.IsActive, "Threat Detected?")
                         .Action(FleeAction, "Run Away")
                     .End()
 
-                    // 2. GRAZE (eat grass)
-                    .Sequence("Graze")
-                        .Condition(ctx => !IsMoving(), "Standing Still?")
-                        .Action(GrazeAction, "Graze")
-                    .End()
-
-                    // 3. WANDER
+                    // 2. WANDER and occasionally graze
                     .Action(WanderAction, "Wander")
                 .End()
                 .Build($"{Type} Behavior Tree");
+        }
+
+        public override void Update(GameTime gameTime)
+        {
+            if (!IsActive) return;
+
+            
+
+            // 1. Update pause timer
+            if (wanderPauseTimer > 0f)
+            {
+                wanderPauseTimer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+            }
+
+            // 2. Update graze timer if idling
+            if (State == AnimalState.Idle && wanderPauseTimer > 0f)
+            {
+                grazeTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
+            }
+            else
+            {
+                grazeTimer = 0f;
+            }
+
+            // 3. Detect threats
+            if (ThreatTarget == null)
+            {
+                DetectThreats();
+            }
+
+            // 4. AI tick
+            aiTickTimer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+            if (aiTickTimer <= 0f)
+            {
+                context = new BehaviorContext(this, gameTime);
+                behaviorTree?.Tick(context);
+                aiTickTimer = AI_TICK_INTERVAL;
+            }
+
+            base.Update(gameTime);
+             UpdateAnimation();
+            AnimatedSprite?.Update(gameTime);
+
+        }
+
+        /// <summary>
+        /// Detect nearby threats (hunters, aggressive animals)
+        /// </summary>
+        private void DetectThreats()
+        {
+            var world = GameManager.Instance?.World;
+            if (world == null) return;
+
+            // Check for hunters
+            var npcs = world.GetEntitiesOfType<NPCBody>();
+            foreach (var npc in npcs)
+            {
+                if (!npc.IsActive) continue;
+
+                // Check if it's a hunter
+                if (npc.AI is HunterAI)
+                {
+                    float distance = Vector2.Distance(Position, npc.Position);
+                    if (distance <= detectionRange)
+                    {
+                        ThreatTarget = npc;
+                        currentWanderTarget = null;
+                        wanderPauseTimer = 0f;
+                        return;
+                    }
+                }
+            }
+
+            // Check for aggressive animals
+            var animals = world.GetEntitiesOfType<AggressiveAnimal>();
+            foreach (var animal in animals)
+            {
+                if (!animal.IsActive) continue;
+
+                float distance = Vector2.Distance(Position, animal.Position);
+                if (distance <= detectionRange)
+                {
+                    ThreatTarget = animal;
+                    currentWanderTarget = null;
+                    wanderPauseTimer = 0f;
+                    return;
+                }
+            }
         }
 
         private NodeState FleeAction(BehaviorContext ctx)
@@ -104,104 +218,134 @@ namespace TribeBuild.Entity.NPC.Animals
             Vector2 fleeDirection = Position - ThreatTarget.Position;
             float distance = fleeDirection.Length();
 
+            // Check if safe now
             if (distance > fleeDistance)
             {
-                // Safe now
                 ThreatTarget = null;
                 State = AnimalState.Idle;
                 UpdateAnimation();
                 return NodeState.Success;
             }
 
+            // Calculate flee target
             fleeDirection.Normalize();
             Vector2 fleeTarget = Position + fleeDirection * 150f;
 
             // Keep within wander area
-            if (Vector2.Distance(fleeTarget, SpawnPosition) > WanderRadius)
+            float distFromSpawn = Vector2.Distance(fleeTarget, SpawnPosition);
+            if (distFromSpawn > WanderRadius)
             {
-                fleeTarget = SpawnPosition;
+                // Flee towards spawn instead
+                Vector2 toSpawn = Vector2.Normalize(SpawnPosition - Position);
+                fleeTarget = Position + toSpawn * 100f;
             }
 
-            // Use pathfinding to flee
-            MoveToWithPathfinding(fleeTarget);
-            State = AnimalState.Fleeing;
-            UpdateAnimation();
-
-            return NodeState.Running;
-        }
-
-        private NodeState GrazeAction(BehaviorContext ctx)
-        {
-            grazeTimer += (float)ctx.GameTime.ElapsedGameTime.TotalSeconds;
-            State = AnimalState.Idle;
-            UpdateAnimation();
-
-            if (grazeTimer >= grazeDuration)
+            // Update path if not moving or close to current target
+            if (!IsMoving() || (currentWanderTarget.HasValue && 
+                Vector2.Distance(Position, currentWanderTarget.Value) < 20f))
             {
-                grazeTimer = 0f;
-                return NodeState.Success;
+                MoveToWithPathfinding(fleeTarget);
+                currentWanderTarget = fleeTarget;
             }
+
+            State = AnimalState.Walk;
+            UpdateAnimation();
 
             return NodeState.Running;
         }
 
         private NodeState WanderAction(BehaviorContext ctx)
         {
-            var wanderTarget = ctx.GetData<Vector2?>("wanderTarget");
-            var wanderTimer = ctx.GetData<float>("wanderTimer");
-
-            wanderTimer -= (float)ctx.GameTime.ElapsedGameTime.TotalSeconds;
-
-            if (wanderTimer <= 0f || !wanderTarget.HasValue)
+            // If pausing (grazing), stay idle
+            if (wanderPauseTimer > 0f)
             {
-                // Pick new wander point within radius
-                var random = new Random();
-                float angle = (float)(random.NextDouble() * Math.PI * 2);
-                float distance = (float)(random.NextDouble() * WanderRadius);
-
-                wanderTarget = SpawnPosition + new Vector2(
-                    (float)Math.Cos(angle) * distance,
-                    (float)Math.Sin(angle) * distance
-                );
-
-                wanderTimer = 3f + (float)(random.NextDouble() * 4f);
-
-                ctx.SetData("wanderTarget", wanderTarget);
-                ctx.SetData("wanderTimer", wanderTimer);
+                Stop();
+                State = AnimalState.Idle;
+                UpdateAnimation();
+                return NodeState.Running;
             }
 
-            if (wanderTarget.HasValue)
+            // If has target and still moving towards it
+            if (currentWanderTarget.HasValue)
             {
-                float dist = Vector2.Distance(Position, wanderTarget.Value);
-
-                if (dist < 10f)
+                float distanceToTarget = Vector2.Distance(Position, currentWanderTarget.Value);
+                
+                // Check if reached destination or path completed
+                if (!IsMoving() || distanceToTarget <= 10f)
                 {
-                    ctx.SetData("wanderTarget", (Vector2?)null);
+                    // Reached target - start grazing pause
+                    currentWanderTarget = null;
+                    wanderPauseTimer = MIN_PAUSE_TIME + (float)(rng.NextDouble() * (MAX_PAUSE_TIME - MIN_PAUSE_TIME));
+                    Stop();
                     State = AnimalState.Idle;
                     UpdateAnimation();
+                    return NodeState.Running;
                 }
-                else if (!IsMoving())
-                {
-                    MoveToWithPathfinding(wanderTarget.Value);
-                    State = AnimalState.Wandering;
-                    UpdateAnimation();
-                }
+                
+                // Still moving towards target
+                State = AnimalState.Walk;
+                UpdateAnimation();
+                return NodeState.Running;
             }
 
+            // Pick new wander point
+            Vector2 newTarget = PickRandomWanderPoint();
+            
+            // Make sure the point is within wander radius
+            float distFromSpawn = Vector2.Distance(newTarget, SpawnPosition);
+            if (distFromSpawn > WanderRadius)
+            {
+                // Pull it back towards spawn
+                Vector2 direction = Vector2.Normalize(SpawnPosition - newTarget);
+                newTarget = SpawnPosition + direction * (WanderRadius * 0.8f);
+            }
+
+            currentWanderTarget = newTarget;
+            MoveToWithPathfinding(newTarget);
+            
+            State = AnimalState.Walk;
+            UpdateAnimation();
             return NodeState.Running;
+        }
+
+        /// <summary>
+        /// Pick a random point near current position for wandering
+        /// </summary>
+        private Vector2 PickRandomWanderPoint()
+        {
+            float angle = (float)(rng.NextDouble() * Math.PI * 2);
+            float distance = MIN_WANDER_DISTANCE + (float)(rng.NextDouble() * (MAX_WANDER_DISTANCE - MIN_WANDER_DISTANCE));
+
+            Vector2 offset = new Vector2(
+                (float)Math.Cos(angle) * distance,
+                (float)Math.Sin(angle) * distance
+            );
+
+            return Position + offset;
         }
 
         private void UpdateAnimation()
         {
+            if (State == lastState && Direction == lastDirection)
+                return;
+
             if (Atlas != null)
             {
                 AnimatedSprite = GetAnimatedSprite(GetAnimationName());
+
+                // ✅ SET SCALE NGAY SAU KHI TẠO
+                AnimatedSprite._scale = Scale;
             }
+
+            lastState = State;
+            lastDirection = Direction;
         }
-        public override void Update(GameTime gameTime)
+
+        protected override string GetAnimationName()
         {
-            base.Update(gameTime);
-            AnimatedSprite.Update(gameTime);
+            string state = State == AnimalState.Walk ? "walk" : "idle";
+            string direction = Direction.ToString().ToLower();
+            return $"{state}-{direction}";
         }
     }
 }

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="16" tileheight="16" infinite="0" nextlayerid="29" nextobjectid="103">
- <tileset firstgid="1" source="C:/Users/Lenovo/Downloads/PUNY_WORLD_v1/PUNY_WORLD_v1/PUNY_WORLD_v1/Tiled/punyworld-overworld-tiles.tsx"/>
+ <tileset firstgid="1" source="D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/punyworld-overworld-tiles.xml"/>
  <layer name="" id="15" width="30" height="30">
   <data encoding="csv">
 57,56,56,56,55,55,56,1,28,28,56,1,29,56,55,2,2,55,28,29,29,29,29,29,29,29,29,29,29,29,

@@ -54,19 +54,19 @@
             <Frame region="Boar 8"/>
             <Frame region="Boar 9"/>
         </Animation>
-        <Animation name="idle-left" delay="200">
+        <Animation name="idle-right" delay="200">
             <Frame region="Boar 10"/>
         </Animation>
-        <Animation name="walk-left" delay="200">
+        <Animation name="walk-right" delay="200">
             <Frame region="Boar 11"/>
             <Frame region="Boar 12"/>
             <Frame region="Boar 13"/>
             <Frame region="Boar 14"/>
         </Animation>
-        <Animation name="idle-right" delay="200">
+        <Animation name="idle-left" delay="200">
             <Frame region="Boar 15"/>
         </Animation>
-        <Animation name="walk-right" delay="200">
+        <Animation name="walk-left" delay="200">
             <Frame region="Boar 16"/>
             <Frame region="Boar 17"/>
             <Frame region="Boar 18"/>

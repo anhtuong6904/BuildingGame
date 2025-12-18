@@ -24,8 +24,7 @@ namespace TribeBuild.Entity.NPC.Animals
     public enum AnimalState
     {
         Idle,
-        Wandering,  // Lang thang
-        Fleeing,    // Bỏ chạy
+        Walk,
         Attacking   // Tấn công
     }
 
@@ -36,6 +35,8 @@ namespace TribeBuild.Entity.NPC.Animals
     {
         // Trạng thái và thông tin động vật
         public AnimalType Type { get; protected set; }
+        protected Vector2 Scale = Vector2.One;
+
         public AnimalState State { get; set; }
 
         // Chỉ số của động vật
@@ -65,6 +66,10 @@ namespace TribeBuild.Entity.NPC.Animals
         public int LootAmount { get; protected set; }
 
         // Hướng di chuyển của động vật
+
+        private AnimalState lastState;
+        private Direction lastDirection;
+
         public Direction Direction { get; protected set; }
 
         // Texture Atlas
@@ -80,27 +85,21 @@ namespace TribeBuild.Entity.NPC.Animals
             Direction = Direction.Font;
             Velocity = Vector2.Zero;
             Atlas = atlas;
+            // AnimalEntity
+            
+
+
             
             PathFollower = new PathFollower(10f);
         }
 
-        public override void Update(GameTime gameTime)
+       public override void Update(GameTime gameTime)
         {
             if (!IsActive) return;
 
-            // Update pathfinding movement
             UpdatePathfindingMovement(gameTime);
-
-            // Execute behavior tree
-            if (behaviorTree != null)
-            {
-                context = new BehaviorContext(this, gameTime);
-                behaviorTree.Tick(context);
-            }
-
-            // Update animation
-            AnimatedSprite?.Update(gameTime);
         }
+
 
         protected virtual void UpdatePathfindingMovement(GameTime gameTime)
         {
@@ -131,17 +130,36 @@ namespace TribeBuild.Entity.NPC.Animals
             }
         }
 
-        protected void UpdateDirection(Vector2 movementDir)
+       protected void UpdateDirection(Vector2 movementDir)
         {
-            if (Math.Abs(movementDir.X) > Math.Abs(movementDir.Y))
-            {
-                Direction = movementDir.X > 0 ? Direction.Right : Direction.Left;
-            }
-            else
+            if (movementDir == Vector2.Zero)
+                return;
+
+            if (Math.Abs(movementDir.Y) >= Math.Abs(movementDir.X))
             {
                 Direction = movementDir.Y > 0 ? Direction.Font : Direction.Back;
             }
+            else
+            {
+                Direction = movementDir.X > 0 ? Direction.Right : Direction.Left;
+            }
         }
+
+        protected void UpdateAnimationState()
+        {
+            if (Atlas == null) return;
+
+            if (State == lastState && Direction == lastDirection)
+                return;
+
+            AnimatedSprite = GetAnimatedSprite(GetAnimationName());
+
+            lastState = State;
+            lastDirection = Direction;
+        }
+
+
+
 
         /// <summary>
         /// Move to target using pathfinding
@@ -205,7 +223,12 @@ namespace TribeBuild.Entity.NPC.Animals
         /// </summary>
         protected virtual string GetAnimationName()
         {
-            string state = State == AnimalState.Wandering ? "walk" : "idle";
+            string state = State == AnimalState.Walk ? "walk" : "idle";
+
+            if(State == AnimalState.Attacking)
+            {
+                state = "attack";
+            }
             string direction = Direction.ToString().ToLower();
             return $"{state}-{direction}";
         }

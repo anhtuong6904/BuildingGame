@@ -134,7 +134,7 @@ namespace TribeBuild.Entity.NPC
             }
             
             string direction = body.Direction.ToString().ToLower();
-            return $"{state}_{direction}";
+            return $"{state}-{direction}";
         }
 
         /// <summary>

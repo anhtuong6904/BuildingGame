@@ -27,6 +27,8 @@ namespace TribeBuild
         public int Width { get; private set; }
         public int Height { get; private set; }
         public int TileSize { get; private set; }
+
+        public Vector2 Scale {get; set;}
         
         // Entity management
         private Dictionary<int, Entity.Entity> allEntities;
@@ -48,12 +50,18 @@ namespace TribeBuild
         // Texture atlases
         private Dictionary<string, TextureAtlas> atlases;
 
-        public GameWorld(int worldWidth, int worldHeight, int tileSize = 16)
+         
+        public Tilemap Tilemap { get; set; }  // Reference to tilemap for collision matrix
+        
+        // Sorted lists for depth rendering
+        private List<IDrawable> drawableEntities = new List<IDrawable>();
+
+        public GameWorld(int worldWidth, int worldHeight , Vector2 scale, int tileSize = 16)
         {
             Width = worldWidth;
             Height = worldHeight;
             TileSize = tileSize;
-            
+            Scale = scale;
             // Initialize collections
             allEntities = new Dictionary<int, Entity.Entity>();
             npcs = new List<NPCBody>();
@@ -79,7 +87,8 @@ namespace TribeBuild
             InitializePathfinding();
             
             // Initialize ResourceManager
-            ResourceManager.Initialize(new Rectangle(0, 0, Width, Height));
+            ResourceManager.Initialize(new Rectangle(0, 0, Width, Height), Scale);
+            
             
             //GameLogger.Instance?.Info("World", "World initialized");
         }
@@ -140,6 +149,14 @@ namespace TribeBuild
                 if (mine.IsActive)
                     mine.Update(gameTime);
             }
+
+            foreach (var resource in resources.ToList())
+            {
+                if (resource.IsActive)
+                {
+                    resource.Update(gameTime);
+                }
+            }
         }
 
         private void UpdateSpatialIndices()
@@ -171,43 +188,68 @@ namespace TribeBuild
         
         public void Draw(SpriteBatch spriteBatch, GameTime gameTime, Rectangle viewportBounds)
         {
-            // Draw in layers for proper z-ordering
+            // Clear and populate drawable list with entities in viewport
+            drawableEntities.Clear();
             
-            // 1. Resources (trees, rocks, etc) - background
-            ResourceManager.DrawInView(spriteBatch, gameTime, viewportBounds);
+            // Add resources
+            foreach (var tree in ResourceManager.GetAllTrees())
+            {
+                if (tree.IsActive && IsInViewport(tree.Position, viewportBounds))
+                    drawableEntities.Add(new DrawableEntity(tree, tree.Position.Y));
+            }
             
-            // 2. Mines
+            foreach (var bush in ResourceManager.GetAllBushes())
+            {
+                if (bush.IsActive && IsInViewport(bush.Position, viewportBounds))
+                    drawableEntities.Add(new DrawableEntity(bush, bush.Position.Y));
+            }
+            
+            // Add mines
             foreach (var mine in mines)
             {
                 if (mine.IsActive && IsInViewport(mine.Position, viewportBounds))
-                    mine.Draw(spriteBatch, gameTime);
+                    drawableEntities.Add(new DrawableEntity(mine, mine.Position.Y));
             }
             
-            // 3. Animals
+            // Add passive animals
             foreach (var animal in passiveAnimals)
             {
                 if (animal.IsActive && IsInViewport(animal.Position, viewportBounds))
-                    animal.Draw(spriteBatch, gameTime);
+                    drawableEntities.Add(new DrawableEntity(animal, animal.Position.Y));
             }
             
+            // Add aggressive animals
             foreach (var animal in aggressiveAnimals)
             {
                 if (animal.IsActive && IsInViewport(animal.Position, viewportBounds))
-                    animal.Draw(spriteBatch, gameTime);
+                    drawableEntities.Add(new DrawableEntity(animal, animal.Position.Y));
             }
             
-            // 4. NPCs - foreground
+            // Add NPCs
             foreach (var npc in npcs)
             {
                 if (npc.IsActive && IsInViewport(npc.Position, viewportBounds))
-                    npc.Draw(spriteBatch, gameTime);
+                    drawableEntities.Add(new DrawableEntity(npc, npc.Position.Y));
+            }
+            
+            // Sort by Y position (higher Y = drawn later = appears in front)
+            drawableEntities.Sort((a, b) => a.Depth.CompareTo(b.Depth));
+            
+            // Draw sorted entities
+            foreach (var drawable in drawableEntities)
+            {
+                drawable.Entity.Draw(spriteBatch, gameTime);
             }
         }
 
         private bool IsInViewport(Vector2 position, Rectangle viewport)
         {
-            return viewport.Contains(position);
+            // Add margin for large sprites
+            const int margin = 64;
+            return viewport.X - margin <= position.X && position.X <= viewport.Right + margin &&
+                   viewport.Y - margin <= position.Y && position.Y <= viewport.Bottom + margin;
         }
+        
 
         // ==================== ENTITY MANAGEMENT ====================
         
@@ -249,7 +291,7 @@ namespace TribeBuild
                 resources.Add(resource);
                 
                 // Update pathfinding - resources might block paths
-                UpdatePathfindingForResource(resource, false);
+                //UpdatePathfindingForResource(resource, false);
                 
                 //GameLogger.Instance?.Debug("World", $"Added resource #{resource.ID}");
             }
@@ -432,26 +474,26 @@ namespace TribeBuild
 
         public PassiveAnimal SpawnPassiveAnimal(Vector2 position, AnimalType type, TextureAtlas atlas = null)
         {
-            var animal = new PassiveAnimal(GetNextEntityID(), position, type, atlas);
+            var animal = new PassiveAnimal(GetNextEntityID(), position, type, atlas, Scale);
             AddEntity(animal);
             return animal;
         }
 
         public AggressiveAnimal SpawnAggressiveAnimal(Vector2 position, AnimalType type, TextureAtlas atlas = null)
         {
-            var animal = new AggressiveAnimal(GetNextEntityID(), position, type, atlas);
+            var animal = new AggressiveAnimal(GetNextEntityID(), position, type, atlas, Scale);
             AddEntity(animal);
             return animal;
         }
 
-        public Tree SpawnTree(Vector2 position, TreeType type = TreeType.Oak, Sprite sprite = null)
+        public Tree SpawnTree(Vector2 position, TreeType type = TreeType.Oak, TextureAtlas sprite = null)
         {
-            var tree = ResourceManager.AddTree(position, type, sprite);
+            var tree = ResourceManager.AddTree(position, Scale, type, sprite);
             AddEntity(tree);
             return tree;
         }
 
-        public Bush SpawnBush(Vector2 position, BushType type = BushType.Berry, Sprite sprite = null)
+        public Bush SpawnBush(Vector2 position, BushType type = BushType.Berry, TextureAtlas sprite = null)
         {
             var bush = ResourceManager.AddBush(position, type, sprite);
             AddEntity(bush);
@@ -540,7 +582,40 @@ namespace TribeBuild
             
             //GameLogger.Instance?.Info("World", "World cleared");
         }
+         private interface IDrawable
+        {
+            Entity.Entity Entity { get; }
+            float Depth { get; }
+        }
+        
+        private class DrawableEntity : IDrawable
+        {
+            public Entity.Entity Entity { get; }
+            public float Depth { get; }
+            
+            public DrawableEntity(Entity.Entity entity, float depth)
+            {
+                Entity = entity;
+                Depth = depth;
+            }
+        }
+
+        public void SyncPathfinderWithTilemap(Tilemap tilemap, GridPathfinder pathfinder)
+{
+            for (int y = 0; y < tilemap.Height; y++)
+            {
+                for (int x = 0; x < tilemap.Width; x++)
+                {
+                    bool walkable = tilemap.IsTileWalkable(x, y);
+                    pathfinder.SetWalkable(x, y, walkable);
+                }
+            }
+        }
     }
+
+    
+
+    
 
     // ==================== STATISTICS ====================
     
@@ -556,4 +631,5 @@ namespace TribeBuild
         public int ActiveTasks;
         public int CompletedTasks;
     }
+    
 }

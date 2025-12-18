@@ -9,11 +9,12 @@ using MonoGameLibrary.Spatial;
 namespace TribeBuild.Entity.Resource
 {
     /// <summary>
-    /// Manages all resources in the game - trees, bushes, mines, etc.
+    /// Manages all resources in the game - trees, bushes, mines
     /// Uses KD-Tree for efficient spatial queries
     /// </summary>
     public class ResourceManager
     {
+        // Singleton
         private static ResourceManager instance;
         public static ResourceManager Instance
         {
@@ -29,96 +30,74 @@ namespace TribeBuild.Entity.Resource
         private List<Tree> trees;
         private List<Bush> bushes;
         private List<Mine> mines;
-        private List<ResourceEntity> allResources;
 
         // Spatial indexing with KD-Trees
         private KDTree<Tree> treeIndex;
         private KDTree<Bush> bushIndex;
         private KDTree<Mine> mineIndex;
 
-        // ID management
-        private int nextTreeID = 0;
-        private int nextBushID = 1000;
-        private int nextMineID = 2000;
+        // ID counters
+        private int nextTreeID = 10000;
+        private int nextBushID = 20000;
+        private int nextMineID = 30000;
+
+        // World settings
+        public Rectangle WorldBounds { get; private set; }
+        public Vector2 Scale { get; private set; }
 
         // Statistics
         public int TotalTreesHarvested { get; private set; }
         public int TotalBushesHarvested { get; private set; }
         public int TotalMiningOperations { get; private set; }
 
-        private Rectangle worldBounds;
-
         private ResourceManager()
         {
             trees = new List<Tree>();
             bushes = new List<Bush>();
             mines = new List<Mine>();
-            allResources = new List<ResourceEntity>();
 
             treeIndex = new KDTree<Tree>();
             bushIndex = new KDTree<Bush>();
             mineIndex = new KDTree<Mine>();
-
-            TotalTreesHarvested = 0;
-            TotalBushesHarvested = 0;
-            TotalMiningOperations = 0;
         }
 
         /// <summary>
         /// Initialize the resource manager with world bounds
         /// </summary>
-        public void Initialize(Rectangle worldBounds)
+        public void Initialize(Rectangle worldBounds, Vector2 scale)
         {
-            this.worldBounds = worldBounds;
-            //GameLogger.Instance?.Debug("ResourceManager", $"Initialized with bounds: {worldBounds}");
+            WorldBounds = worldBounds;
+            Scale = scale;
+            Console.WriteLine($"[ResourceManager] Initialized: {worldBounds.Width}x{worldBounds.Height}");
         }
 
-        #region Add Resources
+        // ==================== ADD RESOURCES ====================
 
-        /// <summary>
-        /// Add a tree to the world
-        /// </summary>
-        public Tree AddTree(Vector2 position, TreeType type = TreeType.Oak, Sprite sprite = null)
+        public Tree AddTree(Vector2 position, Vector2 scale, TreeType type = TreeType.Oak, TextureAtlas atlas = null)
         {
-            var tree = new Tree(nextTreeID++, position, type, sprite);
+            var tree = new Tree(nextTreeID++, position, scale, type, atlas);
             trees.Add(tree);
-            allResources.Add(tree);
             treeIndex.Insert(tree);
-
-            //GameLogger.Instance?.Debug("ResourceManager", $"Added tree #{tree.ID} at ({position.X:F0}, {position.Y:F0})");
             return tree;
         }
 
-        /// <summary>
-        /// Add a bush to the world
-        /// </summary>
-        public Bush AddBush(Vector2 position, BushType type = BushType.Berry, Sprite sprite = null)
+        public Bush AddBush(Vector2 position, BushType type = BushType.Berry, TextureAtlas atlas = null)
         {
-            var bush = new Bush(nextBushID++, position, type, sprite);
+            var bush = new Bush(nextBushID++, position, Scale, type, atlas);
             bushes.Add(bush);
-            allResources.Add(bush);
             bushIndex.Insert(bush);
-
-            //GameLogger.Instance?.Debug("ResourceManager", $"Added bush #{bush.ID} at ({position.X:F0}, {position.Y:F0})");
             return bush;
         }
 
-        /// <summary>
-        /// Add a mine to the world
-        /// </summary>
         public Mine AddMine(Vector2 position, Sprite sprite = null)
         {
             var mine = new Mine(nextMineID++, position, sprite);
             mines.Add(mine);
             mineIndex.Insert(mine);
-
-            //GameLogger.Instance?.Debug("ResourceManager", $"Added mine #{mine.ID} at ({position.X:F0}, {position.Y:F0})");
             return mine;
         }
 
-        #endregion
-
-        #region Query Resources (Using KD-Tree)
+        // ==================== QUERY RESOURCES (KD-Tree) ====================
 
         /// <summary>
         /// Find nearest tree using KD-Tree
@@ -133,10 +112,7 @@ namespace TribeBuild.Entity.Resource
                     out float distance
                 );
             }
-            else
-            {
-                return treeIndex.FindNearest(position, out _);
-            }
+            return treeIndex.FindNearest(position, out _);
         }
 
         /// <summary>
@@ -152,10 +128,7 @@ namespace TribeBuild.Entity.Resource
                     out _
                 );
             }
-            else
-            {
-                return bushIndex.FindNearest(position, out _);
-            }
+            return bushIndex.FindNearest(position, out _);
         }
 
         /// <summary>
@@ -171,7 +144,7 @@ namespace TribeBuild.Entity.Resource
         }
 
         /// <summary>
-        /// Find nearest resource of any type (legacy method)
+        /// Find nearest resource of any type (legacy compatibility)
         /// </summary>
         public ResourceEntity FindNearestResource(Vector2 position, ResourceType type, float maxRange = float.MaxValue, bool onlyAvailable = true)
         {
@@ -202,7 +175,10 @@ namespace TribeBuild.Entity.Resource
                     .ToList();
             }
             
-            return results.Select(r => r.Item).ToList();
+            return results
+                .OrderBy(r => r.Distance)
+                .Select(r => r.Item)
+                .ToList();
         }
 
         /// <summary>
@@ -221,7 +197,10 @@ namespace TribeBuild.Entity.Resource
                     .ToList();
             }
             
-            return results.Select(r => r.Item).ToList();
+            return results
+                .OrderBy(r => r.Distance)
+                .Select(r => r.Item)
+                .ToList();
         }
 
         /// <summary>
@@ -240,139 +219,95 @@ namespace TribeBuild.Entity.Resource
                     .ToList();
             }
             
-            return results.Select(r => r.Item).ToList();
-        }
-
-        /// <summary>
-        /// Find all resources within radius (legacy method)
-        /// </summary>
-        public List<ResourceEntity> FindResourcesInRadius(Vector2 position, float radius, ResourceType? filterType = null)
-        {
-            var results = new List<ResourceEntity>();
-
-            if (filterType == null || filterType == ResourceType.Tree)
-            {
-                results.AddRange(FindTreesInRadius(position, radius));
-            }
-
-            if (filterType == null || filterType == ResourceType.Bush)
-            {
-                results.AddRange(FindBushesInRadius(position, radius));
-            }
-
-            return results.OrderBy(r => Vector2.Distance(r.Position, position)).ToList();
-        }
-
-        /// <summary>
-        /// Get all available resources of a specific type
-        /// </summary>
-        public List<ResourceEntity> GetAvailableResources(ResourceType type)
-        {
-            return allResources
-                .Where(r => r.Type == type && r.IsActive && !r.IsBeingHarvested)
+            return results
+                .OrderBy(r => r.Distance)
+                .Select(r => r.Item)
                 .ToList();
         }
 
-        /// <summary>
-        /// Get all active mines
-        /// </summary>
-        public List<Mine> GetActiveMines()
-        {
-            return mines.Where(m => m.IsActive).ToList();
-        }
+        // ==================== GET LISTS ====================
 
-        #endregion
+        public List<Tree> GetAllTrees() => trees.Where(t => t.IsActive).ToList();
+        public List<Bush> GetAllBushes() => bushes.Where(b => b.IsActive).ToList();
+        public List<Mine> GetAllMines() => mines.Where(m => m.IsActive).ToList();
 
-        #region Update and Draw
+        public List<Tree> GetAvailableTrees() => trees.Where(t => t.IsActive && !t.IsBeingHarvested).ToList();
+        public List<Bush> GetAvailableBushes() => bushes.Where(b => b.IsActive && !b.IsBeingHarvested).ToList();
 
-        /// <summary>
-        /// Update all resources
-        /// </summary>
+        // ==================== UPDATE & DRAW ====================
+
         public void Update(GameTime gameTime)
         {
             // Update trees
-            for (int i = trees.Count - 1; i >= 0; i--)
+            foreach (var tree in trees.ToList())
             {
-                trees[i].Update(gameTime);
+                if (tree.IsActive || tree.CanRespawn)
+                    tree.Update(gameTime);
             }
 
             // Update bushes
-            for (int i = bushes.Count - 1; i >= 0; i--)
+            foreach (var bush in bushes.ToList())
             {
-                bushes[i].Update(gameTime);
+                if (bush.IsActive || bush.CanRespawn)
+                    bush.Update(gameTime);
             }
 
             // Update mines
-            for (int i = mines.Count - 1; i >= 0; i--)
+            foreach (var mine in mines.ToList())
             {
-                mines[i].Update(gameTime);
+                if (mine.IsActive)
+                    mine.Update(gameTime);
             }
 
-            // Clean up destroyed resources that can't respawn
+            // Cleanup destroyed resources
             CleanupDestroyedResources();
         }
 
         /// <summary>
-        /// Draw all resources
-        /// </summary>
-        public void Draw(SpriteBatch spriteBatch, GameTime gameTime)
-        {
-            // Draw trees
-            foreach (var tree in trees)
-            {
-                if (tree.IsActive || tree.CanRespawn)
-                    tree.Draw(spriteBatch, gameTime);
-            }
-
-            // Draw bushes
-            foreach (var bush in bushes)
-            {
-                if (bush.IsActive || bush.CanRespawn)
-                    bush.Draw(spriteBatch, gameTime);
-            }
-
-            // Draw mines
-            foreach (var mine in mines)
-            {
-                if (mine.IsActive)
-                    mine.Draw(spriteBatch, gameTime);
-            }
-        }
-
-        /// <summary>
-        /// Draw only resources in camera view (optimized)
+        /// Draw only resources in viewport (optimized)
         /// </summary>
         public void DrawInView(SpriteBatch spriteBatch, GameTime gameTime, Rectangle viewBounds)
         {
+            // Expand viewport bounds for large sprites
+            Rectangle expandedBounds = new Rectangle(
+                viewBounds.X - 64,
+                viewBounds.Y - 64,
+                viewBounds.Width + 128,
+                viewBounds.Height + 128
+            );
+
             // Draw trees in view
             foreach (var tree in trees)
             {
-                if ((tree.IsActive || tree.CanRespawn) && viewBounds.Intersects(tree.Collider))
+                if ((tree.IsActive || tree.CanRespawn) && 
+                    expandedBounds.Contains(tree.Position))
+                {
                     tree.Draw(spriteBatch, gameTime);
+                }
             }
 
             // Draw bushes in view
             foreach (var bush in bushes)
             {
-                if ((bush.IsActive || bush.CanRespawn) && viewBounds.Intersects(bush.Collider))
+                if ((bush.IsActive || bush.CanRespawn) && 
+                    expandedBounds.Contains(bush.Position))
+                {
                     bush.Draw(spriteBatch, gameTime);
+                }
             }
 
             // Draw mines in view
             foreach (var mine in mines)
             {
-                if (mine.IsActive && viewBounds.Intersects(mine.Collider))
+                if (mine.IsActive && expandedBounds.Contains(mine.Position))
+                {
                     mine.Draw(spriteBatch, gameTime);
+                }
             }
         }
 
-        #endregion
+        // ==================== RESOURCE EVENTS ====================
 
-        #region Resource Events
-
-        /// <summary>
-        /// Called when a resource is harvested
-        /// </summary>
         public void OnResourceHarvested(ResourceEntity resource)
         {
             switch (resource.Type)
@@ -384,82 +319,60 @@ namespace TribeBuild.Entity.Resource
                     TotalBushesHarvested++;
                     break;
             }
-
-            //GameLogger.Instance?.GameEvent("Resource", $"{resource.Type} #{resource.ID} harvested");
         }
 
-        /// <summary>
-        /// Called when mining operation completes
-        /// </summary>
         public void OnMiningComplete(Mine mine, int workerID)
         {
             TotalMiningOperations++;
-            //GameLogger.Instance?.GameEvent("Mining", $"Worker #{workerID} completed mining at mine #{mine.ID}");
         }
 
-        #endregion
+        // ==================== CLEANUP & MAINTENANCE ====================
 
-        #region Utility Methods
-
-        /// <summary>
-        /// Remove resources that are destroyed and can't respawn, rebuild KD-Trees
-        /// </summary>
         private void CleanupDestroyedResources()
         {
-            bool needsRebuild = false;
-
-            // Remove destroyed trees
-            int treeCount = trees.Count;
+            // Remove trees that can't respawn
+            int treeCountBefore = trees.Count;
             trees.RemoveAll(t => !t.IsActive && !t.CanRespawn);
-            if (trees.Count < treeCount)
+            if (trees.Count < treeCountBefore)
             {
-                needsRebuild = true;
                 RebuildTreeIndex();
             }
 
-            // Remove destroyed bushes
-            int bushCount = bushes.Count;
+            // Remove bushes that can't respawn
+            int bushCountBefore = bushes.Count;
             bushes.RemoveAll(b => !b.IsActive && !b.CanRespawn);
-            if (bushes.Count < bushCount)
+            if (bushes.Count < bushCountBefore)
             {
-                needsRebuild = true;
                 RebuildBushIndex();
             }
 
-            // Update all resources list
-            allResources.RemoveAll(r => !r.IsActive && !r.CanRespawn);
+            // Mines don't get destroyed, but check anyway
+            int mineCountBefore = mines.Count;
+            mines.RemoveAll(m => !m.IsActive);
+            if (mines.Count < mineCountBefore)
+            {
+                RebuildMineIndex();
+            }
         }
 
-        /// <summary>
-        /// Rebuild tree KD-Tree index
-        /// </summary>
         private void RebuildTreeIndex()
         {
             treeIndex = new KDTree<Tree>(trees);
-            //GameLogger.Instance?.Debug("ResourceManager", $"Rebuilt tree index with {trees.Count} trees");
+            Console.WriteLine($"[ResourceManager] Rebuilt tree index: {trees.Count} trees");
         }
 
-        /// <summary>
-        /// Rebuild bush KD-Tree index
-        /// </summary>
         private void RebuildBushIndex()
         {
             bushIndex = new KDTree<Bush>(bushes);
-            //GameLogger.Instance?.Debug("ResourceManager", $"Rebuilt bush index with {bushes.Count} bushes");
+            Console.WriteLine($"[ResourceManager] Rebuilt bush index: {bushes.Count} bushes");
         }
 
-        /// <summary>
-        /// Rebuild mine KD-Tree index
-        /// </summary>
         private void RebuildMineIndex()
         {
             mineIndex = new KDTree<Mine>(mines);
-            //GameLogger.Instance?.Debug("ResourceManager", $"Rebuilt mine index with {mines.Count} mines");
+            Console.WriteLine($"[ResourceManager] Rebuilt mine index: {mines.Count} mines");
         }
 
-        /// <summary>
-        /// Rebuild all spatial indexes
-        /// </summary>
         public void RebuildAllIndexes()
         {
             RebuildTreeIndex();
@@ -467,70 +380,100 @@ namespace TribeBuild.Entity.Resource
             RebuildMineIndex();
         }
 
-        /// <summary>
-        /// Get total count of resources by type
-        /// </summary>
-        public int GetResourceCount(ResourceType type)
+        // ==================== SPAWN RANDOM RESOURCES ====================
+
+        public void SpawnRandomTrees(Rectangle area, int count, TreeType type = TreeType.Oak, TextureAtlas atlas = null)
         {
-            return allResources.Count(r => r.Type == type && r.IsActive);
+            var random = new Random();
+            int spawned = 0;
+            int attempts = 0;
+            int maxAttempts = count * 50;
+
+            while (spawned < count && attempts < maxAttempts)
+            {
+                attempts++;
+                Vector2 position = new Vector2(
+                    random.Next(area.Left, area.Right),
+                    random.Next(area.Top, area.Bottom)
+                );
+
+                // Check if position is valid (not too close to other trees)
+                var nearbyTrees = FindTreesInRadius(position, 48f, false);
+                if (nearbyTrees.Count == 0)
+                {
+                    AddTree(position, Scale, type, atlas);
+                    spawned++;
+                }
+            }
+
+            Console.WriteLine($"[ResourceManager] Spawned {spawned} trees (attempted {attempts})");
         }
 
-        /// <summary>
-        /// Get total count of all active resources
-        /// </summary>
+        public void SpawnRandomBushes(Rectangle area, int count, BushType type = BushType.Berry, TextureAtlas atlas = null)
+        {
+            var random = new Random();
+            int spawned = 0;
+            int attempts = 0;
+            int maxAttempts = count * 50;
+
+            while (spawned < count && attempts < maxAttempts)
+            {
+                attempts++;
+                Vector2 position = new Vector2(
+                    random.Next(area.Left, area.Right),
+                    random.Next(area.Top, area.Bottom)
+                );
+
+                // Check if position is valid
+                var nearbyBushes = FindBushesInRadius(position, 32f, false);
+                if (nearbyBushes.Count == 0)
+                {
+                    AddBush(position, type, atlas);
+                    spawned++;
+                }
+            }
+
+            Console.WriteLine($"[ResourceManager] Spawned {spawned} bushes (attempted {attempts})");
+        }
+
+        // ==================== UTILITY ====================
+
         public int GetTotalActiveResources()
         {
-            return allResources.Count(r => r.IsActive);
+            return trees.Count(t => t.IsActive) + 
+                   bushes.Count(b => b.IsActive) + 
+                   mines.Count(m => m.IsActive);
         }
 
-        /// <summary>
-        /// Check if position has a resource nearby
-        /// </summary>
-        public bool HasResourceNearby(Vector2 position, float radius, ResourceType? filterType = null)
+        public Tree GetTreeByID(int id) => trees.FirstOrDefault(t => t.ID == id);
+        public Bush GetBushByID(int id) => bushes.FirstOrDefault(b => b.ID == id);
+        public Mine GetMineByID(int id) => mines.FirstOrDefault(m => m.ID == id);
+
+        public bool HasResourceNearby(Vector2 position, float radius)
         {
-            return FindResourcesInRadius(position, radius, filterType).Count > 0;
+            return FindTreesInRadius(position, radius, false).Count > 0 ||
+                   FindBushesInRadius(position, radius, false).Count > 0;
         }
 
-        /// <summary>
-        /// Get resource by ID
-        /// </summary>
-        public ResourceEntity GetResourceByID(int id)
-        {
-            return allResources.FirstOrDefault(r => r.ID == id);
-        }
-
-        /// <summary>
-        /// Get mine by ID
-        /// </summary>
-        public Mine GetMineByID(int id)
-        {
-            return mines.FirstOrDefault(m => m.ID == id);
-        }
-
-        /// <summary>
-        /// Clear all resources
-        /// </summary>
         public void Clear()
         {
             trees.Clear();
             bushes.Clear();
             mines.Clear();
-            allResources.Clear();
             
             treeIndex = new KDTree<Tree>();
             bushIndex = new KDTree<Bush>();
             mineIndex = new KDTree<Mine>();
 
-            nextTreeID = 0;
-            nextBushID = 1000;
-            nextMineID = 2000;
+            nextTreeID = 10000;
+            nextBushID = 20000;
+            nextMineID = 30000;
 
-            //GameLogger.Instance?.Debug("ResourceManager", "Cleared all resources");
+            ResetStatistics();
+            
+            Console.WriteLine("[ResourceManager] Cleared all resources");
         }
 
-        /// <summary>
-        /// Reset statistics
-        /// </summary>
         public void ResetStatistics()
         {
             TotalTreesHarvested = 0;
@@ -538,49 +481,10 @@ namespace TribeBuild.Entity.Resource
             TotalMiningOperations = 0;
         }
 
-        /// <summary>
-        /// Spawn random trees in area
-        /// </summary>
-        public void SpawnRandomTrees(Rectangle area, int count, TreeType type = TreeType.Oak, Sprite sprite = null)
-        {
-            Random random = new Random();
-            for (int i = 0; i < count; i++)
-            {
-                Vector2 position = new Vector2(
-                    random.Next(area.Left, area.Right),
-                    random.Next(area.Top, area.Bottom)
-                );
-                AddTree(position, type, sprite);
-            }
-        }
-
-        /// <summary>
-        /// Spawn random bushes in area
-        /// </summary>
-        public void SpawnRandomBushes(Rectangle area, int count, BushType type = BushType.Berry, Sprite sprite = null)
-        {
-            Random random = new Random();
-            for (int i = 0; i < count; i++)
-            {
-                Vector2 position = new Vector2(
-                    random.Next(area.Left, area.Right),
-                    random.Next(area.Top, area.Bottom)
-                );
-                AddBush(position, type, sprite);
-            }
-        }
-
-        /// <summary>
-        /// Log spatial index statistics
-        /// </summary>
         public void LogStatistics()
         {
-            //GameLogger.Instance?.Info("ResourceManager", 
-            //    $"KD-Trees: {treeIndex.Count} trees, {bushIndex.Count} bushes, {mineIndex.Count} mines");
-            //GameLogger.Instance?.Info("ResourceManager", 
-            //    $"Total harvested: {TotalTreesHarvested} trees, {TotalBushesHarvested} bushes, {TotalMiningOperations} mining ops");
+            Console.WriteLine($"[ResourceManager] Trees: {trees.Count} | Bushes: {bushes.Count} | Mines: {mines.Count}");
+            Console.WriteLine($"[ResourceManager] Harvested: {TotalTreesHarvested} trees, {TotalBushesHarvested} bushes, {TotalMiningOperations} mining ops");
         }
-
-        #endregion
     }
 }

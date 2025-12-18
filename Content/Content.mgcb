@@ -29,13 +29,6 @@
 
 #begin Font/File.spritefont
 /importer:FontDescriptionImporter
-/processor:LocalizedFontProcessor
-/processorParam:PremultiplyAlpha=True
-/processorParam:TextureFormat=Compressed
-/build:Font/File.spritefont;Font/Wongong.spritefont
-
-#begin Font/File.spritefont
-/importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor
 /processorParam:PremultiplyAlpha=True
 /processorParam:TextureFormat=Compressed
@@ -100,18 +93,6 @@
 
 #begin Images/Chick.xml
 /copy:Images/Chick.xml
-
-#begin Images/chicken-sheet - Copy.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Images/chicken-sheet - Copy.png
 
 #begin Images/chicken-sheet.png
 /importer:TextureImporter
@@ -188,8 +169,11 @@
 /processorParam:TextureFormat=Color
 /build:Images/punyworld-overworld-tileset.png
 
-#begin Images/samplemap5.tmx
-/copy:Images/samplemap5.tmx
+#begin Images/resource.xml
+/copy:Images/resource.xml
+
+#begin Images/samplemap5.xml
+/copy:Images/samplemap5.xml
 
 #begin Images/Sheep-sheet.png
 /importer:TextureImporter
@@ -205,4 +189,28 @@
 
 #begin Images/sheep.xml
 /copy:Images/sheep.xml
+
+#begin Images/Sprite-0001.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Images/Sprite-0001.png
+
+#begin Images/tree.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Images/tree.png
 

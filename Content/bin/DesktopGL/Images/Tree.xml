@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='utf-8'?>
+<TextureAtlas imagePath="tree.png">
+    <Texture>Images/tree</Texture>
+    <Regions>
+        <Region name="Sprite-0001 0" x="0" y="0" width="16" height="32" />
+        <Region name="Sprite-0001 1" x="16" y="0" width="16" height="32" />
+    </Regions>
+    <Animations>
+        <Animation name="stump" delay="0">
+            <Frame region="Sprite-0001 0"/>
+        </Animation>
+        <Animation name="tree" delay="0">
+            <Frame region="Sprite-0001 1"/>
+        </Animation>
+    </Animations>
+</TextureAtlas>

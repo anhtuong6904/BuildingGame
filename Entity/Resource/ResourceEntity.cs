@@ -1,9 +1,10 @@
+
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGameLibrary.Graphics;
 using MonoGameLibrary.Spatial;
-using MonoGameLibrary.PathFinding;
+
 namespace TribeBuild.Entity.Resource
 {
     public enum ResourceType
@@ -16,43 +17,31 @@ namespace TribeBuild.Entity.Resource
 
     public abstract class ResourceEntity : Entity, IPosition
     {
-        /// <summary>
-        /// các thông tin chỉ số của tài nguyên
-        /// </summary>
-        public ResourceType Type { get; protected set;}
+        public ResourceType Type { get; protected set; }
+        public float Health { get; set; }
+        public float MaxHealth { get; protected set; }
+        public int YieldAmount { get; protected set; }
+        public string YieldItem { get; protected set; }
 
-        public bool CanHarvested{get; protected set;}
-        public float Health{get; set;}
-        public float MaxHealth{get; protected set;}
-        public int YieldAmount {get; protected set;} // Giới hạn số lượng tài nguyên được thu thập
-        public string YieldItem {get; protected set;} //tên của loai tài nguyên
+        protected TextureAtlas textureAtlas{get; set;}
         
-        /// <summary>
-        /// trạng thái để thu hoạch 
-        /// </summary>
-        public bool IsBeingHarvested {get; set;}
-        public Entity Harvester {get; set;}
+        public bool IsBeingHarvested { get; set; }
+        public Entity Harvester { get; set; }
 
-        /// <summary>
-        /// respawn tài nguyên
-        /// </summary>
-        public bool CanRespawn {get; protected set;}
-        public float RespawnTime {get; protected set;}
+        public bool CanRespawn { get; protected set; }
+        public float RespawnTime { get; protected set; }
         public bool BlocksPath { get; internal set; }
 
         private float respawnTimer;
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        public ResourceEntity(int id, Vector2 Pos, ResourceType type) : base(id, Pos)
+    
+        public ResourceEntity(int id, Vector2 pos, ResourceType type, TextureAtlas atlas = null) 
+            : base(id, pos)
         {
             Type = type;
             IsBeingHarvested = false;
             CanRespawn = false;
-            respawnTimer = 0f;
             BlocksPath = true;
-
+            textureAtlas = atlas;  // Store atlas reference
         }
 
         public override void Update(GameTime gameTime)
@@ -62,20 +51,16 @@ namespace TribeBuild.Entity.Resource
                 if (CanRespawn)
                 {
                     respawnTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
-                    if(respawnTimer >= RespawnTime)
+                    if (respawnTimer >= RespawnTime)
                     {
                         Respawn();
                     }
                 }
                 return;
             }
+            
             AnimatedSprite?.Update(gameTime);
         }
-
-        /// <summary>
-        /// ham thu hoach
-        /// </summary>
-        /// <param name="damage"></param>
 
         public virtual void Harvest(float damage)
         {
@@ -91,7 +76,8 @@ namespace TribeBuild.Entity.Resource
             IsActive = false;
             IsBeingHarvested = false;
             Harvester = null;
-            BlocksPath = true;
+            BlocksPath = false;  // ← FIX: false khi depleted
+            
             if (CanRespawn)
             {
                 respawnTimer = 0f;
@@ -103,13 +89,14 @@ namespace TribeBuild.Entity.Resource
             Health = MaxHealth;
             IsActive = true;
             IsBeingHarvested = false;
-            BlocksPath = true;
+            BlocksPath = true;  // ← FIX: true khi respawn
             Harvester = null;
             respawnTimer = 0f;
         }
+
         public override void Interact(Entity interactor)
         {
-            if(!IsBeingHarvested && IsActive)
+            if (!IsBeingHarvested && IsActive)
             {
                 IsBeingHarvested = true;
                 Harvester = interactor;

@@ -1,15 +1,14 @@
 using System;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using MonoGameLibrary;
+using MonoGameLibrary.Graphics;
 using TribeBuild.Entity;
 using TribeBuild.Entity.NPC;
 using TribeBuild.Entity.Resource;
 using TribeBuild.Entity.NPC.Animals;
 using TribeBuild.Spatial;
-using MonoGameLibrary.Graphics;
-using Microsoft.Xna.Framework.Graphics;
-using MonoGameLibrary;
 using TribeBuild.Tasks;
-// using MonoGameLibrary.Logging;
 
 namespace TribeBuild
 {
@@ -23,6 +22,7 @@ namespace TribeBuild
     
     /// <summary>
     /// Central game manager for TribeBuild
+    /// Manages game state, entities, and systems
     /// </summary>
     public class GameManager
     {
@@ -38,10 +38,14 @@ namespace TribeBuild
         public TaskManager Task { get; private set; }
         public ResourceSpatialIndex SpatialIndex { get; private set; }
         
+        // Tilemap
+        private Tilemap tilemap;
+        
         // Time
         public int CurrentDay { get; private set; }
         public float TimeOfDay { get; private set; }
         public float TimeScale { get; set; }
+        private float dayLength = 120f; // 2 minutes = 1 day
         
         // Demo objectives
         public int WoodCollected { get; private set; }
@@ -49,20 +53,23 @@ namespace TribeBuild
         public int FoodCollected { get; private set; }
         public bool DemoComplete { get; private set; }
         
-        private TextureAtlas atlasObject;
-
-        private Vector2 Scale;
-        private Sprite tree;
-        private Sprite bush;
-        private Sprite bushBerry;
-        private Sprite root;
-        private Sprite Mine;
-        private TextureAtlas atlasMine;
-        private TextureAtlas atlasSheep;
-        private TextureAtlas atlasChicken;
-        private TextureAtlas atlasBush;
+        // Texture atlases
         private TextureAtlas atlasBoar;
-        private float dayLength = 120f; // 2 minutes = 1 day
+        private TextureAtlas atlasBush;
+        private TextureAtlas atlasChicken;
+        private TextureAtlas atlasMine;
+        private TextureAtlas atlasResource;
+        private TextureAtlas atlasSheep;
+        
+        // Sprites
+        private Sprite Mine;
+        private Vector2 Scale;
+        
+        // Spawn settings (in tiles)
+        private const int RESOURCE_SPACING = 1;
+        private const int ANIMAL_SPACING = 1;
+        private const int NPC_SPACING = 1;
+        private const int MINE_SPACING = 6;
         
         public GameManager(Tilemap tilemap)
         {
@@ -70,174 +77,308 @@ namespace TribeBuild
             {
                 throw new Exception("GameManager already exists!");
             }
-
+            
+            Instance = this;
+            this.tilemap = tilemap;
+            Scale = tilemap.Scale;
+            
+            // Load texture atlases
             atlasBoar = TextureAtlas.FromFile(Core.Content, "Images/boar.xml");
             atlasBush = TextureAtlas.FromFile(Core.Content, "Images/Bush.xml");
             atlasChicken = TextureAtlas.FromFile(Core.Content, "Images/Chicken.xml");
             atlasMine = TextureAtlas.FromFile(Core.Content, "Images/Mine.xml");
-            atlasObject = TextureAtlas.FromFile(Core.Content, "Images/object.xml");
+            atlasResource = TextureAtlas.FromFile(Core.Content, "Images/resource.xml");
             atlasSheep = TextureAtlas.FromFile(Core.Content, "Images/sheep.xml");
-            tree = atlasObject.CreateSprite("Sprite-0001 0");
-            root = atlasObject.CreateSprite("Sprite-0001 1");
-            bush = atlasBush.CreateSprite("bush 0");
-            bushBerry= atlasBush.CreateSprite("bush 2");            
+            
             Mine = atlasMine.CreateSprite("Sprite-0001 0");
+            Mine._scale = Scale;
             
-            Instance = this;
-            
-            CurrentState = GameState.MainMenu;
+            // Initialize state
+            CurrentState = GameState.Playing;
             CurrentDay = 1;
             TimeOfDay = 6f; // Start at 6 AM
             TimeScale = 1f;
             
-            World = new GameWorld((int)tilemap.ScaleMapWidth, (int)tilemap.ScaleMapHeight, (int) tilemap.ScaleTileWidth);
+            // Initialize systems
+            World = new GameWorld(
+                (int)tilemap.ScaleMapWidth, 
+                (int)tilemap.ScaleMapHeight, 
+                Scale, 
+                (int)tilemap.ScaleTileWidth
+            );
+            World.Tilemap = tilemap;
+            
             Resources = ResourceManager.Instance;
             Task = TaskManager.Instance;
             SpatialIndex = new ResourceSpatialIndex();
-            
-            //GameLogger.Instance.Info("GameManager", "GameManager created");
         }
         
         public void Initialize(int worldWidth, int worldHeight)
         {
-            //GameLogger.Instance.Info("GameManager", $"Initializing game world: {worldWidth}x{worldHeight}");
-            
             World.Initialize();
-            Resources.Initialize(new Rectangle(0,0, worldWidth, worldHeight));
+            Resources.Initialize(new Rectangle(0, 0, worldWidth, worldHeight), Scale);
             
             SpawnInitialEntities();
-            
-            //GameLogger.Instance.GameEvent("GameManager", "Game initialization complete");
         }
+
+        
+        
+        // ==================== ENTITY SPAWNING ====================
         
         private void SpawnInitialEntities()
         {
-            //GameLogger.Instance.Info("Spawning", "Spawning initial entities...");
-            
             var random = new Random();
             
-            // Spawn villagers
-            for (int i = 0; i < 3; i++)
-            {
-                Vector2 pos = new Vector2(200 + i * 50, 200);
-                var villagerAI = new VillagerAI("Farmer");
-                villagerAI.HomePosition = new Vector2(150, 150);
-                
-                var villager = new NPCBody(100 + i, pos,villagerAI, null);
-                World.AddEntity(villager);
-                
-                //GameLogger.Instance.LogEntitySpawned("Villager", 100 + i, pos);
-            }
+            Console.WriteLine("[GameManager] Spawning entities...");
             
-            // Spawn hunter
-            var hunterAI = new HunterAI();
-            hunterAI.HomePosition = new Vector2(150, 150);
-            var hunter = new NPCBody(200, new Vector2(300, 200),  hunterAI,null);
-            World.AddEntity(hunter);
+            SpawnVillagers(random, 3);
+            SpawnHunter(random);
+            SpawnResources(random, treeCount: 30, bushCount: 20);
+            SpawnAnimals(random, chickens: 15, sheep: 15, boars: 8);
+            SpawnMine(random);
             
-            //GameLogger.Instance.LogEntitySpawned("Hunter", 200, new Vector2(300, 200));
-            
-            // Spawn resources
-            SpawnResources(random);
-            
-            // Spawn animals
-            SpawnAnimals(random);
-            
-            // Spawn mine
-            var mine = new Mine(1000, new Vector2(600, 400), Mine);
-            World.AddEntity(mine);
-            SpatialIndex.AddMine(mine);
-            
-            //GameLogger.Instance.LogEntitySpawned("Mine", 1000, new Vector2(600, 400));
-            
-            //GameLogger.Instance.Info("Spawning", "Entity spawning complete");
+            Console.WriteLine("[GameManager] Spawn complete");
         }
         
-        private void SpawnResources(Random random)
+        private void SpawnVillagers(Random random, int count)
         {
-            // Trees
-            for (int i = 0; i < 15; i++)
+            Point homeArea = new Point(10, 10);
+            Vector2 homePos = tilemap.TileToWorld(homeArea.X, homeArea.Y);
+            
+            for (int i = 0; i < count; i++)
             {
-                Vector2 pos = new Vector2(random.Next(100, 1400), random.Next(100, 900));
-                var _tree = new Tree(2000 + i, pos, TreeType.Oak, tree);
-                World.AddEntity(_tree);
-                SpatialIndex.AddTree(_tree);
+                Point? tile = FindValidTile(homeArea, 5, random, NPC_SPACING);
+                if (!tile.HasValue) continue;
+                
+                Vector2 pos = tilemap.TileToWorld(tile.Value.X, tile.Value.Y);
+                var ai = new VillagerAI("Farmer") { HomePosition = homePos };
+                var villager = new NPCBody(100 + i, pos, ai, null);
+                
+                World.AddEntity(villager);
             }
+        }
+        
+        private void SpawnHunter(Random random)
+        {
+            Point homeArea = new Point(15, 10);
+            Point? tile = FindValidTile(homeArea, 5, random, NPC_SPACING);
+            if (!tile.HasValue) return;
             
-            // // Stones
-            // for (int i = 0; i < 10; i++)
-            // {
-            //     Vector2 pos = new Vector2(random.Next(100, 1400), random.Next(100, 900));
-            //     var stone = new Stone(3000 + i, pos, null);
-            //     World.AddEntity(stone);
-            //     SpatialIndex.AddStone(stone);
-            // }
+            Vector2 pos = tilemap.TileToWorld(tile.Value.X, tile.Value.Y);
+            Vector2 homePos = tilemap.TileToWorld(10, 10);
+            var ai = new HunterAI() { HomePosition = homePos };
+            var hunter = new NPCBody(200, pos, ai, null);
             
-            // Bushes
-            for (int i = 0; i < 8; i++)
-            {
-                Vector2 pos = new Vector2(random.Next(100, 1400), random.Next(100, 900));
-                var _bush = new Bush(4000 + i, pos, BushType.Berry, bush);
-                _bush.spriteCanHarvested = bushBerry;
-                World.AddEntity(_bush);
-                SpatialIndex.AddBush(_bush);
-            }
+            World.AddEntity(hunter);
+        }
+        
+        private void SpawnResources(Random random, int treeCount, int bushCount)
+        {
+            int treesSpawned = SpawnTrees(random, treeCount);
+            int bushesSpawned = SpawnBushes(random, bushCount);
             
+            Console.WriteLine($"[Resources] Trees: {treesSpawned}/{treeCount} | Bushes: {bushesSpawned}/{bushCount}");
             SpatialIndex.LogStatistics();
         }
         
-        private void SpawnAnimals(Random random)
+        private int SpawnTrees(Random random, int count)
         {
-            // Passive animals
-            for (int i = 0; i < 5; i++)
+            int spawned = 0;
+            int attempts = 0;
+            int maxAttempts = count * 100;
+            
+            while (spawned < count && attempts < maxAttempts)
             {
-                Vector2 pos = new Vector2(random.Next(200, 1200), random.Next(200, 800));
-                var Chicken = new PassiveAnimal(5000 + i, pos, AnimalType.Chicken, atlasChicken);
-                World.AddEntity(Chicken);
-            }
-
-            for (int i = 0; i < 5; i++)
-            {
-                Vector2 pos = new Vector2(random.Next(200, 1200), random.Next(200, 800));
-                var Sheep = new PassiveAnimal(5000 + i, pos, AnimalType.Sheep, atlasSheep);
-                World.AddEntity(Sheep);
+                attempts++;
+                
+                Point tile = new Point(
+                    random.Next(0, tilemap.Width ),
+                    random.Next(0, tilemap.Height - 0)
+                );
+                
+                if (!CanPlaceResource(tile, 2, 2, RESOURCE_SPACING))
+                    continue;
+                
+                Vector2 pos = tilemap.TileToWorld(tile.X, tile.Y);
+                var tree = new Tree(2000 + spawned, pos, Scale, TreeType.Oak, atlasResource);
+                
+                World.AddEntity(tree);
+                Resources.AddTree(pos, Scale, TreeType.Oak, atlasResource);
+                SpatialIndex.AddTree(tree);
+                tilemap.BlockTilesForResource(pos, 2, 2);
+                
+                spawned++;
             }
             
-            // Aggressive animals
-            for (int i = 0; i < 2; i++)
-            {
-                Vector2 pos = new Vector2(random.Next(400, 1000), random.Next(400, 700));
-                var Boar = new AggressiveAnimal(6000 + i, pos, AnimalType.Boar, atlasBoar);
-                World.AddEntity(Boar);
-            }
+            return spawned;
         }
+        
+        private int SpawnBushes(Random random, int count)
+        {
+            int spawned = 0;
+            int attempts = 0;
+            int maxAttempts = count * 100;
+            
+            while (spawned < count && attempts < maxAttempts)
+            {
+                attempts++;
+                
+                Point tile = new Point(
+                    random.Next(0, tilemap.Width ),
+                    random.Next(0, tilemap.Height)
+                );
+                
+                if (!CanPlaceResource(tile, 2, 2, RESOURCE_SPACING))
+                    continue;
+                
+                Vector2 pos = tilemap.TileToWorld(tile.X, tile.Y);
+                var bush = new Bush(4000 + spawned, pos, Scale, BushType.Berry, atlasResource);
+                
+                World.AddEntity(bush);
+                Resources.AddBush(pos, BushType.Berry, atlasResource);
+                SpatialIndex.AddBush(bush);
+                tilemap.BlockTilesForResource(pos, 2, 2);
+                
+                spawned++;
+            }
+            
+            return spawned;
+        }
+        
+        private void SpawnAnimals(Random random, int chickens, int sheep, int boars)
+        {
+            int chickenCount = SpawnAnimalType(random, chickens, 5000, AnimalType.Chicken, atlasChicken);
+            int sheepCount = SpawnAnimalType(random, sheep, 5010, AnimalType.Sheep, atlasSheep);
+            int boarCount = SpawnAnimalType(random, boars, 6000, AnimalType.Boar, atlasBoar);
+            
+            Console.WriteLine($"[Animals] Chickens: {chickenCount}/{chickens} | Sheep: {sheepCount}/{sheep} | Boars: {boarCount}/{boars}");
+        }
+        
+        private int SpawnAnimalType(Random random, int count, int startID, AnimalType type, TextureAtlas atlas)
+        {
+            int spawned = 0;
+            
+            for (int i = 0; i < count; i++)
+            {
+                Point center = new Point(
+                    random.Next(10, tilemap.Width - 10),
+                    random.Next(10, tilemap.Height - 10)
+                );
+                
+                Point? tile = FindValidTile(center, 10, random, ANIMAL_SPACING);
+                if (!tile.HasValue) continue;
+                
+                Vector2 pos = tilemap.TileToWorld(tile.Value.X, tile.Value.Y);
+                
+                if (type == AnimalType.Boar)
+                {
+                    var boar = new AggressiveAnimal(startID + i, pos, type, atlas, Scale);
+                    World.AddEntity(boar);
+                }
+                else
+                {
+                    var animal = new PassiveAnimal(startID + i, pos, type, atlas, Scale);
+                    World.AddEntity(animal);
+                }
+                
+                spawned++;
+            }
+            
+            return spawned;
+        }
+        
+        private void SpawnMine(Random random)
+        {
+            Point center = new Point(tilemap.Width / 2, tilemap.Height / 2);
+            Point? tile = FindValidTile(center, 10, random, MINE_SPACING);
+            
+            if (!tile.HasValue) return;
+            
+            Vector2 pos = tilemap.TileToWorld(tile.Value.X, tile.Value.Y);
+            var mine = new Mine(1000, pos, Mine);
+            
+            World.AddEntity(mine);
+            SpatialIndex.AddMine(mine);
+            tilemap.BlockTilesForResource(pos, 3, 3);
+        }
+        
+        // ==================== SPAWN VALIDATION ====================
+        
+        private Point? FindValidTile(Point center, int searchRadius, Random random, int minSpacing)
+        {
+            if (IsTileValid(center, minSpacing))
+                return center;
+            
+            for (int r = 1; r <= searchRadius; r++)
+            {
+                for (int angle = 0; angle < 360; angle += 45)
+                {
+                    float rad = angle * MathHelper.ToRadians(1);
+                    int x = center.X + (int)(Math.Cos(rad) * r);
+                    int y = center.Y + (int)(Math.Sin(rad) * r);
+                    
+                    Point tile = new Point(x, y);
+                    if (IsTileValid(tile, minSpacing))
+                        return tile;
+                }
+            }
+            
+            return null;
+        }
+        
+        private bool IsTileValid(Point tile, int minSpacing)
+        {
+            if (tile.X < 0 || tile.X >= tilemap.Width || 
+                tile.Y < 0 || tile.Y >= tilemap.Height)
+                return false;
+            
+            // 1. Không cho spawn trên nước
+            if (tilemap.IsWaterTile(tile.X, tile.Y))
+                return false;
+
+            // 2. Không cho spawn trên tile bị block
+            if (!tilemap.IsTileWalkable(tile.X, tile.Y))
+                return false;
+            
+            Vector2 worldPos = tilemap.TileToWorld(tile.X, tile.Y);
+            float minDist = minSpacing * tilemap.ScaleTileWidth;
+            
+            return World.GetEntitiesInRadius(worldPos, minDist).Count == 0;
+        }
+        
+        private bool CanPlaceResource(Point tile, int width, int height, int minSpacing)
+        {
+            for (int y = tile.Y; y < tile.Y + height; y++)
+            {
+                for (int x = tile.X; x < tile.X + width; x++)
+                {
+                    // ⛔ chặn nước + collision + spacing
+                    if (!IsTileValid(new Point(x, y), minSpacing))
+                        return false;
+                }
+            }
+            return true;
+        }
+
+        
+        // ==================== UPDATE ====================
         
         public void Update(GameTime gameTime)
         {
-            switch (CurrentState)
+            if (CurrentState == GameState.Playing)
             {
-                case GameState.Playing:
-                    UpdatePlaying(gameTime);
-                    break;
+                UpdatePlaying(gameTime);
             }
-
-
         }
         
         private void UpdatePlaying(GameTime gameTime)
         {
             float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds * TimeScale;
             
-            // Update time
             UpdateTime(deltaTime);
-            
-                        // Update world
             World.Update(gameTime);
-            
-            // Update jobs
+            Resources.Update(gameTime);
             Task.Update(gameTime);
-            
-            // Check objectives
             CheckDemoObjectives();
         }
         
@@ -255,8 +396,7 @@ namespace TribeBuild
         
         private void OnNewDay()
         {
-            //GameLogger.Instance.LogDayChange(CurrentDay);
-            //GameLogger.Instance.Info("Stats", $"Resources - Wood: {WoodCollected}, Stone: {StoneCollected}, Food: {FoodCollected}");
+            Console.WriteLine($"[GameManager] Day {CurrentDay} - Resources: Wood {WoodCollected}, Stone {StoneCollected}, Food {FoodCollected}");
         }
         
         private void CheckDemoObjectives()
@@ -266,23 +406,23 @@ namespace TribeBuild
                 if (!DemoComplete)
                 {
                     DemoComplete = true;
-                    //GameLogger.Instance.LogDemoObjective("Collect Resources (50 wood, 30 stone, 20 food)", true);
-                    //GameLogger.Instance.GameEvent("Demo", "🎉 DEMO OBJECTIVES COMPLETE! 🎉");
+                    Console.WriteLine("[GameManager] 🎉 DEMO OBJECTIVES COMPLETE! 🎉");
                 }
             }
         }
         
+        // ==================== DRAW ====================
+        
         public void Draw(SpriteBatch spriteBatch, GameTime gameTime, Rectangle viewBound)
         {
             World.Draw(spriteBatch, gameTime, viewBound);
+            Resources.DrawInView(spriteBatch, gameTime, viewBound);
         }
         
         // ==================== RESOURCE TRACKING ====================
         
         public void OnResourceCollected(string resourceType, int amount)
         {
-            //Resources.AddResource(resourceType, amount);
-            
             switch (resourceType)
             {
                 case "wood":
@@ -304,25 +444,21 @@ namespace TribeBuild
         public void StartGame()
         {
             CurrentState = GameState.Playing;
-            //GameLogger.Instance.GameEvent("GameManager", "Game started");
         }
         
         public void PauseGame()
         {
             CurrentState = GameState.Paused;
-            //GameLogger.Instance.Info("GameManager", "Game paused");
         }
         
         public void ResumeGame()
         {
             CurrentState = GameState.Playing;
-            //GameLogger.Instance.Info("GameManager", "Game resumed");
         }
         
         public void Shutdown()
         {
-            //GameLogger.Instance.Info("GameManager", "Shutting down...");
-            //GameLogger.Instance.Close();
+            // Cleanup
         }
         
         // ==================== HELPERS ====================

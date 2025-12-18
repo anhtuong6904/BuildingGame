@@ -42,10 +42,8 @@ namespace TribeBuild.Entity
                 AnimatedSprite.Draw(spriteBatch, Position);
                 return;
             }
-            if (Sprite != null)
-            {
-                Sprite.Draw(spriteBatch, Position);
-            }
+            Sprite.Draw(spriteBatch, Position);
+           
         }
         
         public virtual bool CollidesWith(Entity other)

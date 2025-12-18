@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <SourceFile>D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/Sheep-sheet.png</SourceFile>
-  <SourceTime>2025-12-03T01:56:40.3084901+07:00</SourceTime>
+  <SourceTime>2025-12-17T18:37:26.1796287+07:00</SourceTime>
   <DestFile>D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/bin/DesktopGL/Content/Images/Sheep-sheet.xnb</DestFile>
-  <DestTime>2025-12-05T21:59:28.4429259+07:00</DestTime>
+  <DestTime>2025-12-17T18:44:07.2690308+07:00</DestTime>
   <Importer>TextureImporter</Importer>
   <ImporterTime>2025-10-20T21:25:32+07:00</ImporterTime>
   <Processor>TextureProcessor</Processor>

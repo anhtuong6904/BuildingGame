@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <SourceFile>D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Font/Essentle4.spritefont</SourceFile>
-  <SourceTime>2025-12-17T17:34:16.438153+07:00</SourceTime>
+  <SourceTime>2025-12-17T18:37:26.173633+07:00</SourceTime>
   <DestFile>D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/bin/DesktopGL/Content/Font/Essentle4.xnb</DestFile>
-  <DestTime>2025-12-17T17:34:18.1125855+07:00</DestTime>
+  <DestTime>2025-12-17T18:44:06.9755896+07:00</DestTime>
   <Importer>FontDescriptionImporter</Importer>
   <ImporterTime>2025-10-20T21:25:32+07:00</ImporterTime>
   <Processor>FontDescriptionProcessor</Processor>

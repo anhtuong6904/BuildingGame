@@ -16,15 +16,36 @@ namespace TribeBuild.Entity.NPC.Animals
         public float AttackDamage { get; private set; }
         public float AttackRange { get; private set; }
         public float AttackCooldown { get; private set; }
+        private Vector2 Scale;
         private float attackTimer = 0f;
+
+        private float aiTickTimer = 0f;
+        private const float AI_TICK_INTERVAL = 0.4f; // 10 lần / giây
+        private static readonly Random rng = new Random();
+
 
         // Territory
         private float territoryRadius = 250f;
+        private BehaviorTree behaviorTree;
+        private BehaviorContext behaviorContext;
+        private AnimalState lastState;
+        private Direction lastDirection;
 
-        public AggressiveAnimal(int id, Vector2 pos, AnimalType type, TextureAtlas atlas) 
+
+        // Walk
+        private Vector2? currentWanderTarget = null;
+        private float wanderPauseTimer = 0f;
+        private const float MIN_WANDER_DISTANCE = 30f;
+        private const float MAX_WANDER_DISTANCE = 100f;
+        private const float MIN_PAUSE_TIME = 1f;
+        private const float MAX_PAUSE_TIME = 3f;
+
+
+        public AggressiveAnimal(int id, Vector2 pos, AnimalType type, TextureAtlas atlas, Vector2 scale) 
             : base(id, pos, type, atlas)
         {
             IsAggressive = true;
+            Scale = scale;
 
             // Setup stats based on type
             switch (type)
@@ -46,6 +67,7 @@ namespace TribeBuild.Entity.NPC.Animals
 
             // Load initial animation
             AnimatedSprite = GetAnimatedSprite(GetAnimationName());
+            AnimatedSprite._scale = Scale;
 
             // Set collider
             if (AnimatedSprite != null)
@@ -63,6 +85,10 @@ namespace TribeBuild.Entity.NPC.Animals
             }
 
             InitializeBehaviorTree();
+            behaviorContext = new BehaviorContext(
+                target: this,
+                gameTime: null // sẽ set lại mỗi frame
+            );
 
             //GameLogger.Instance?.Debug("Animal", $"Created aggressive {type} at ({pos.X:F0}, {pos.Y:F0})");
         }
@@ -79,35 +105,50 @@ namespace TribeBuild.Entity.NPC.Animals
                         .Action(AttackAction, "Attack Target")
                     .End()
 
-                    // 2. PATROL territory
-                    .Sequence("Patrol")
-                        .Condition(ctx => !IsMoving(), "Not Moving?")
-                        .Action(PatrolAction, "Patrol")
-                    .End()
-
-                    // 3. IDLE
-                    .Action(IdleAction, "Idle")
+                    // 2. WANDER around territory
+                    .Action(WanderAction, "Wander")
                 .End()
                 .Build($"{Type} Behavior Tree");
         }
 
         public override void Update(GameTime gameTime)
         {
-            base.Update(gameTime);
-            AnimatedSprite.Update(gameTime);
+            if (!IsActive) return;
 
-            // Update attack timer
-            if (attackTimer > 0f)
-            {
-                attackTimer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
-            }
+            float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-            // Detect nearby NPCs if no target
+            // 1. SENSOR
             if (ThreatTarget == null)
-            {
                 DetectNearbyNPCs();
+
+            // 2. TIMERS
+            if (wanderPauseTimer > 0f)
+                wanderPauseTimer -= dt;
+
+            if (attackTimer > 0f)
+                attackTimer -= dt;
+
+            // 3. AI THINK
+            aiTickTimer -= dt;
+            if (aiTickTimer <= 0f)
+            {
+                behaviorContext.GameTime = gameTime;
+                behaviorTree.Tick(behaviorContext);
+                aiTickTimer = AI_TICK_INTERVAL;
             }
+
+            // 4. MOVEMENT
+            UpdatePathfindingMovement(gameTime);
+
+            // ✅ 5. UPDATE ANIMATION STATE
+            UpdateAnimation();
+
+            // 6. PLAY ANIMATION
+            AnimatedSprite?.Update(gameTime);
         }
+
+
+
 
         /// <summary>
         /// Use KD-Tree to find nearest NPC in territory
@@ -122,6 +163,7 @@ namespace TribeBuild.Entity.NPC.Animals
             var npcs = world.GetEntitiesOfType<NPCBody>();
 
             NPCBody nearestNPC = null;
+
             float nearestDistance = float.MaxValue;
 
             foreach (var npc in npcs)
@@ -141,6 +183,8 @@ namespace TribeBuild.Entity.NPC.Animals
             if (nearestNPC != null)
             {
                 ThreatTarget = nearestNPC;
+                currentWanderTarget = null; // Reset wander when detecting threat
+                wanderPauseTimer = 0f;
                 //GameLogger.Instance?.Debug("Animal", $"{Type} detected NPC #{nearestNPC.ID} at distance {nearestDistance:F1}");
             }
         }
@@ -151,7 +195,7 @@ namespace TribeBuild.Entity.NPC.Animals
             {
                 ThreatTarget = null;
                 State = AnimalState.Idle;
-                UpdateAnimation();
+                ;
                 return NodeState.Success;
             }
 
@@ -163,8 +207,8 @@ namespace TribeBuild.Entity.NPC.Animals
                 // Return to territory
                 ThreatTarget = null;
                 MoveToWithPathfinding(SpawnPosition);
-                State = AnimalState.Wandering;
-                UpdateAnimation();
+                State = AnimalState.Walk;
+                ;
                 return NodeState.Success;
             }
 
@@ -177,23 +221,34 @@ namespace TribeBuild.Entity.NPC.Animals
                     MoveToWithPathfinding(ThreatTarget.Position);
                 }
 
-                State = AnimalState.Wandering;
-                UpdateAnimation();
+                State = AnimalState.Walk;
+                ;
                 return NodeState.Running;
             }
+
+            if (distance > detectionRange * 1.2f)
+            {
+                ThreatTarget = null;
+                State = AnimalState.Walk;
+                ;
+                return NodeState.Success;
+            }
+
 
             // Attack
             Stop();
             State = AnimalState.Attacking;
-            UpdateAnimation();
+            ;
 
             if (attackTimer <= 0f)
             {
                 PerformAttack(ThreatTarget);
                 attackTimer = AttackCooldown;
+                return NodeState.Success;
             }
 
             return NodeState.Running;
+
         }
 
         private void PerformAttack(Entity target)
@@ -217,52 +272,89 @@ namespace TribeBuild.Entity.NPC.Animals
             }
         }
 
-        private NodeState PatrolAction(BehaviorContext ctx)
+        private NodeState WanderAction(BehaviorContext ctx)
         {
-            var patrolTarget = ctx.GetData<Vector2?>("patrolTarget");
-            var patrolTimer = ctx.GetData<float>("patrolTimer");
-
-            patrolTimer -= (float)ctx.GameTime.ElapsedGameTime.TotalSeconds;
-
-            if (patrolTimer <= 0f || !patrolTarget.HasValue)
+            // If pausing, stay idle
+            if (wanderPauseTimer > 0f)
             {
-                // Pick new patrol point within territory
-                var random = new Random();
-                float angle = (float)(random.NextDouble() * Math.PI * 2);
-                float distance = (float)(random.NextDouble() * territoryRadius);
-
-                patrolTarget = SpawnPosition + new Vector2(
-                    (float)Math.Cos(angle) * distance,
-                    (float)Math.Sin(angle) * distance
-                );
-
-                patrolTimer = 5f + (float)(random.NextDouble() * 5f);
-
-                ctx.SetData("patrolTarget", patrolTarget);
-                ctx.SetData("patrolTimer", patrolTimer);
-
-                MoveToWithPathfinding(patrolTarget.Value);
+                Stop();
+                State = AnimalState.Idle;
+                ;
+                return NodeState.Running;
             }
 
-            State = AnimalState.Wandering;
-            UpdateAnimation();
+            // If has target and still moving towards it
+            if (currentWanderTarget.HasValue)
+            {
+                float distanceToTarget = Vector2.Distance(Position, currentWanderTarget.Value);
+                
+                // Check if reached destination or path completed
+                if (!IsMoving() || distanceToTarget <= 10f)
+                {
+                    // Reached target - start pause
+                    currentWanderTarget = null;
+                    wanderPauseTimer = MIN_PAUSE_TIME + (float)(rng.NextDouble() * (MAX_PAUSE_TIME - MIN_PAUSE_TIME));
+                    Stop();
+                    State = AnimalState.Idle;
+                    ;
+                    return NodeState.Running;
+                }
+                
+                // Still moving towards target
+                State = AnimalState.Walk;
+                ;
+                return NodeState.Running;
+            }
+
+            // Pick new wander point within territory
+            Vector2 newTarget = PickRandomWanderPoint();
+            
+            // Make sure the point is within territory
+            float distFromSpawn = Vector2.Distance(newTarget, SpawnPosition);
+            if (distFromSpawn > territoryRadius)
+            {
+                // Pull it back towards spawn
+                Vector2 direction = Vector2.Normalize(SpawnPosition - newTarget);
+                newTarget = SpawnPosition + direction * (territoryRadius * 0.8f);
+            }
+
+            currentWanderTarget = newTarget;
+            MoveToWithPathfinding(newTarget);
+            
+            State = AnimalState.Walk;
             return NodeState.Running;
         }
 
-        private NodeState IdleAction(BehaviorContext ctx)
+        /// <summary>
+        /// Pick a random point near current position for wandering
+        /// </summary>
+        private Vector2 PickRandomWanderPoint()
         {
-            Stop();
-            State = AnimalState.Idle;
-            UpdateAnimation();
-            return NodeState.Running;
+            float angle = (float)(rng.NextDouble() * Math.PI * 2);
+            float distance = MIN_WANDER_DISTANCE + (float)(rng.NextDouble() * (MAX_WANDER_DISTANCE - MIN_WANDER_DISTANCE));
+
+            Vector2 offset = new Vector2(
+                (float)Math.Cos(angle) * distance,
+                (float)Math.Sin(angle) * distance
+            );
+
+            return Position + offset;
         }
 
         private void UpdateAnimation()
         {
-            if (Atlas != null)
-            {
-                AnimatedSprite = GetAnimatedSprite(GetAnimationName());
-            }
+            if (State == lastState && Direction == lastDirection)
+                return;
+
+            AnimatedSprite = GetAnimatedSprite(GetAnimationName());
+
+            // ✅ SET SCALE NGAY SAU KHI TẠO
+            AnimatedSprite._scale = Scale;
+
+            lastState = State;
+            lastDirection = Direction;
         }
+
+
     }
 }

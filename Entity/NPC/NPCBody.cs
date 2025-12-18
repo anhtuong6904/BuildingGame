@@ -31,6 +31,10 @@ namespace TribeBuild.Entity.NPC
         
         // Task tracking
         public Task CurrentTask { get; set; }
+
+        private Direction lastDirection;
+        private NPCState lastState;
+
         
         // World reference
         public GameWorld World { get; private set; }
@@ -90,11 +94,25 @@ namespace TribeBuild.Entity.NPC
             AI?.Update(gameTime, this);
             
             // Update animation
+            UpdateAnimationState();
             AnimatedSprite?.Update(gameTime);
             
             // Update collider position
             UpdateCollider();
         }
+
+        private void UpdateAnimationState()
+        {
+            if (AI == null || Atlas == null) return;
+
+            if (Direction == lastDirection && AI.CurrentState == lastState)
+                return;
+
+            AnimatedSprite = Atlas.CreateAnimatedSprite(GetAnimationName());
+            lastDirection = Direction;
+            lastState = AI.CurrentState;
+        }
+
 
         private void UpdatePathfindingMovement(GameTime gameTime)
         {
@@ -131,15 +149,17 @@ namespace TribeBuild.Entity.NPC
             if (movementDir == Vector2.Zero)
                 return;
 
-            if (Math.Abs(movementDir.X) > Math.Abs(movementDir.Y))
-            {
-                Direction = movementDir.X > 0 ? Direction.Right : Direction.Left;
-            }
-            else
+            // Ưu tiên Up / Down cho top-down RPG
+            if (Math.Abs(movementDir.Y) >= Math.Abs(movementDir.X))
             {
                 Direction = movementDir.Y > 0 ? Direction.Font : Direction.Back;
             }
+            else
+            {
+                Direction = movementDir.X > 0 ? Direction.Right : Direction.Left;
+            }
         }
+
 
         private void UpdateCollider()
         {
