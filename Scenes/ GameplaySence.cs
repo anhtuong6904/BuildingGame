@@ -9,11 +9,17 @@ using MonoGameLibrary.Input;
 using TribeBuild;
 using MonoGameLibrary.PathFinding;
 
+using TribeBuild.UI;
+using FontStashSharp;
+
+
+
 namespace TribeBuild.Scenes
 {
     public class GameplayScene : Scene
     {
         // Game systems
+        private MyraUIManager uiManager;
 
         private SpriteFont spriteFont;
         private GameManager gameManager;
@@ -28,10 +34,13 @@ namespace TribeBuild.Scenes
         private bool showDebugInfo = true;
         private SpriteFont debugFont;
 
+        
+
         public override void Initialize()
         {
             base.Initialize();
             Core.ExitOnEscape = false;
+
             
             //GameLogger.Instance?.Info("Scene", "GameplayScene initializing...");
         }
@@ -40,7 +49,13 @@ namespace TribeBuild.Scenes
         {
             base.LoadContent();
 
-            debugFont = Core.Content.Load<SpriteFont>("Font/Baskic8"); 
+            
+            uiManager = new MyraUIManager(Core.Instance);
+            uiManager.ShowGame();
+            
+
+
+            
             
             // Load tilemap first
             tilemap = Tilemap.FromFile(
@@ -131,57 +146,29 @@ namespace TribeBuild.Scenes
             // if (gameManager.CurrentState == GameState.Playing)
             // {
                 gameManager.Update(gameTime);
+
+                uiManager?.Update(gameTime);
+
             // }
         }
 
         private void HandleCustomInput()
         {
-            // Toggle debug info with F3
-            if (Core.Input.Keyboard.WasKeyPressed(Keys.F3))
-            {
-                showDebugInfo = !showDebugInfo;
-            }
-            
-            // Pause/Resume with P or Escape
-            if (Core.Input.Keyboard.WasKeyPressed(Keys.P) || Core.Input.Keyboard.WasKeyPressed(Keys.Escape))
+           if (Core.Input.Keyboard.WasKeyPressed(Keys.P) || 
+                Core.Input.Keyboard.WasKeyPressed(Keys.Escape))
             {
                 if (gameManager.CurrentState == GameState.Playing)
                 {
                     gameManager.PauseGame();
+                    uiManager.ShowPause();
                 }
                 else if (gameManager.CurrentState == GameState.Paused)
                 {
                     gameManager.ResumeGame();
+                    uiManager.ShowGame();
                 }
             }
-            
-            // Time scale controls with +/-
-            if (Core.Input.Keyboard.WasKeyPressed(Keys.OemPlus) || Core.Input.Keyboard.WasKeyPressed(Keys.Add))
-            {
-                gameManager.TimeScale = Math.Min(gameManager.TimeScale + 0.5f, 5f);
-            }
-            if (Core.Input.Keyboard.WasKeyPressed(Keys.OemMinus) || Core.Input.Keyboard.WasKeyPressed(Keys.Subtract))
-            {
-                gameManager.TimeScale = Math.Max(gameManager.TimeScale - 0.5f, 0.5f);
-            }
-            
-            // Reset time scale with 0
-            if (Core.Input.Keyboard.WasKeyPressed(Keys.D0) || Core.Input.Keyboard.WasKeyPressed(Keys.NumPad0))
-            {
-                gameManager.TimeScale = 1f;
-            }
-            
-            // Reset camera with R
-            if (Core.Input.Keyboard.WasKeyPressed(Keys.R))
-            {
-                cameraController.ResetCamera();
-            }
-            
-            // Log statistics with L
-            if (Core.Input.Keyboard.WasKeyPressed(Keys.L))
-            {
-                gameWorld.LogStatistics();
-            }
+
         }
 
         public override void Draw(GameTime gameTime)
@@ -211,14 +198,7 @@ namespace TribeBuild.Scenes
             // Begin sprite batch without camera transform for UI
             Core.SpriteBatch.Begin(samplerState: SamplerState.PointClamp);
             
-            // Draw UI
-            DrawUI(gameTime);
-            
-            // Draw debug info
-            if (showDebugInfo && debugFont != null)
-            {
-                DrawDebugInfo(gameTime);
-            }
+           uiManager?.Draw();
             
             Core.SpriteBatch.End();
 

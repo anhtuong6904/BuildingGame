@@ -186,61 +186,29 @@ namespace TribeBuild
 
         // ==================== DRAW ====================
         
-        public void Draw(SpriteBatch spriteBatch, GameTime gameTime, Rectangle viewportBounds)
+       public void Draw(SpriteBatch spriteBatch, GameTime gameTime, Rectangle viewportBounds)
         {
-            // Clear and populate drawable list with entities in viewport
             drawableEntities.Clear();
-            
-            // Add resources
-            foreach (var tree in ResourceManager.GetAllTrees())
+
+            foreach (var entity in allEntities.Values)
             {
-                if (tree.IsActive && IsInViewport(tree.Position, viewportBounds))
-                    drawableEntities.Add(new DrawableEntity(tree, tree.Position.Y));
+                if (!entity.IsActive)
+                    continue;
+
+                if (!IsInViewport(entity.Position, viewportBounds))
+                    continue;
+
+                drawableEntities.Add(new DrawableEntity(entity));
             }
-            
-            foreach (var bush in ResourceManager.GetAllBushes())
-            {
-                if (bush.IsActive && IsInViewport(bush.Position, viewportBounds))
-                    drawableEntities.Add(new DrawableEntity(bush, bush.Position.Y));
-            }
-            
-            // Add mines
-            foreach (var mine in mines)
-            {
-                if (mine.IsActive && IsInViewport(mine.Position, viewportBounds))
-                    drawableEntities.Add(new DrawableEntity(mine, mine.Position.Y));
-            }
-            
-            // Add passive animals
-            foreach (var animal in passiveAnimals)
-            {
-                if (animal.IsActive && IsInViewport(animal.Position, viewportBounds))
-                    drawableEntities.Add(new DrawableEntity(animal, animal.Position.Y));
-            }
-            
-            // Add aggressive animals
-            foreach (var animal in aggressiveAnimals)
-            {
-                if (animal.IsActive && IsInViewport(animal.Position, viewportBounds))
-                    drawableEntities.Add(new DrawableEntity(animal, animal.Position.Y));
-            }
-            
-            // Add NPCs
-            foreach (var npc in npcs)
-            {
-                if (npc.IsActive && IsInViewport(npc.Position, viewportBounds))
-                    drawableEntities.Add(new DrawableEntity(npc, npc.Position.Y));
-            }
-            
-            // Sort by Y position (higher Y = drawn later = appears in front)
+
             drawableEntities.Sort((a, b) => a.Depth.CompareTo(b.Depth));
-            
-            // Draw sorted entities
+
             foreach (var drawable in drawableEntities)
             {
                 drawable.Entity.Draw(spriteBatch, gameTime);
             }
         }
+
 
         private bool IsInViewport(Vector2 position, Rectangle viewport)
         {
@@ -588,20 +556,20 @@ namespace TribeBuild
             float Depth { get; }
         }
         
-        private class DrawableEntity : IDrawable
+       private class DrawableEntity :IDrawable
         {
             public Entity.Entity Entity { get; }
-            public float Depth { get; }
-            
-            public DrawableEntity(Entity.Entity entity, float depth)
+            public float Depth => Entity.GetFootY();
+
+            public DrawableEntity(Entity.Entity entity)
             {
                 Entity = entity;
-                Depth = depth;
             }
         }
 
+
         public void SyncPathfinderWithTilemap(Tilemap tilemap, GridPathfinder pathfinder)
-{
+        {
             for (int y = 0; y < tilemap.Height; y++)
             {
                 for (int x = 0; x < tilemap.Width; x++)

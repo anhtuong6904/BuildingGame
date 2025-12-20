@@ -1,7 +1,10 @@
 Source File,Dest File,Processor Type,Content Type,Source File Size,Dest File Size,Build Seconds
-"D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Font/Baskic8.spritefont","D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/bin/DesktopGL/Content/Font/Baskic8.xnb","FontDescriptionProcessor","SpriteFontContent",2074,21529,0.159247
-"D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Font/Essentle4.spritefont","D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/bin/DesktopGL/Content/Font/Essentle4.xnb","FontDescriptionProcessor","SpriteFontContent",2076,37913,0.0269798
-"D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Font/File.spritefont","D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/bin/DesktopGL/Content/Font/File.xnb","FontDescriptionProcessor","SpriteFontContent",2076,37913,0.0447448
+"D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Font/Baskic8.otf","D:\tai_lieu_hoc\Game_Dev\TribeBuild\Content\bin\DesktopGL\Content\Font/Baskic8.otf","CopyItem","File",51180,51180,0.0013346
+"D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Font/Baskic8.spritefont","D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/bin/DesktopGL/Content/Font/Baskic8.xnb","FontDescriptionProcessor","SpriteFontContent",2074,21529,0.1259411
+"D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Font/Essentle4.otf","D:\tai_lieu_hoc\Game_Dev\TribeBuild\Content\bin\DesktopGL\Content\Font/Essentle4.otf","CopyItem","File",17848,17848,0.0006777
+"D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Font/Essentle4.spritefont","D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/bin/DesktopGL/Content/Font/Essentle4.xnb","FontDescriptionProcessor","SpriteFontContent",2076,37913,0.0153132
+"D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Font/File.spritefont","D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/bin/DesktopGL/Content/Font/File.xnb","FontDescriptionProcessor","SpriteFontContent",2076,37913,0.0146562
+"D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Font/Wongdongs.otf","D:\tai_lieu_hoc\Game_Dev\TribeBuild\Content\bin\DesktopGL\Content\Font/Wongdongs.otf","CopyItem","File",233896,233896,0.0006375
 "D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/Boar-sheet.png","D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/bin/DesktopGL/Content/Images/Boar-sheet.xnb","TextureProcessor","Texture2DContent",2146,20565,0.0267107
 "D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/boar.xml","D:\tai_lieu_hoc\Game_Dev\TribeBuild\Content\bin\DesktopGL\Content\Images/boar.xml","CopyItem","File",4571,4571,0.0027398
 "D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/BowmanTemplate-sheet.png","D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/bin/DesktopGL/Content/Images/BowmanTemplate-sheet.xnb","TextureProcessor","Texture2DContent",3306,36949,0.007301
@@ -15,5 +18,5 @@ Source File,Dest File,Processor Type,Content Type,Source File Size,Dest File Siz
 "D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/resource.xml","D:\tai_lieu_hoc\Game_Dev\TribeBuild\Content\bin\DesktopGL\Content\Images/resource.xml","CopyItem","File",1346,1346,0.0010538
 "D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/samplemap5.xml","D:\tai_lieu_hoc\Game_Dev\TribeBuild\Content\bin\DesktopGL\Content\Images/samplemap5.xml","CopyItem","File",3405,3405,0.0009108
 "D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/Sheep-sheet.png","D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/bin/DesktopGL/Content/Images/Sheep-sheet.xnb","TextureProcessor","Texture2DContent",1676,16469,0.0074443
-"D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/Sprite-0001.png","D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/bin/DesktopGL/Content/Images/Sprite-0001.xnb","TextureProcessor","Texture2DContent",1480,12373,0.1018081
-"D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/tree.png","D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/bin/DesktopGL/Content/Images/tree.xnb","TextureProcessor","Texture2DContent",1301,4181,0.0711304
+"D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/Sprite-0001.png","D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/bin/DesktopGL/Content/Images/Sprite-0001.xnb","TextureProcessor","Texture2DContent",1480,12373,0.1132422
+"D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/tree.png","D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/bin/DesktopGL/Content/Images/tree.xnb","TextureProcessor","Texture2DContent",1301,4181,0.0116214

@@ -8,57 +8,70 @@
     ".NETCoreApp,Version=v9.0": {
       "TribeBuild/1.0.0": {
         "dependencies": {
-          "Gum.MonoGame": "2025.8.3.3",
           "MonoGame.Content.Builder.Task": "3.8.4.1",
           "MonoGame.Framework.DesktopGL": "3.8.4.1",
-          "MonoGameLibrary": "1.0.0"
+          "MonoGameLibrary": "1.0.0",
+          "Myra": "1.5.10"
         },
         "runtime": {
           "TribeBuild.dll": {}
         }
       },
-      "FlatRedBall.GumCommon/2025.8.3.3": {
-        "dependencies": {
-          "FlatRedBall.InterpolationCore": "2025.4.22.1",
-          "System.Numerics.Vectors": "4.5.0"
-        },
+      "AssetManagementBase/0.7.1": {
         "runtime": {
-          "lib/net6.0/GumCommon.dll": {
-            "assemblyVersion": "2025.8.3.3",
-            "fileVersion": "2025.8.3.3"
+          "lib/netstandard2.0/AssetManagementBase.dll": {
+            "assemblyVersion": "0.7.1.0",
+            "fileVersion": "0.7.1.0"
           }
         }
       },
-      "FlatRedBall.InterpolationCore/2025.4.22.1": {
-        "dependencies": {
-          "Microsoft.CSharp": "4.7.0",
-          "System.Data.DataSetExtensions": "4.5.0"
-        },
+      "Cyotek.Drawing.BitmapFont/2.0.4": {
         "runtime": {
-          "lib/netstandard2.0/FlatRedBall.InterpolationCore.dll": {
-            "assemblyVersion": "1.1.0.0",
-            "fileVersion": "1.1.0.0"
+          "lib/net5.0/Cyotek.Drawing.BitmapFont.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "2.0.4.0"
           }
         }
       },
-      "Gum.MonoGame/2025.8.3.3": {
-        "dependencies": {
-          "FlatRedBall.GumCommon": "2025.8.3.3",
-          "TextCopy": "6.2.1"
-        },
+      "FontStashSharp.Base/1.2.2": {
         "runtime": {
-          "lib/net6.0/MonoGameGum.dll": {
-            "assemblyVersion": "2025.8.3.3",
-            "fileVersion": "2025.8.3.3"
+          "lib/netstandard2.0/FontStashSharp.Base.dll": {
+            "assemblyVersion": "1.2.2.0",
+            "fileVersion": "1.2.2.0"
           }
         }
       },
-      "Microsoft.CSharp/4.7.0": {},
-      "Microsoft.Extensions.DependencyInjection.Abstractions/7.0.0": {
+      "FontStashSharp.MonoGame/1.5.2": {
+        "dependencies": {
+          "Cyotek.Drawing.BitmapFont": "2.0.4",
+          "FontStashSharp.Base": "1.2.2",
+          "FontStashSharp.Rasterizers.StbTrueTypeSharp": "1.2.2",
+          "StbImageSharp": "2.30.15"
+        },
         "runtime": {
-          "lib/net7.0/Microsoft.Extensions.DependencyInjection.Abstractions.dll": {
-            "assemblyVersion": "7.0.0.0",
-            "fileVersion": "7.0.22.51805"
+          "lib/netstandard2.0/FontStashSharp.MonoGame.dll": {
+            "assemblyVersion": "1.5.2.0",
+            "fileVersion": "1.5.2.0"
+          }
+        }
+      },
+      "FontStashSharp.Rasterizers.StbTrueTypeSharp/1.2.2": {
+        "dependencies": {
+          "FontStashSharp.Base": "1.2.2",
+          "StbTrueTypeSharp": "1.26.12"
+        },
+        "runtime": {
+          "lib/netstandard2.0/FontStashSharp.Rasterizers.StbTrueTypeSharp.dll": {
+            "assemblyVersion": "1.2.2.0",
+            "fileVersion": "1.2.2.0"
+          }
+        }
+      },
+      "info.lundin.math.dll/1.2.6": {
+        "runtime": {
+          "lib/netstandard2.0/info.lundin.math.dll": {
+            "assemblyVersion": "1.2.6.0",
+            "fileVersion": "1.2.6.0"
           }
         }
       },
@@ -154,6 +167,19 @@
           }
         }
       },
+      "Myra/1.5.10": {
+        "dependencies": {
+          "XNAssets.FontStashSharp.MonoGame": "0.8.2",
+          "XNAssets.MonoGame": "0.8.2",
+          "info.lundin.math.dll": "1.2.6"
+        },
+        "runtime": {
+          "lib/netstandard2.0/Myra.dll": {
+            "assemblyVersion": "1.5.10.0",
+            "fileVersion": "1.5.10.0"
+          }
+        }
+      },
       "NVorbis/0.10.4": {
         "dependencies": {
           "System.Memory": "4.5.3",
@@ -166,18 +192,46 @@
           }
         }
       },
-      "System.Data.DataSetExtensions/4.5.0": {},
+      "StbImageSharp/2.30.15": {
+        "runtime": {
+          "lib/netstandard2.0/StbImageSharp.dll": {
+            "assemblyVersion": "2.30.15.0",
+            "fileVersion": "2.30.15.0"
+          }
+        }
+      },
+      "StbTrueTypeSharp/1.26.12": {
+        "runtime": {
+          "lib/netstandard2.0/StbTrueTypeSharp.dll": {
+            "assemblyVersion": "1.26.12.0",
+            "fileVersion": "1.26.12.0"
+          }
+        }
+      },
       "System.Memory/4.5.3": {},
-      "System.Numerics.Vectors/4.5.0": {},
       "System.ValueTuple/4.5.0": {},
-      "TextCopy/6.2.1": {
+      "XNAssets.FontStashSharp.MonoGame/0.8.2": {
         "dependencies": {
-          "Microsoft.Extensions.DependencyInjection.Abstractions": "7.0.0"
+          "AssetManagementBase": "0.7.1",
+          "FontStashSharp.MonoGame": "1.5.2"
         },
         "runtime": {
-          "lib/net6.0/TextCopy.dll": {
-            "assemblyVersion": "1.0.0.0",
-            "fileVersion": "1.0.0.0"
+          "lib/netstandard2.0/XNAssets.FontStashSharp.MonoGame.dll": {
+            "assemblyVersion": "0.8.2.0",
+            "fileVersion": "0.8.2.0"
+          }
+        }
+      },
+      "XNAssets.MonoGame/0.8.2": {
+        "dependencies": {
+          "AssetManagementBase": "0.7.1",
+          "Cyotek.Drawing.BitmapFont": "2.0.4",
+          "StbImageSharp": "2.30.15"
+        },
+        "runtime": {
+          "lib/netstandard2.0/XNAssets.MonoGame.dll": {
+            "assemblyVersion": "0.8.2.0",
+            "fileVersion": "0.8.2.0"
           }
         }
       },
@@ -197,40 +251,47 @@
       "serviceable": false,
       "sha512": ""
     },
-    "FlatRedBall.GumCommon/2025.8.3.3": {
+    "AssetManagementBase/0.7.1": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-2r93e6rb+eoGnyDLR/GqBWSzFujgqPl9wIlFmrndr7W9K/3crOwcWz/TKDEP9YGgVqfFq+XiyYvQvBmMKo77jA==",
-      "path": "flatredball.gumcommon/2025.8.3.3",
-      "hashPath": "flatredball.gumcommon.2025.8.3.3.nupkg.sha512"
+      "sha512": "sha512-ciI67Vo0fvJY/0owQCsfbXy6++mrYmizJiVw9rXmSNe9YB6OhqTMJ+rYrzokeSLCSDJcj8w5Yj98FhkYrV1AoQ==",
+      "path": "assetmanagementbase/0.7.1",
+      "hashPath": "assetmanagementbase.0.7.1.nupkg.sha512"
     },
-    "FlatRedBall.InterpolationCore/2025.4.22.1": {
+    "Cyotek.Drawing.BitmapFont/2.0.4": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-x95teSPBlV88KKbivY+peQ8AjqfXFgmGFnHw4Adds8UaO81zJKZAZZrXeetp5K+5mgd4t2hdtW4ItBFJ7ZwWig==",
-      "path": "flatredball.interpolationcore/2025.4.22.1",
-      "hashPath": "flatredball.interpolationcore.2025.4.22.1.nupkg.sha512"
+      "sha512": "sha512-iA6WehGVdMUuNbfsQQDq/Bt+mMd/OqHjiMUtKFLIQd/0pyYh4ehT7FEjTxN9/4OXNKQZsp9bAJgltP2nnswUJg==",
+      "path": "cyotek.drawing.bitmapfont/2.0.4",
+      "hashPath": "cyotek.drawing.bitmapfont.2.0.4.nupkg.sha512"
     },
-    "Gum.MonoGame/2025.8.3.3": {
+    "FontStashSharp.Base/1.2.2": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-fj3IGafr8SwhfKyOU1DYXI6lUpDWr1Vq0nJWRYn1s8vyqcN02Yazq4B8YKpPr0B9UfZBdNcObKf1NvCqTm2KlA==",
-      "path": "gum.monogame/2025.8.3.3",
-      "hashPath": "gum.monogame.2025.8.3.3.nupkg.sha512"
+      "sha512": "sha512-t2PT+/Sat9WPLm4AVYU1Aa/PrOgNQ4npSUGDHTYufXzLUHxrN3+BaRhAU0DZXkJNfuGCS5iKaQNopNXe9ES24g==",
+      "path": "fontstashsharp.base/1.2.2",
+      "hashPath": "fontstashsharp.base.1.2.2.nupkg.sha512"
     },
-    "Microsoft.CSharp/4.7.0": {
+    "FontStashSharp.MonoGame/1.5.2": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-pTj+D3uJWyN3My70i2Hqo+OXixq3Os2D1nJ2x92FFo6sk8fYS1m1WLNTs0Dc1uPaViH0YvEEwvzddQ7y4rhXmA==",
-      "path": "microsoft.csharp/4.7.0",
-      "hashPath": "microsoft.csharp.4.7.0.nupkg.sha512"
+      "sha512": "sha512-+bhbAZ52L2fIWTRrHnSCNccB7ArKVH6Wa7c/kzO4YybrzXxgmDbLjuOwS49FgN9qsEp/7/Xqalc3YyquXs9uwA==",
+      "path": "fontstashsharp.monogame/1.5.2",
+      "hashPath": "fontstashsharp.monogame.1.5.2.nupkg.sha512"
     },
-    "Microsoft.Extensions.DependencyInjection.Abstractions/7.0.0": {
+    "FontStashSharp.Rasterizers.StbTrueTypeSharp/1.2.2": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-h3j/QfmFN4S0w4C2A6X7arXij/M/OVw3uQHSOFxnND4DyAzO1F9eMX7Eti7lU/OkSthEE0WzRsfT/Dmx86jzCw==",
-      "path": "microsoft.extensions.dependencyinjection.abstractions/7.0.0",
-      "hashPath": "microsoft.extensions.dependencyinjection.abstractions.7.0.0.nupkg.sha512"
+      "sha512": "sha512-OoXoGkxNMhyQeYR/wjeN6Bs8Guea7FisKXLcVJdeNtSYT+5iKxIh4ETi9x9OIk7GEQtNbE0yVhG3rb8RS04Kmg==",
+      "path": "fontstashsharp.rasterizers.stbtruetypesharp/1.2.2",
+      "hashPath": "fontstashsharp.rasterizers.stbtruetypesharp.1.2.2.nupkg.sha512"
+    },
+    "info.lundin.math.dll/1.2.6": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-rCSUXUISKOmFkpEPd9wZJP9bHsyozEwvid3zO4gByG1QQX9IMAUZ8R9OZmpKp20JWrBMGBMTgoXAuLCSoK6VAQ==",
+      "path": "info.lundin.math.dll/1.2.6",
+      "hashPath": "info.lundin.math.dll.1.2.6.nupkg.sha512"
     },
     "MonoGame.Content.Builder.Task/3.8.4.1": {
       "type": "package",
@@ -260,6 +321,13 @@
       "path": "monogame.library.sdl/2.32.2.1",
       "hashPath": "monogame.library.sdl.2.32.2.1.nupkg.sha512"
     },
+    "Myra/1.5.10": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-cT6Ng18vIAZ0z17D+v6Lj9X5DEYFx2trJV6KMKVCLzgF8G9cMCOyPQkg272qBE7nZbzkpGe6o2iw/DU/ZBSQxw==",
+      "path": "myra/1.5.10",
+      "hashPath": "myra.1.5.10.nupkg.sha512"
+    },
     "NVorbis/0.10.4": {
       "type": "package",
       "serviceable": true,
@@ -267,12 +335,19 @@
       "path": "nvorbis/0.10.4",
       "hashPath": "nvorbis.0.10.4.nupkg.sha512"
     },
-    "System.Data.DataSetExtensions/4.5.0": {
+    "StbImageSharp/2.30.15": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-221clPs1445HkTBZPL+K9sDBdJRB8UN8rgjO3ztB0CQ26z//fmJXtlsr6whGatscsKGBrhJl5bwJuKSA8mwFOw==",
-      "path": "system.data.datasetextensions/4.5.0",
-      "hashPath": "system.data.datasetextensions.4.5.0.nupkg.sha512"
+      "sha512": "sha512-7QqbupVhz2kcFUPTgMw4iHR9rYDHGundzzee19Mwmd1typ2Lnv8EVJcLJxlkeBM2+4ex0NwsMtdbGSJctp1XCQ==",
+      "path": "stbimagesharp/2.30.15",
+      "hashPath": "stbimagesharp.2.30.15.nupkg.sha512"
+    },
+    "StbTrueTypeSharp/1.26.12": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-hCc6/OsfcPa5VsLECcEU2m78WOshBrKwK42nAodSm9Z5wH68f7n66SoiRLCdGCkDaqbWz2TlX4zYHIjogj1HJA==",
+      "path": "stbtruetypesharp/1.26.12",
+      "hashPath": "stbtruetypesharp.1.26.12.nupkg.sha512"
     },
     "System.Memory/4.5.3": {
       "type": "package",
@@ -281,13 +356,6 @@
       "path": "system.memory/4.5.3",
       "hashPath": "system.memory.4.5.3.nupkg.sha512"
     },
-    "System.Numerics.Vectors/4.5.0": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-QQTlPTl06J/iiDbJCiepZ4H//BVraReU4O4EoRw1U02H5TLUIT7xn3GnDp9AXPSlJUDyFs4uWjWafNX6WrAojQ==",
-      "path": "system.numerics.vectors/4.5.0",
-      "hashPath": "system.numerics.vectors.4.5.0.nupkg.sha512"
-    },
     "System.ValueTuple/4.5.0": {
       "type": "package",
       "serviceable": true,
@@ -295,12 +363,19 @@
       "path": "system.valuetuple/4.5.0",
       "hashPath": "system.valuetuple.4.5.0.nupkg.sha512"
     },
-    "TextCopy/6.2.1": {
+    "XNAssets.FontStashSharp.MonoGame/0.8.2": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-ryejViUBmHQ2XMie2AiRBn7KVKu2Gh/hqrctGSAUf1BufwfPjr+MWuACNBaiG+40TMbWRDJZgV73Tpl9hggeRw==",
-      "path": "textcopy/6.2.1",
-      "hashPath": "textcopy.6.2.1.nupkg.sha512"
+      "sha512": "sha512-bhOh0TzNubCartCFtKtCjF4vazXYaejPtMhyymOcBGwcrAyBJ49JH61LqxSn+sJmvPrRisq6/ncQqIXsRrR5fw==",
+      "path": "xnassets.fontstashsharp.monogame/0.8.2",
+      "hashPath": "xnassets.fontstashsharp.monogame.0.8.2.nupkg.sha512"
+    },
+    "XNAssets.MonoGame/0.8.2": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-CLdO+nj43tjhp27lQqoVCLHeJbdT7SPlpdGziD2w5sm4+dnnt/CP0i4nzEKAttlxTr1BTLs0neoY0c2GXoU2qA==",
+      "path": "xnassets.monogame/0.8.2",
+      "hashPath": "xnassets.monogame.0.8.2.nupkg.sha512"
     },
     "MonoGameLibrary/1.0.0": {
       "type": "project",

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <SourceFile>d:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/Sprite-0001.png</SourceFile>
-  <SourceTime>2025-12-17T19:19:39.0187827+07:00</SourceTime>
+  <SourceTime>2025-12-19T05:51:57.5240362+07:00</SourceTime>
   <DestFile>d:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/bin/DesktopGL/Images/Sprite-0001.xnb</DestFile>
-  <DestTime>2025-12-18T11:04:07.8136626+07:00</DestTime>
+  <DestTime>2025-12-20T01:26:33.4027834+07:00</DestTime>
   <Importer>TextureImporter</Importer>
   <ImporterTime>2025-10-20T21:25:32+07:00</ImporterTime>
   <Processor>TextureProcessor</Processor>

@@ -2,87 +2,72 @@
   "version": 3,
   "targets": {
     "net9.0": {
-      "FlatRedBall.GumCommon/2025.8.3.3": {
+      "AssetManagementBase/0.7.1": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.0/AssetManagementBase.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard2.0/AssetManagementBase.dll": {}
+        }
+      },
+      "Cyotek.Drawing.BitmapFont/2.0.4": {
+        "type": "package",
+        "compile": {
+          "lib/net5.0/Cyotek.Drawing.BitmapFont.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net5.0/Cyotek.Drawing.BitmapFont.dll": {
+            "related": ".xml"
+          }
+        }
+      },
+      "FontStashSharp.Base/1.2.2": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.0/FontStashSharp.Base.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard2.0/FontStashSharp.Base.dll": {}
+        }
+      },
+      "FontStashSharp.MonoGame/1.5.2": {
         "type": "package",
         "dependencies": {
-          "FlatRedBall.InterpolationCore": "2025.4.22.1",
-          "System.Numerics.Vectors": "4.5.0"
+          "Cyotek.Drawing.BitmapFont": "2.0.4",
+          "FontStashSharp.Base": "1.2.2",
+          "FontStashSharp.Rasterizers.StbTrueTypeSharp": "1.2.2",
+          "StbImageSharp": "2.30.15"
         },
         "compile": {
-          "lib/net6.0/GumCommon.dll": {
-            "related": ".xml"
-          }
+          "lib/netstandard2.0/FontStashSharp.MonoGame.dll": {}
         },
         "runtime": {
-          "lib/net6.0/GumCommon.dll": {
-            "related": ".xml"
-          }
+          "lib/netstandard2.0/FontStashSharp.MonoGame.dll": {}
         }
       },
-      "FlatRedBall.InterpolationCore/2025.4.22.1": {
+      "FontStashSharp.Rasterizers.StbTrueTypeSharp/1.2.2": {
         "type": "package",
         "dependencies": {
-          "Microsoft.CSharp": "4.7.0",
-          "System.Data.DataSetExtensions": "4.5.0"
+          "FontStashSharp.Base": "1.2.2",
+          "StbTrueTypeSharp": "1.26.12"
         },
         "compile": {
-          "lib/netstandard2.0/FlatRedBall.InterpolationCore.dll": {
-            "related": ".xml"
-          }
+          "lib/netstandard2.0/FontStashSharp.Rasterizers.StbTrueTypeSharp.dll": {}
         },
         "runtime": {
-          "lib/netstandard2.0/FlatRedBall.InterpolationCore.dll": {
-            "related": ".xml"
-          }
-        },
-        "contentFiles": {
-          "contentFiles/any/any/_._": {
-            "buildAction": "None",
-            "codeLanguage": "any",
-            "copyToOutput": false
-          }
+          "lib/netstandard2.0/FontStashSharp.Rasterizers.StbTrueTypeSharp.dll": {}
         }
       },
-      "Gum.MonoGame/2025.8.3.3": {
-        "type": "package",
-        "dependencies": {
-          "FlatRedBall.GumCommon": "2025.8.3.3",
-          "TextCopy": "6.2.1"
-        },
-        "compile": {
-          "lib/net6.0/MonoGameGum.dll": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "lib/net6.0/MonoGameGum.dll": {
-            "related": ".xml"
-          }
-        }
-      },
-      "Microsoft.CSharp/4.7.0": {
+      "info.lundin.math.dll/1.2.6": {
         "type": "package",
         "compile": {
-          "ref/netcoreapp2.0/_._": {}
+          "lib/netstandard2.0/info.lundin.math.dll": {}
         },
         "runtime": {
-          "lib/netcoreapp2.0/_._": {}
-        }
-      },
-      "Microsoft.Extensions.DependencyInjection.Abstractions/7.0.0": {
-        "type": "package",
-        "compile": {
-          "lib/net7.0/Microsoft.Extensions.DependencyInjection.Abstractions.dll": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "lib/net7.0/Microsoft.Extensions.DependencyInjection.Abstractions.dll": {
-            "related": ".xml"
-          }
-        },
-        "build": {
-          "buildTransitive/net6.0/_._": {}
+          "lib/netstandard2.0/info.lundin.math.dll": {}
         }
       },
       "MonoGame.Content.Builder.Task/3.8.4.1": {
@@ -179,6 +164,20 @@
           }
         }
       },
+      "Myra/1.5.10": {
+        "type": "package",
+        "dependencies": {
+          "XNAssets.FontStashSharp.MonoGame": "0.8.2",
+          "XNAssets.MonoGame": "0.8.2",
+          "info.lundin.math.dll": "1.2.6"
+        },
+        "compile": {
+          "lib/netstandard2.0/Myra.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard2.0/Myra.dll": {}
+        }
+      },
       "NVorbis/0.10.4": {
         "type": "package",
         "dependencies": {
@@ -196,13 +195,22 @@
           }
         }
       },
-      "System.Data.DataSetExtensions/4.5.0": {
+      "StbImageSharp/2.30.15": {
         "type": "package",
         "compile": {
-          "ref/netstandard2.0/System.Data.DataSetExtensions.dll": {}
+          "lib/netstandard2.0/StbImageSharp.dll": {}
         },
         "runtime": {
-          "lib/netstandard2.0/System.Data.DataSetExtensions.dll": {}
+          "lib/netstandard2.0/StbImageSharp.dll": {}
+        }
+      },
+      "StbTrueTypeSharp/1.26.12": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.0/StbTrueTypeSharp.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard2.0/StbTrueTypeSharp.dll": {}
         }
       },
       "System.Memory/4.5.3": {
@@ -214,15 +222,6 @@
           "lib/netcoreapp2.1/_._": {}
         }
       },
-      "System.Numerics.Vectors/4.5.0": {
-        "type": "package",
-        "compile": {
-          "ref/netcoreapp2.0/_._": {}
-        },
-        "runtime": {
-          "lib/netcoreapp2.0/_._": {}
-        }
-      },
       "System.ValueTuple/4.5.0": {
         "type": "package",
         "compile": {
@@ -232,20 +231,31 @@
           "lib/netcoreapp2.0/_._": {}
         }
       },
-      "TextCopy/6.2.1": {
+      "XNAssets.FontStashSharp.MonoGame/0.8.2": {
         "type": "package",
         "dependencies": {
-          "Microsoft.Extensions.DependencyInjection.Abstractions": "7.0.0"
+          "AssetManagementBase": "0.7.1",
+          "FontStashSharp.MonoGame": "1.5.2"
         },
         "compile": {
-          "lib/net6.0/TextCopy.dll": {
-            "related": ".xml"
-          }
+          "lib/netstandard2.0/XNAssets.FontStashSharp.MonoGame.dll": {}
         },
         "runtime": {
-          "lib/net6.0/TextCopy.dll": {
-            "related": ".xml"
-          }
+          "lib/netstandard2.0/XNAssets.FontStashSharp.MonoGame.dll": {}
+        }
+      },
+      "XNAssets.MonoGame/0.8.2": {
+        "type": "package",
+        "dependencies": {
+          "AssetManagementBase": "0.7.1",
+          "Cyotek.Drawing.BitmapFont": "2.0.4",
+          "StbImageSharp": "2.30.15"
+        },
+        "compile": {
+          "lib/netstandard2.0/XNAssets.MonoGame.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard2.0/XNAssets.MonoGame.dll": {}
         }
       },
       "MonoGameLibrary/1.0.0": {
@@ -261,147 +271,105 @@
     }
   },
   "libraries": {
-    "FlatRedBall.GumCommon/2025.8.3.3": {
-      "sha512": "2r93e6rb+eoGnyDLR/GqBWSzFujgqPl9wIlFmrndr7W9K/3crOwcWz/TKDEP9YGgVqfFq+XiyYvQvBmMKo77jA==",
+    "AssetManagementBase/0.7.1": {
+      "sha512": "ciI67Vo0fvJY/0owQCsfbXy6++mrYmizJiVw9rXmSNe9YB6OhqTMJ+rYrzokeSLCSDJcj8w5Yj98FhkYrV1AoQ==",
       "type": "package",
-      "path": "flatredball.gumcommon/2025.8.3.3",
+      "path": "assetmanagementbase/0.7.1",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
-        "flatredball.gumcommon.2025.8.3.3.nupkg.sha512",
-        "flatredball.gumcommon.nuspec",
-        "lib/net6.0/GumCommon.dll",
-        "lib/net6.0/GumCommon.xml",
-        "lib/netstandard2.0/GumCommon.dll",
-        "lib/netstandard2.0/GumCommon.xml"
+        "assetmanagementbase.0.7.1.nupkg.sha512",
+        "assetmanagementbase.nuspec",
+        "lib/netstandard2.0/AssetManagementBase.dll"
       ]
     },
-    "FlatRedBall.InterpolationCore/2025.4.22.1": {
-      "sha512": "x95teSPBlV88KKbivY+peQ8AjqfXFgmGFnHw4Adds8UaO81zJKZAZZrXeetp5K+5mgd4t2hdtW4ItBFJ7ZwWig==",
+    "Cyotek.Drawing.BitmapFont/2.0.4": {
+      "sha512": "iA6WehGVdMUuNbfsQQDq/Bt+mMd/OqHjiMUtKFLIQd/0pyYh4ehT7FEjTxN9/4OXNKQZsp9bAJgltP2nnswUJg==",
       "type": "package",
-      "path": "flatredball.interpolationcore/2025.4.22.1",
+      "path": "cyotek.drawing.bitmapfont/2.0.4",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
-        "content/InfoAboutProject.txt",
-        "contentFiles/any/netstandard2.0/InfoAboutProject.txt",
-        "flatredball.interpolationcore.2025.4.22.1.nupkg.sha512",
-        "flatredball.interpolationcore.nuspec",
-        "lib/netstandard2.0/FlatRedBall.InterpolationCore.dll",
-        "lib/netstandard2.0/FlatRedBall.InterpolationCore.xml"
+        "cyotek.drawing.bitmapfont.2.0.4.nupkg.sha512",
+        "cyotek.drawing.bitmapfont.nuspec",
+        "icon.png",
+        "lib/net35/Cyotek.Drawing.BitmapFont.dll",
+        "lib/net35/Cyotek.Drawing.BitmapFont.xml",
+        "lib/net40/Cyotek.Drawing.BitmapFont.dll",
+        "lib/net40/Cyotek.Drawing.BitmapFont.xml",
+        "lib/net452/Cyotek.Drawing.BitmapFont.dll",
+        "lib/net452/Cyotek.Drawing.BitmapFont.xml",
+        "lib/net462/Cyotek.Drawing.BitmapFont.dll",
+        "lib/net462/Cyotek.Drawing.BitmapFont.xml",
+        "lib/net472/Cyotek.Drawing.BitmapFont.dll",
+        "lib/net472/Cyotek.Drawing.BitmapFont.xml",
+        "lib/net48/Cyotek.Drawing.BitmapFont.dll",
+        "lib/net48/Cyotek.Drawing.BitmapFont.xml",
+        "lib/net5.0/Cyotek.Drawing.BitmapFont.dll",
+        "lib/net5.0/Cyotek.Drawing.BitmapFont.xml",
+        "lib/netcoreapp2.1/Cyotek.Drawing.BitmapFont.dll",
+        "lib/netcoreapp2.1/Cyotek.Drawing.BitmapFont.xml",
+        "lib/netcoreapp2.2/Cyotek.Drawing.BitmapFont.dll",
+        "lib/netcoreapp2.2/Cyotek.Drawing.BitmapFont.xml",
+        "lib/netcoreapp3.1/Cyotek.Drawing.BitmapFont.dll",
+        "lib/netcoreapp3.1/Cyotek.Drawing.BitmapFont.xml",
+        "lib/netstandard1.3/Cyotek.Drawing.BitmapFont.dll",
+        "lib/netstandard1.3/Cyotek.Drawing.BitmapFont.xml",
+        "lib/netstandard2.0/Cyotek.Drawing.BitmapFont.dll",
+        "lib/netstandard2.0/Cyotek.Drawing.BitmapFont.xml",
+        "lib/netstandard2.1/Cyotek.Drawing.BitmapFont.dll",
+        "lib/netstandard2.1/Cyotek.Drawing.BitmapFont.xml"
       ]
     },
-    "Gum.MonoGame/2025.8.3.3": {
-      "sha512": "fj3IGafr8SwhfKyOU1DYXI6lUpDWr1Vq0nJWRYn1s8vyqcN02Yazq4B8YKpPr0B9UfZBdNcObKf1NvCqTm2KlA==",
+    "FontStashSharp.Base/1.2.2": {
+      "sha512": "t2PT+/Sat9WPLm4AVYU1Aa/PrOgNQ4npSUGDHTYufXzLUHxrN3+BaRhAU0DZXkJNfuGCS5iKaQNopNXe9ES24g==",
       "type": "package",
-      "path": "gum.monogame/2025.8.3.3",
+      "path": "fontstashsharp.base/1.2.2",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
-        "gum.monogame.2025.8.3.3.nupkg.sha512",
-        "gum.monogame.nuspec",
-        "lib/net6.0/MonoGameGum.dll",
-        "lib/net6.0/MonoGameGum.xml",
-        "lib/net8.0-ios18.0/MonoGameGum.dll",
-        "lib/net8.0-ios18.0/MonoGameGum.xml"
+        "fontstashsharp.base.1.2.2.nupkg.sha512",
+        "fontstashsharp.base.nuspec",
+        "lib/net471/FontStashSharp.Base.dll",
+        "lib/netstandard2.0/FontStashSharp.Base.dll"
       ]
     },
-    "Microsoft.CSharp/4.7.0": {
-      "sha512": "pTj+D3uJWyN3My70i2Hqo+OXixq3Os2D1nJ2x92FFo6sk8fYS1m1WLNTs0Dc1uPaViH0YvEEwvzddQ7y4rhXmA==",
+    "FontStashSharp.MonoGame/1.5.2": {
+      "sha512": "+bhbAZ52L2fIWTRrHnSCNccB7ArKVH6Wa7c/kzO4YybrzXxgmDbLjuOwS49FgN9qsEp/7/Xqalc3YyquXs9uwA==",
       "type": "package",
-      "path": "microsoft.csharp/4.7.0",
+      "path": "fontstashsharp.monogame/1.5.2",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
-        "LICENSE.TXT",
-        "THIRD-PARTY-NOTICES.TXT",
-        "lib/MonoAndroid10/_._",
-        "lib/MonoTouch10/_._",
-        "lib/net45/_._",
-        "lib/netcore50/Microsoft.CSharp.dll",
-        "lib/netcoreapp2.0/_._",
-        "lib/netstandard1.3/Microsoft.CSharp.dll",
-        "lib/netstandard2.0/Microsoft.CSharp.dll",
-        "lib/netstandard2.0/Microsoft.CSharp.xml",
-        "lib/portable-net45+win8+wp8+wpa81/_._",
-        "lib/uap10.0.16299/_._",
-        "lib/win8/_._",
-        "lib/wp80/_._",
-        "lib/wpa81/_._",
-        "lib/xamarinios10/_._",
-        "lib/xamarinmac20/_._",
-        "lib/xamarintvos10/_._",
-        "lib/xamarinwatchos10/_._",
-        "microsoft.csharp.4.7.0.nupkg.sha512",
-        "microsoft.csharp.nuspec",
-        "ref/MonoAndroid10/_._",
-        "ref/MonoTouch10/_._",
-        "ref/net45/_._",
-        "ref/netcore50/Microsoft.CSharp.dll",
-        "ref/netcore50/Microsoft.CSharp.xml",
-        "ref/netcore50/de/Microsoft.CSharp.xml",
-        "ref/netcore50/es/Microsoft.CSharp.xml",
-        "ref/netcore50/fr/Microsoft.CSharp.xml",
-        "ref/netcore50/it/Microsoft.CSharp.xml",
-        "ref/netcore50/ja/Microsoft.CSharp.xml",
-        "ref/netcore50/ko/Microsoft.CSharp.xml",
-        "ref/netcore50/ru/Microsoft.CSharp.xml",
-        "ref/netcore50/zh-hans/Microsoft.CSharp.xml",
-        "ref/netcore50/zh-hant/Microsoft.CSharp.xml",
-        "ref/netcoreapp2.0/_._",
-        "ref/netstandard1.0/Microsoft.CSharp.dll",
-        "ref/netstandard1.0/Microsoft.CSharp.xml",
-        "ref/netstandard1.0/de/Microsoft.CSharp.xml",
-        "ref/netstandard1.0/es/Microsoft.CSharp.xml",
-        "ref/netstandard1.0/fr/Microsoft.CSharp.xml",
-        "ref/netstandard1.0/it/Microsoft.CSharp.xml",
-        "ref/netstandard1.0/ja/Microsoft.CSharp.xml",
-        "ref/netstandard1.0/ko/Microsoft.CSharp.xml",
-        "ref/netstandard1.0/ru/Microsoft.CSharp.xml",
-        "ref/netstandard1.0/zh-hans/Microsoft.CSharp.xml",
-        "ref/netstandard1.0/zh-hant/Microsoft.CSharp.xml",
-        "ref/netstandard2.0/Microsoft.CSharp.dll",
-        "ref/netstandard2.0/Microsoft.CSharp.xml",
-        "ref/portable-net45+win8+wp8+wpa81/_._",
-        "ref/uap10.0.16299/_._",
-        "ref/win8/_._",
-        "ref/wp80/_._",
-        "ref/wpa81/_._",
-        "ref/xamarinios10/_._",
-        "ref/xamarinmac20/_._",
-        "ref/xamarintvos10/_._",
-        "ref/xamarinwatchos10/_._",
-        "useSharedDesignerContext.txt",
-        "version.txt"
+        "fontstashsharp.monogame.1.5.2.nupkg.sha512",
+        "fontstashsharp.monogame.nuspec",
+        "lib/netstandard2.0/FontStashSharp.MonoGame.dll"
       ]
     },
-    "Microsoft.Extensions.DependencyInjection.Abstractions/7.0.0": {
-      "sha512": "h3j/QfmFN4S0w4C2A6X7arXij/M/OVw3uQHSOFxnND4DyAzO1F9eMX7Eti7lU/OkSthEE0WzRsfT/Dmx86jzCw==",
+    "FontStashSharp.Rasterizers.StbTrueTypeSharp/1.2.2": {
+      "sha512": "OoXoGkxNMhyQeYR/wjeN6Bs8Guea7FisKXLcVJdeNtSYT+5iKxIh4ETi9x9OIk7GEQtNbE0yVhG3rb8RS04Kmg==",
       "type": "package",
-      "path": "microsoft.extensions.dependencyinjection.abstractions/7.0.0",
+      "path": "fontstashsharp.rasterizers.stbtruetypesharp/1.2.2",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
-        "Icon.png",
-        "LICENSE.TXT",
-        "THIRD-PARTY-NOTICES.TXT",
-        "buildTransitive/net461/Microsoft.Extensions.DependencyInjection.Abstractions.targets",
-        "buildTransitive/net462/_._",
-        "buildTransitive/net6.0/_._",
-        "buildTransitive/netcoreapp2.0/Microsoft.Extensions.DependencyInjection.Abstractions.targets",
-        "lib/net462/Microsoft.Extensions.DependencyInjection.Abstractions.dll",
-        "lib/net462/Microsoft.Extensions.DependencyInjection.Abstractions.xml",
-        "lib/net6.0/Microsoft.Extensions.DependencyInjection.Abstractions.dll",
-        "lib/net6.0/Microsoft.Extensions.DependencyInjection.Abstractions.xml",
-        "lib/net7.0/Microsoft.Extensions.DependencyInjection.Abstractions.dll",
-        "lib/net7.0/Microsoft.Extensions.DependencyInjection.Abstractions.xml",
-        "lib/netstandard2.0/Microsoft.Extensions.DependencyInjection.Abstractions.dll",
-        "lib/netstandard2.0/Microsoft.Extensions.DependencyInjection.Abstractions.xml",
-        "lib/netstandard2.1/Microsoft.Extensions.DependencyInjection.Abstractions.dll",
-        "lib/netstandard2.1/Microsoft.Extensions.DependencyInjection.Abstractions.xml",
-        "microsoft.extensions.dependencyinjection.abstractions.7.0.0.nupkg.sha512",
-        "microsoft.extensions.dependencyinjection.abstractions.nuspec",
-        "useSharedDesignerContext.txt"
+        "fontstashsharp.rasterizers.stbtruetypesharp.1.2.2.nupkg.sha512",
+        "fontstashsharp.rasterizers.stbtruetypesharp.nuspec",
+        "lib/net471/FontStashSharp.Rasterizers.StbTrueTypeSharp.dll",
+        "lib/netstandard2.0/FontStashSharp.Rasterizers.StbTrueTypeSharp.dll"
+      ]
+    },
+    "info.lundin.math.dll/1.2.6": {
+      "sha512": "rCSUXUISKOmFkpEPd9wZJP9bHsyozEwvid3zO4gByG1QQX9IMAUZ8R9OZmpKp20JWrBMGBMTgoXAuLCSoK6VAQ==",
+      "type": "package",
+      "path": "info.lundin.math.dll/1.2.6",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "info.lundin.math.dll.1.2.6.nupkg.sha512",
+        "info.lundin.math.dll.nuspec",
+        "lib/net40/info.lundin.math.dll",
+        "lib/netstandard2.0/info.lundin.math.dll"
       ]
     },
     "MonoGame.Content.Builder.Task/3.8.4.1": {
@@ -476,6 +444,18 @@
         "runtimes/win-x64/native/SDL2.dll"
       ]
     },
+    "Myra/1.5.10": {
+      "sha512": "cT6Ng18vIAZ0z17D+v6Lj9X5DEYFx2trJV6KMKVCLzgF8G9cMCOyPQkg272qBE7nZbzkpGe6o2iw/DU/ZBSQxw==",
+      "type": "package",
+      "path": "myra/1.5.10",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/netstandard2.0/Myra.dll",
+        "myra.1.5.10.nupkg.sha512",
+        "myra.nuspec"
+      ]
+    },
     "NVorbis/0.10.4": {
       "sha512": "WYnil3DhQHzjCY0dM9I2B3r1vWip90AOuQd25KE4NrjPQBg0tBJFluRLm5YPnO5ZLDmwrfosY8jCQGQRmWI/Pg==",
       "type": "package",
@@ -492,23 +472,30 @@
         "nvorbis.nuspec"
       ]
     },
-    "System.Data.DataSetExtensions/4.5.0": {
-      "sha512": "221clPs1445HkTBZPL+K9sDBdJRB8UN8rgjO3ztB0CQ26z//fmJXtlsr6whGatscsKGBrhJl5bwJuKSA8mwFOw==",
+    "StbImageSharp/2.30.15": {
+      "sha512": "7QqbupVhz2kcFUPTgMw4iHR9rYDHGundzzee19Mwmd1typ2Lnv8EVJcLJxlkeBM2+4ex0NwsMtdbGSJctp1XCQ==",
       "type": "package",
-      "path": "system.data.datasetextensions/4.5.0",
+      "path": "stbimagesharp/2.30.15",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
-        "LICENSE.TXT",
-        "THIRD-PARTY-NOTICES.TXT",
-        "lib/net45/_._",
-        "lib/netstandard2.0/System.Data.DataSetExtensions.dll",
-        "ref/net45/_._",
-        "ref/netstandard2.0/System.Data.DataSetExtensions.dll",
-        "system.data.datasetextensions.4.5.0.nupkg.sha512",
-        "system.data.datasetextensions.nuspec",
-        "useSharedDesignerContext.txt",
-        "version.txt"
+        "lib/net471/StbImageSharp.dll",
+        "lib/netstandard2.0/StbImageSharp.dll",
+        "stbimagesharp.2.30.15.nupkg.sha512",
+        "stbimagesharp.nuspec"
+      ]
+    },
+    "StbTrueTypeSharp/1.26.12": {
+      "sha512": "hCc6/OsfcPa5VsLECcEU2m78WOshBrKwK42nAodSm9Z5wH68f7n66SoiRLCdGCkDaqbWz2TlX4zYHIjogj1HJA==",
+      "type": "package",
+      "path": "stbtruetypesharp/1.26.12",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/net471/StbTrueTypeSharp.dll",
+        "lib/netstandard2.0/StbTrueTypeSharp.dll",
+        "stbtruetypesharp.1.26.12.nupkg.sha512",
+        "stbtruetypesharp.nuspec"
       ]
     },
     "System.Memory/4.5.3": {
@@ -528,53 +515,6 @@
         "ref/netcoreapp2.1/_._",
         "system.memory.4.5.3.nupkg.sha512",
         "system.memory.nuspec",
-        "useSharedDesignerContext.txt",
-        "version.txt"
-      ]
-    },
-    "System.Numerics.Vectors/4.5.0": {
-      "sha512": "QQTlPTl06J/iiDbJCiepZ4H//BVraReU4O4EoRw1U02H5TLUIT7xn3GnDp9AXPSlJUDyFs4uWjWafNX6WrAojQ==",
-      "type": "package",
-      "path": "system.numerics.vectors/4.5.0",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "LICENSE.TXT",
-        "THIRD-PARTY-NOTICES.TXT",
-        "lib/MonoAndroid10/_._",
-        "lib/MonoTouch10/_._",
-        "lib/net46/System.Numerics.Vectors.dll",
-        "lib/net46/System.Numerics.Vectors.xml",
-        "lib/netcoreapp2.0/_._",
-        "lib/netstandard1.0/System.Numerics.Vectors.dll",
-        "lib/netstandard1.0/System.Numerics.Vectors.xml",
-        "lib/netstandard2.0/System.Numerics.Vectors.dll",
-        "lib/netstandard2.0/System.Numerics.Vectors.xml",
-        "lib/portable-net45+win8+wp8+wpa81/System.Numerics.Vectors.dll",
-        "lib/portable-net45+win8+wp8+wpa81/System.Numerics.Vectors.xml",
-        "lib/uap10.0.16299/_._",
-        "lib/xamarinios10/_._",
-        "lib/xamarinmac20/_._",
-        "lib/xamarintvos10/_._",
-        "lib/xamarinwatchos10/_._",
-        "ref/MonoAndroid10/_._",
-        "ref/MonoTouch10/_._",
-        "ref/net45/System.Numerics.Vectors.dll",
-        "ref/net45/System.Numerics.Vectors.xml",
-        "ref/net46/System.Numerics.Vectors.dll",
-        "ref/net46/System.Numerics.Vectors.xml",
-        "ref/netcoreapp2.0/_._",
-        "ref/netstandard1.0/System.Numerics.Vectors.dll",
-        "ref/netstandard1.0/System.Numerics.Vectors.xml",
-        "ref/netstandard2.0/System.Numerics.Vectors.dll",
-        "ref/netstandard2.0/System.Numerics.Vectors.xml",
-        "ref/uap10.0.16299/_._",
-        "ref/xamarinios10/_._",
-        "ref/xamarinmac20/_._",
-        "ref/xamarintvos10/_._",
-        "ref/xamarinwatchos10/_._",
-        "system.numerics.vectors.4.5.0.nupkg.sha512",
-        "system.numerics.vectors.nuspec",
         "useSharedDesignerContext.txt",
         "version.txt"
       ]
@@ -623,28 +563,28 @@
         "version.txt"
       ]
     },
-    "TextCopy/6.2.1": {
-      "sha512": "ryejViUBmHQ2XMie2AiRBn7KVKu2Gh/hqrctGSAUf1BufwfPjr+MWuACNBaiG+40TMbWRDJZgV73Tpl9hggeRw==",
+    "XNAssets.FontStashSharp.MonoGame/0.8.2": {
+      "sha512": "bhOh0TzNubCartCFtKtCjF4vazXYaejPtMhyymOcBGwcrAyBJ49JH61LqxSn+sJmvPrRisq6/ncQqIXsRrR5fw==",
       "type": "package",
-      "path": "textcopy/6.2.1",
+      "path": "xnassets.fontstashsharp.monogame/0.8.2",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
-        "icon.png",
-        "lib/monoandroid90/TextCopy.dll",
-        "lib/monoandroid90/TextCopy.xml",
-        "lib/net462/TextCopy.dll",
-        "lib/net462/TextCopy.xml",
-        "lib/net6.0/TextCopy.dll",
-        "lib/net6.0/TextCopy.xml",
-        "lib/netstandard2.0/TextCopy.dll",
-        "lib/netstandard2.0/TextCopy.xml",
-        "lib/netstandard2.1/TextCopy.dll",
-        "lib/netstandard2.1/TextCopy.xml",
-        "lib/xamarinios10/TextCopy.dll",
-        "lib/xamarinios10/TextCopy.xml",
-        "textcopy.6.2.1.nupkg.sha512",
-        "textcopy.nuspec"
+        "lib/netstandard2.0/XNAssets.FontStashSharp.MonoGame.dll",
+        "xnassets.fontstashsharp.monogame.0.8.2.nupkg.sha512",
+        "xnassets.fontstashsharp.monogame.nuspec"
+      ]
+    },
+    "XNAssets.MonoGame/0.8.2": {
+      "sha512": "CLdO+nj43tjhp27lQqoVCLHeJbdT7SPlpdGziD2w5sm4+dnnt/CP0i4nzEKAttlxTr1BTLs0neoY0c2GXoU2qA==",
+      "type": "package",
+      "path": "xnassets.monogame/0.8.2",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/netstandard2.0/XNAssets.MonoGame.dll",
+        "xnassets.monogame.0.8.2.nupkg.sha512",
+        "xnassets.monogame.nuspec"
       ]
     },
     "MonoGameLibrary/1.0.0": {
@@ -655,10 +595,10 @@
   },
   "projectFileDependencyGroups": {
     "net9.0": [
-      "Gum.MonoGame >= 2025.8.3.3",
       "MonoGame.Content.Builder.Task >= 3.8.*",
       "MonoGame.Framework.DesktopGL >= 3.8.*",
-      "MonoGameLibrary >= 1.0.0"
+      "MonoGameLibrary >= 1.0.0",
+      "Myra >= 1.5.10"
     ]
   },
   "packageFolders": {
@@ -716,10 +656,6 @@
       "net9.0": {
         "targetAlias": "net9.0",
         "dependencies": {
-          "Gum.MonoGame": {
-            "target": "Package",
-            "version": "[2025.8.3.3, )"
-          },
           "MonoGame.Content.Builder.Task": {
             "target": "Package",
             "version": "[3.8.*, )"
@@ -727,6 +663,10 @@
           "MonoGame.Framework.DesktopGL": {
             "target": "Package",
             "version": "[3.8.*, )"
+          },
+          "Myra": {
+            "target": "Package",
+            "version": "[1.5.10, )"
           }
         },
         "imports": [

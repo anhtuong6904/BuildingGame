@@ -13,12 +13,18 @@
 
 #---------------------------------- Content ---------------------------------#
 
+#begin Font/Baskic8.otf
+/copy:Font/Baskic8.otf
+
 #begin Font/Baskic8.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor
 /processorParam:PremultiplyAlpha=True
 /processorParam:TextureFormat=Compressed
 /build:Font/Baskic8.spritefont
+
+#begin Font/Essentle4.otf
+/copy:Font/Essentle4.otf
 
 #begin Font/Essentle4.spritefont
 /importer:FontDescriptionImporter
@@ -33,6 +39,9 @@
 /processorParam:PremultiplyAlpha=True
 /processorParam:TextureFormat=Compressed
 /build:Font/File.spritefont
+
+#begin Font/Wongdongs.otf
+/copy:Font/Wongdongs.otf
 
 #begin Images/Boar-sheet.png
 /importer:TextureImporter

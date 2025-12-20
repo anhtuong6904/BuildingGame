@@ -9,7 +9,11 @@ using MonoGameLibrary;
 using MonoGameLibrary.Graphics;
 using MonoGameLibrary.Input;
 using MonoGameLibrary.Scenes;
+using Myra;
 using TribeBuild.Scenes;
+using Myra.Graphics2D.UI;
+using System.Diagnostics;
+using FontStashSharp;
 
 
 namespace TribeBuild;
@@ -17,7 +21,8 @@ namespace TribeBuild;
 public class Game1 : Core
 {
 
-
+    public SpriteFont debugFont {get; private set;}
+    public SpriteFontBase font {get; private set;}
     
     public Game1() : base("TribeBuild", 1920, 1080, true)
     {
@@ -29,6 +34,10 @@ public class Game1 : Core
     {
         // TODO: Add your initialization logic here
         base.Initialize();
+        MyraEnvironment.Game = this;
+        // debugFont = Content.Load<SpriteFont>("Font/Baskic8"); 
+        // font = Content.Load<SpriteFontBase>("Font/Baskic8");
+        
         
        ChangeScene(new GameplayScene());
     

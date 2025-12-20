@@ -183,6 +183,12 @@ namespace TribeBuild.Entity.NPC
             }
         }
 
+        public override float GetFootY()
+        {
+            return Position.Y + Collider.Height;
+        }
+
+
         // ==================== MOVEMENT METHODS ====================
 
         /// <summary>

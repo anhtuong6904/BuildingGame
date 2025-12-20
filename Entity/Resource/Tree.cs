@@ -100,6 +100,11 @@ namespace TribeBuild.Entity.Resource
                 spriteRoot.Draw(spriteBatch, Position);
             }
         }
+        public override float GetFootY()
+        {
+            // thân cây ở nửa dưới sprite
+            return Position.Y + Sprite.Height * 0.6f;
+        }
 
         private void DrawHealthBar(SpriteBatch spriteBatch)
         {
@@ -120,5 +125,7 @@ namespace TribeBuild.Entity.Resource
             var fgRect = new Rectangle(barX, barY, (int)(barWidth * healthPercent), barHeight);
             spriteBatch.Draw(whitePixel, fgRect, Color.Green);
         }
+        
     }
+    
 }

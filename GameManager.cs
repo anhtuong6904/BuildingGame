@@ -416,7 +416,6 @@ namespace TribeBuild
         public void Draw(SpriteBatch spriteBatch, GameTime gameTime, Rectangle viewBound)
         {
             World.Draw(spriteBatch, gameTime, viewBound);
-            Resources.DrawInView(spriteBatch, gameTime, viewBound);
         }
         
         // ==================== RESOURCE TRACKING ====================

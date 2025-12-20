@@ -65,6 +65,11 @@ namespace TribeBuild.Entity
                 Collider.Height
             );
         }
+
+        public virtual float GetFootY()
+        {
+            return Position.Y;
+        }
         
         public virtual void Interact(Entity interactor) { }
         

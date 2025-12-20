@@ -142,10 +142,6 @@
         "net9.0": {
           "targetAlias": "net9.0",
           "dependencies": {
-            "Gum.MonoGame": {
-              "target": "Package",
-              "version": "[2025.8.3.3, )"
-            },
             "MonoGame.Content.Builder.Task": {
               "target": "Package",
               "version": "[3.8.*, )"
@@ -153,6 +149,10 @@
             "MonoGame.Framework.DesktopGL": {
               "target": "Package",
               "version": "[3.8.*, )"
+            },
+            "Myra": {
+              "target": "Package",
+              "version": "[1.5.10, )"
             }
           },
           "imports": [
