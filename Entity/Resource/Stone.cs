@@ -1,14 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Reflection.Metadata;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGameLibrary.Graphics;
 using MonoGameLibrary.Spatial;
 using TribeBuild.Entity.NPC;
-using MonoGameLibrary.PathFinding;
 //using TribeBuild.Entity.NPC.Villager;
 
 namespace TribeBuild.Entity.Resource

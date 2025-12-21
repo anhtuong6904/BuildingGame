@@ -2,7 +2,8 @@ using System;
 using Microsoft.Xna.Framework;
 using MonoGameLibrary.Graphics;
 using MonoGameLibrary.Behavior;
-using System.Runtime.CompilerServices;
+using TribeBuild.Player;
+using TribeBuild.World;
 
 namespace TribeBuild.Entity.NPC.Animals
 {
@@ -88,11 +89,11 @@ namespace TribeBuild.Entity.NPC.Animals
                 Collider = new Rectangle(0, 0, 32, 32);
             }
 
-            InitializeBehaviorTree();
-            InitializeBehaviorTree();
-                behaviorContext = new BehaviorContext(
+             InitializeBehaviorTree();
+    
+            behaviorContext = new BehaviorContext(
                 target: this,
-                gameTime: null // sẽ set lại mỗi frame
+                gameTime: null
             );
 
             //GameLogger.Instance?.Debug("Animal", $"Created {type} at ({pos.X:F0}, {pos.Y:F0})");
@@ -120,8 +121,6 @@ namespace TribeBuild.Entity.NPC.Animals
         {
             if (!IsActive) return;
 
-            
-
             // 1. Update pause timer
             if (wanderPauseTimer > 0f)
             {
@@ -148,16 +147,17 @@ namespace TribeBuild.Entity.NPC.Animals
             aiTickTimer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
             if (aiTickTimer <= 0f)
             {
-                context = new BehaviorContext(this, gameTime);
-                behaviorTree?.Tick(context);
+                // ✅ FIX: Use correct variable name
+                behaviorContext.GameTime = gameTime;
+                behaviorTree?.Tick(behaviorContext);
                 aiTickTimer = AI_TICK_INTERVAL;
             }
 
             base.Update(gameTime);
-             UpdateAnimation();
+            UpdateAnimation();
             AnimatedSprite?.Update(gameTime);
-
         }
+
 
         /// <summary>
         /// Detect nearby threats (hunters, aggressive animals)
@@ -167,36 +167,39 @@ namespace TribeBuild.Entity.NPC.Animals
             var world = GameManager.Instance?.World;
             if (world == null) return;
 
-            // Check for hunters
-            var npcs = world.GetEntitiesOfType<NPCBody>();
-            foreach (var npc in npcs)
+            // ✅ Check for player first (most common threat)
+            var player = world.FindNearestPlayer(Position, detectionRange);
+            if (player != null && player.IsActive)
             {
-                if (!npc.IsActive) continue;
-
-                // Check if it's a hunter
-                if (npc.AI is HunterAI)
-                {
-                    float distance = Vector2.Distance(Position, npc.Position);
-                    if (distance <= detectionRange)
-                    {
-                        ThreatTarget = npc;
-                        currentWanderTarget = null;
-                        wanderPauseTimer = 0f;
-                        return;
-                    }
-                }
+                ThreatTarget = player;
+                currentWanderTarget = null;
+                wanderPauseTimer = 0f;
+                return;
             }
 
-            // Check for aggressive animals
-            var animals = world.GetEntitiesOfType<AggressiveAnimal>();
-            foreach (var animal in animals)
-            {
-                if (!animal.IsActive) continue;
+            // ✅ Then check for other threats via KD-Tree
+            var nearbyEntities = world.KDTree.FindInRadius(Position, detectionRange);
 
-                float distance = Vector2.Distance(Position, animal.Position);
-                if (distance <= detectionRange)
+            foreach (var result in nearbyEntities)
+            {
+                var entity = result.Item;
+                
+                if (entity == null || !entity.IsActive)
+                    continue;
+
+                // Hunter NPCs
+                if (entity is NPCBody npc && npc.AI is HunterAI)
                 {
-                    ThreatTarget = animal;
+                    ThreatTarget = npc;
+                    currentWanderTarget = null;
+                    wanderPauseTimer = 0f;
+                    return;
+                }
+
+                // Aggressive animals
+                if (entity is AggressiveAnimal aggAnimal)
+                {
+                    ThreatTarget = aggAnimal;
                     currentWanderTarget = null;
                     wanderPauseTimer = 0f;
                     return;
@@ -273,13 +276,15 @@ namespace TribeBuild.Entity.NPC.Animals
                 // Check if reached destination or path completed
                 if (!IsMoving() || distanceToTarget <= 10f)
                 {
-                    // Reached target - start grazing pause
                     currentWanderTarget = null;
-                    wanderPauseTimer = MIN_PAUSE_TIME + (float)(rng.NextDouble() * (MAX_PAUSE_TIME - MIN_PAUSE_TIME));
+                    wanderPauseTimer =
+                        MIN_PAUSE_TIME +
+                        (float)(rng.NextDouble() * (MAX_PAUSE_TIME - MIN_PAUSE_TIME));
+
                     Stop();
                     State = AnimalState.Idle;
-                    UpdateAnimation();
-                    return NodeState.Running;
+
+                    return NodeState.Success; // ✅ QUAN TRỌNG
                 }
                 
                 // Still moving towards target

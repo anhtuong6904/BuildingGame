@@ -1,4 +1,3 @@
-using System;
 using Microsoft.Xna.Framework;
 using TribeBuild.Entity.Resource;
 using TribeBuild.Entity.NPC;

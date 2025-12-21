@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using MonoGameLibrary.Behavior;
 using TribeBuild.Tasks;
-using TribeBuild.Entity.NPC.Animals;
+using TribeBuild.World;
 //using TribeBuild.Logging;
 
 namespace TribeBuild.Entity.NPC

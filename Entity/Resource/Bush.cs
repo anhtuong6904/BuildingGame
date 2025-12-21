@@ -1,6 +1,5 @@
 using System;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGameLibrary.Graphics;
 using MonoGameLibrary.Spatial;
@@ -17,14 +16,12 @@ namespace TribeBuild.Entity.Resource
     {
         public BushType BushType { get; private set; }
         
-        // Sprites
-        private Sprite spriteWithBerries;    // Sprite khi có quả
-        private Sprite spriteWithoutBerries;  // Sprite khi không có quả
+        private Sprite spriteWithBerries;
+        private Sprite spriteWithoutBerries;
         
-        // Berry growth
-        private bool hasBerries;              // Có quả hay không
-        private float berryGrowthTimer;       // Timer để mọc quả lại
-        private float berryGrowthTime = 30f;  // 30 giây để mọc quả lại
+        private bool hasBerries;
+        private float berryGrowthTimer;
+        private float berryGrowthTime = 30f;
 
         private Vector2 Scale;
 
@@ -32,14 +29,14 @@ namespace TribeBuild.Entity.Resource
             : base(id, pos, ResourceType.Bush, atlas)
         {
             BushType = bushType;
-            // Load sprites from atlas
+            Scale = scale;
+            
             if (atlas != null)
             {
-                spriteWithBerries = atlas.CreateSprite("Sprite-0001 2");     // Bush with berries
-                spriteWithoutBerries = atlas.CreateSprite("Sprite-0001 4");  // Bush without berries
+                spriteWithBerries = atlas.CreateSprite("Sprite-0001 2");
+                spriteWithoutBerries = atlas.CreateSprite("Sprite-0001 4");
             }
 
-            // Setup based on bush type
             switch (bushType)
             {
                 case BushType.Berry:
@@ -48,7 +45,7 @@ namespace TribeBuild.Entity.Resource
                     YieldItem = "berry";
                     RespawnTime = 60f;
                     CanRespawn = true;
-                    berryGrowthTime = 30f;  // 30 seconds to regrow berries
+                    berryGrowthTime = 30f;
                     break;
                     
                 case BushType.NonBerry:
@@ -60,30 +57,31 @@ namespace TribeBuild.Entity.Resource
             }
 
             Health = MaxHealth;
-            hasBerries = true;           // Start with berries
+            hasBerries = true;
             berryGrowthTimer = 0f;
             
-            // Set initial sprite
             Sprite = hasBerries ? spriteWithBerries : spriteWithoutBerries;
             Sprite._scale = scale;
             
-            // Setup collider at world coordinates
-            if (Sprite != null)
-            {
-                int width = (int)Sprite.Width;
-                int height = (int)Sprite.Height / 2;
-                
-                Collider = new Rectangle(
-                    (int)pos.X,
-                    (int)pos.Y + height,
-                    width,
-                    height
-                );
-            }
-            else
-            {
-                Collider = new Rectangle((int)pos.X, (int)pos.Y, 32, 16);
-            }
+            // ✅ CRITICAL FIX: Store OFFSET, not absolute position
+            float baseTileSize = 16f;
+            float scaledTileSize = baseTileSize * scale.X;
+            
+            // Bush collider: centered horizontally, bottom half of sprite
+            float colliderOffsetX = 0f;                      // Centered (sprite draws from top-left)
+            float colliderOffsetY = scaledTileSize * 0.5f;  // Bottom half
+            float colliderWidth = scaledTileSize;            // Full width
+            float colliderHeight = scaledTileSize * 0.5f;   // Half height
+            
+            Collider = new Rectangle(
+                (int)colliderOffsetX,
+                (int)colliderOffsetY,
+                (int)colliderWidth,
+                (int)colliderHeight
+            );
+            
+            Console.WriteLine($"[Bush] ID={id}, Pos=({pos.X:F1},{pos.Y:F1})");
+            Console.WriteLine($"       Collider OFFSET: ({Collider.X},{Collider.Y}) size {Collider.Width}x{Collider.Height}");
         }
 
         public override void Update(GameTime gameTime)
@@ -93,20 +91,16 @@ namespace TribeBuild.Entity.Resource
             if (!IsActive)
                 return;
             
-            // Berry regrowth logic
             if (!hasBerries && BushType == BushType.Berry)
             {
                 berryGrowthTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
                 
                 if (berryGrowthTimer >= berryGrowthTime)
                 {
-                    // Berries have regrown
                     hasBerries = true;
                     berryGrowthTimer = 0f;
                     Sprite = spriteWithBerries;
-                    Health = MaxHealth;  // Reset health
-                    
-                    //GameLogger.Instance?.Debug("Bush", $"Bush #{ID} berries regrown");
+                    Health = MaxHealth;
                 }
             }
         }
@@ -114,12 +108,8 @@ namespace TribeBuild.Entity.Resource
         public override void Harvest(float damage)
         {
             if (!hasBerries)
-            {
-                // Can't harvest if no berries
                 return;
-            }
             
-            // Harvest berries
             hasBerries = false;
             berryGrowthTimer = 0f;
             Health = 0;
@@ -130,13 +120,9 @@ namespace TribeBuild.Entity.Resource
 
         public override void OnDepleted()
         {
-            // Don't set IsActive to false - bush stays active
-            // Just switch to empty sprite
             IsBeingHarvested = false;
             Harvester = null;
             BlocksPath = false;
-            
-            // Start berry regrowth timer
             berryGrowthTimer = 0f;
         }
 
@@ -154,13 +140,11 @@ namespace TribeBuild.Entity.Resource
             if (!IsActive)
                 return;
             
-            // Draw current sprite (with or without berries)
             if (Sprite != null)
             {
                 Sprite.Draw(spriteBatch, Position);
             }
             
-            // Optional: Draw growth progress indicator
             #if DEBUG
             if (!hasBerries && berryGrowthTime > 0)
             {
@@ -178,44 +162,26 @@ namespace TribeBuild.Entity.Resource
             int barX = (int)Position.X - barWidth / 2;
             int barY = (int)Position.Y - 10;
 
-            // Create white pixel texture
             var whitePixel = new Texture2D(spriteBatch.GraphicsDevice, 1, 1);
             whitePixel.SetData(new[] { Color.White });
 
-            // Background
             var bgRect = new Rectangle(barX, barY, barWidth, barHeight);
             spriteBatch.Draw(whitePixel, bgRect, Color.Gray * 0.5f);
 
-            // Progress
             var progressRect = new Rectangle(barX, barY, (int)(barWidth * progress), barHeight);
             spriteBatch.Draw(whitePixel, progressRect, Color.LightGreen);
         }
         #endif
 
-        // ==================== UTILITY ====================
-
-        /// <summary>
-        /// Check if bush has berries available to harvest
-        /// </summary>
-        public bool HasBerries()
-        {
-            return hasBerries;
-        }
-
-        /// <summary>
-        /// Get berry growth progress (0-1)
-        /// </summary>
+        public bool HasBerries() => hasBerries;
+        
         public float GetGrowthProgress()
         {
             if (hasBerries)
                 return 1f;
-            
             return berryGrowthTimer / berryGrowthTime;
         }
 
-        /// <summary>
-        /// Force berries to regrow (for testing/debug)
-        /// </summary>
         public void ForceRegrowBerries()
         {
             hasBerries = true;

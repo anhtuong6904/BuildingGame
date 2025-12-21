@@ -1,8 +1,9 @@
 using System;
-using System.Linq;
 using Microsoft.Xna.Framework;
 using MonoGameLibrary.Graphics;
 using MonoGameLibrary.Behavior;
+using TribeBuild.Player;
+using TribeBuild.World;
 
 namespace TribeBuild.Entity.NPC.Animals
 {
@@ -29,6 +30,8 @@ namespace TribeBuild.Entity.NPC.Animals
         private BehaviorTree behaviorTree;
         private BehaviorContext behaviorContext;
         private AnimalState lastState;
+
+        private bool allowDetection = true;
         private Direction lastDirection;
 
 
@@ -117,9 +120,9 @@ namespace TribeBuild.Entity.NPC.Animals
 
             float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-            // 1. SENSOR
-            if (ThreatTarget == null)
-                DetectNearbyNPCs();
+            // // 1. SENSOR
+            // if (ThreatTarget == null)
+            //     DetectNearbyNPCs();
 
             // 2. TIMERS
             if (wanderPauseTimer > 0f)
@@ -133,6 +136,15 @@ namespace TribeBuild.Entity.NPC.Animals
             if (aiTickTimer <= 0f)
             {
                 behaviorContext.GameTime = gameTime;
+
+                if (ThreatTarget == null &&
+                    allowDetection &&
+                    (State == AnimalState.Idle || State == AnimalState.Walk) &&
+                    wanderPauseTimer <= 0f)
+                {
+                    DetectNearbyNPCs();
+                }
+
                 behaviorTree.Tick(behaviorContext);
                 aiTickTimer = AI_TICK_INTERVAL;
             }
@@ -149,53 +161,85 @@ namespace TribeBuild.Entity.NPC.Animals
 
 
 
-
-        /// <summary>
-        /// Use KD-Tree to find nearest NPC in territory
-        /// </summary>
         private void DetectNearbyNPCs()
         {
             var world = GameManager.Instance?.World;
-            if (world == null) return;
+            if (world == null)
+            {
+                Console.WriteLine($"[{Type}] WARNING: World is null!");
+                return;
+            }
+            if (wanderPauseTimer > 0f)
+                return;
 
-            // TODO: Use KD-Tree to find NPCs
-            // For now, use simple distance check
-            var npcs = world.GetEntitiesOfType<NPCBody>();
+            // ✅ FIX: Use the safe query method from GameWorld
+            var player = world.FindNearestPlayer(Position, detectionRange);
+            
+            if (player != null && player.IsActive)
+            {
+                ThreatTarget = player;
+                currentWanderTarget = null;
+                wanderPauseTimer = 0f;
+                allowDetection = true;                
+                Console.WriteLine($"[{Type}] 🎯 Detected PLAYER at distance {Vector2.Distance(Position, player.Position):F1}");
+                return;
+            }
 
-            NPCBody nearestNPC = null;
+            // ✅ FIX: Fallback to direct KD-Tree query with better error handling
+            var nearbyEntities = world.KDTree.FindInRadius(Position, detectionRange);
+            
+            if (nearbyEntities.Count == 0)
+            {
+                // No entities in range at all
+                return;
+            }
 
+            Entity nearestTarget = null;
             float nearestDistance = float.MaxValue;
 
-            foreach (var npc in npcs)
+            foreach (var result in nearbyEntities)
             {
-                if (!npc.IsActive) continue;
+                var entity = result.Item;
+                
+                // ✅ Validate entity before checking type
+                if (entity == null || !entity.IsActive)
+                    continue;
 
-                float distance = Vector2.Distance(Position, npc.Position);
+                float distance = result.Distance;
 
-                // Check if in detection range
-                if (distance <= detectionRange && distance < nearestDistance)
+                // ✅ Priority 1: Player
+                if (entity is PlayerCharacter)
                 {
-                    nearestNPC = npc;
+                    nearestTarget = entity;
+                    nearestDistance = distance;
+                    Console.WriteLine($"[{Type}] Found PLAYER in KD-Tree at distance {distance:F1}");
+                    break; // Player is highest priority
+                }
+                
+                // ✅ Priority 2: NPCs
+                if (entity is NPCBody && distance < nearestDistance)
+                {
+                    nearestTarget = entity;
                     nearestDistance = distance;
                 }
             }
 
-            if (nearestNPC != null)
+            if (nearestTarget != null)
             {
-                ThreatTarget = nearestNPC;
-                currentWanderTarget = null; // Reset wander when detecting threat
+                ThreatTarget = nearestTarget;
+                currentWanderTarget = null;
                 wanderPauseTimer = 0f;
-                //GameLogger.Instance?.Debug("Animal", $"{Type} detected NPC #{nearestNPC.ID} at distance {nearestDistance:F1}");
+                
+                string targetType = nearestTarget is PlayerCharacter ? "PLAYER" : "NPC";
+                Console.WriteLine($"[{Type}] 🎯 Detected {targetType} at distance {nearestDistance:F1}");
             }
         }
-
         private NodeState AttackAction(BehaviorContext ctx)
         {
             if (ThreatTarget == null || !ThreatTarget.IsActive)
             {
                 ThreatTarget = null;
                 State = AnimalState.Idle;
-                ;
                 return NodeState.Success;
             }
 
@@ -204,41 +248,34 @@ namespace TribeBuild.Entity.NPC.Animals
             // Check if target left territory
             if (Vector2.Distance(Position, SpawnPosition) > territoryRadius)
             {
-                // Return to territory
                 ThreatTarget = null;
                 MoveToWithPathfinding(SpawnPosition);
                 State = AnimalState.Walk;
-                ;
                 return NodeState.Success;
             }
 
             // Chase if too far
             if (distance > AttackRange)
             {
-                // Use A* pathfinding to chase
                 if (!IsMoving() || PathFollower.GetRemainingDistance(Position) < 20f)
                 {
                     MoveToWithPathfinding(ThreatTarget.Position);
                 }
-
                 State = AnimalState.Walk;
-                ;
                 return NodeState.Running;
             }
 
+            // Lost target
             if (distance > detectionRange * 1.2f)
             {
                 ThreatTarget = null;
                 State = AnimalState.Walk;
-                ;
                 return NodeState.Success;
             }
-
 
             // Attack
             Stop();
             State = AnimalState.Attacking;
-            ;
 
             if (attackTimer <= 0f)
             {
@@ -248,82 +285,85 @@ namespace TribeBuild.Entity.NPC.Animals
             }
 
             return NodeState.Running;
-
         }
 
         private void PerformAttack(Entity target)
         {
-            // Apply damage
+            // ✅ Handle player attacks
+            if (target is PlayerCharacter player)
+            {
+                player.TakeDamage(AttackDamage);
+                Console.WriteLine($"[{Type}] Attacked PLAYER for {AttackDamage} damage!");
+                return;
+            }
+
+            // Handle NPC attacks
             if (target is NPCBody npc)
             {
-                var villager = npc.AI as VillagerAI;
-                if (villager != null)
+                if (npc.AI is VillagerAI villager)
                 {
                     villager.OnAttacked(this);
                 }
-
-                var hunter = npc.AI as HunterAI;
-                if (hunter != null)
+                else if (npc.AI is HunterAI hunter)
                 {
                     hunter.OnAttacked(this);
                 }
-
-                //GameLogger.Instance?.LogCombat(ID, target.ID, AttackDamage);
+                Console.WriteLine($"[{Type}] Attacked NPC #{npc.ID}");
             }
         }
 
         private NodeState WanderAction(BehaviorContext ctx)
         {
-            // If pausing, stay idle
+            // 1. Pausing
             if (wanderPauseTimer > 0f)
             {
+                allowDetection = false;
                 Stop();
                 State = AnimalState.Idle;
-                ;
                 return NodeState.Running;
             }
 
-            // If has target and still moving towards it
+            // 2. Đang đi tới target
             if (currentWanderTarget.HasValue)
             {
                 float distanceToTarget = Vector2.Distance(Position, currentWanderTarget.Value);
-                
-                // Check if reached destination or path completed
+
                 if (!IsMoving() || distanceToTarget <= 10f)
                 {
-                    // Reached target - start pause
+                    // ✅ KẾT THÚC 1 CHU KỲ WANDER
                     currentWanderTarget = null;
-                    wanderPauseTimer = MIN_PAUSE_TIME + (float)(rng.NextDouble() * (MAX_PAUSE_TIME - MIN_PAUSE_TIME));
+                    wanderPauseTimer =
+                        MIN_PAUSE_TIME +
+                        (float)(rng.NextDouble() * (MAX_PAUSE_TIME - MIN_PAUSE_TIME));
+
                     Stop();
                     State = AnimalState.Idle;
-                    ;
-                    return NodeState.Running;
+
+                    return NodeState.Success; // ⭐ QUAN TRỌNG
                 }
-                
-                // Still moving towards target
+
                 State = AnimalState.Walk;
-                ;
                 return NodeState.Running;
             }
 
-            // Pick new wander point within territory
+            // 3. Bắt đầu wander mới
             Vector2 newTarget = PickRandomWanderPoint();
-            
-            // Make sure the point is within territory
+
             float distFromSpawn = Vector2.Distance(newTarget, SpawnPosition);
             if (distFromSpawn > territoryRadius)
             {
-                // Pull it back towards spawn
                 Vector2 direction = Vector2.Normalize(SpawnPosition - newTarget);
                 newTarget = SpawnPosition + direction * (territoryRadius * 0.8f);
             }
 
             currentWanderTarget = newTarget;
+            allowDetection = true;
             MoveToWithPathfinding(newTarget);
-            
             State = AnimalState.Walk;
+
             return NodeState.Running;
         }
+
 
         /// <summary>
         /// Pick a random point near current position for wandering

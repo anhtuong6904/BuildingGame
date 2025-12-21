@@ -1,4 +1,3 @@
-using System;
 using Microsoft.Xna.Framework;
 using TribeBuild.Entity.NPC.Animals;
 using TribeBuild.Entity.NPC;

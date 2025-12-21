@@ -1,18 +1,15 @@
 using System;
 using System.IO;
-using Cyotek.Drawing.BitmapFont;
 using FontStashSharp;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using MonoGameLibrary;
 using Myra;
 using Myra.Graphics2D;
 using Myra.Graphics2D.Brushes;
 using Myra.Graphics2D.UI;
 using Myra.Graphics2D.UI.Styles;
-using TribeBuild;
 using TribeBuild.Tasks;
+using TribeBuild.World;
 
 namespace TribeBuild.UI
 {
@@ -427,9 +424,7 @@ namespace TribeBuild.UI
             // Update resources
            resourceLabel.Text =
                   $"🌲 {gm.WoodCollected}   🪨 {gm.StoneCollected}   🍖 {gm.FoodCollected}";
-
-
-            
+                  
             // Update tasks
             int pending = TaskManager.Instance.GetTaskCount(TaskStatus.Pending);
             int active = TaskManager.Instance.GetTaskCount(TaskStatus.InProgress);

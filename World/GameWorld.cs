@@ -5,14 +5,16 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGameLibrary.PathFinding;
 using MonoGameLibrary.Graphics;
+using MonoGameLibrary.Spatial;
 using TribeBuild.Entity;
 using TribeBuild.Entity.NPC;
 using TribeBuild.Entity.NPC.Animals;
 using TribeBuild.Entity.Resource;
-using TribeBuild.Spatial;
-using TribeBuild.Tasks;
 
-namespace TribeBuild
+using TribeBuild.Tasks;
+using TribeBuild.Player;
+
+namespace TribeBuild.World
 {
     /// <summary>
     /// Quản lý toàn bộ thế giới game:
@@ -32,6 +34,7 @@ namespace TribeBuild
         
         // Entity management
         private Dictionary<int, Entity.Entity> allEntities;
+        public PlayerCharacter player {get;  set;}
         private List<NPCBody> npcs;
         private List<PassiveAnimal> passiveAnimals;
         private List<AggressiveAnimal> aggressiveAnimals;
@@ -40,9 +43,11 @@ namespace TribeBuild
         
         // Systems
         public GridPathfinder Pathfinder { get; private set; }
-        public AnimalSpatialIndex AnimalSpatialIndex { get; private set; }
         public TaskManager TaskManager { get; private set; }
         public ResourceManager ResourceManager { get; private set; }
+        
+        // ✅ KD-Tree for fast spatial queries
+        public KDTree<Entity.Entity> KDTree { get; private set; }
         
         // Entity ID counter
         private int nextEntityID = 1;
@@ -55,6 +60,8 @@ namespace TribeBuild
         
         // Sorted lists for depth rendering
         private List<IDrawable> drawableEntities = new List<IDrawable>();
+         private float debugLogTimer = 0f;
+        private const float DEBUG_LOG_INTERVAL = 5f; // Log every 5 seconds
 
         public GameWorld(int worldWidth, int worldHeight , Vector2 scale, int tileSize = 16)
         {
@@ -64,6 +71,7 @@ namespace TribeBuild
             Scale = scale;
             // Initialize collections
             allEntities = new Dictionary<int, Entity.Entity>();
+            player = null;
             npcs = new List<NPCBody>();
             passiveAnimals = new List<PassiveAnimal>();
             aggressiveAnimals = new List<AggressiveAnimal>();
@@ -72,14 +80,16 @@ namespace TribeBuild
             
             // Initialize systems
             Pathfinder = new GridPathfinder(worldWidth, worldHeight, tileSize);
-            AnimalSpatialIndex = new AnimalSpatialIndex();
-            TaskManager = TaskManager.Instance;
             ResourceManager = ResourceManager.Instance;
+            
+            // ✅ Initialize KD-Tree
+            KDTree = new KDTree<Entity.Entity>();
             
             atlases = new Dictionary<string, TextureAtlas>();
             
             //GameLogger.Instance?.Info("World", $"Created world {worldWidth}x{worldHeight} (tiles: {worldWidth/tileSize}x{worldHeight/tileSize})");
         }
+
 
         public void Initialize()
         {
@@ -103,26 +113,37 @@ namespace TribeBuild
 
         // ==================== UPDATE ====================
         
-        public void Update(GameTime gameTime)
+       public void Update(GameTime gameTime)
         {
-            // Update task manager
-            TaskManager.Update(gameTime);
-            
             // Update resource manager
             ResourceManager.Update(gameTime);
             
-            // Update all entities
-            UpdateEntities(gameTime);
+            // ✅ FIX: Rebuild KD-Tree FIRST with current positions
+            RebuildSpatialTree();
             
-            // Update spatial indices
-            UpdateSpatialIndices();
+            // Update all entities (they can now query accurate spatial data)
+            UpdateEntities(gameTime);
             
             // Cleanup dead entities
             CleanupEntities();
+
+            // Periodic debug logging
+            debugLogTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
+            if (debugLogTimer >= DEBUG_LOG_INTERVAL)
+            {
+                DebugLog();
+                debugLogTimer = 0f;
+            }
         }
+
+
+
 
         private void UpdateEntities(GameTime gameTime)
         {
+            // Update player
+            player?.Update(gameTime);
+            
             // Update NPCs
             foreach (var npc in npcs.ToList())
             {
@@ -159,11 +180,36 @@ namespace TribeBuild
             }
         }
 
-        private void UpdateSpatialIndices()
+        /// <summary>
+        /// ✅ Rebuild KD-Tree with all active entities
+        /// Called after entities move/update
+        /// </summary>
+       /// <summary>
+        /// ✅ Rebuild KD-Tree with ALL active entities (including Player)
+        /// </summary>
+        private void RebuildSpatialTree()
         {
-            // Spatial indices are updated dynamically when entities move/change
-            // KD-Trees are rebuilt as needed in ResourceManager
+            var activeEntities = allEntities.Values.Where(e => e.IsActive).ToList();
+            KDTree.Rebuild(activeEntities);
+            
+            // ✅ Verify Player is in KD-Tree (only log once per second to avoid spam)
+            if (debugLogTimer >= DEBUG_LOG_INTERVAL - 0.1f && player != null)
+            {
+                var playerCheck = KDTree.FindInRadius(
+                    player.Position, 
+                    1f, 
+                    e => e is PlayerCharacter
+                );
+                
+                if (playerCheck.Count == 0)
+                {
+                    Console.WriteLine("⚠️ [GameWorld] BUG: Player NOT in KD-Tree after rebuild!");
+                    Console.WriteLine($"   Player: ID={player.ID}, Active={player.IsActive}, Pos=({player.Position.X:F0},{player.Position.Y:F0})");
+                    Console.WriteLine($"   KD-Tree size: {KDTree.Count}, allEntities: {allEntities.Count}");
+                }
+            }
         }
+
 
         private void CleanupEntities()
         {
@@ -205,7 +251,7 @@ namespace TribeBuild
 
             foreach (var drawable in drawableEntities)
             {
-                drawable.Entity.Draw(spriteBatch, gameTime);
+                drawable.Entity.Draw(spriteBatch);
             }
         }
 
@@ -221,47 +267,78 @@ namespace TribeBuild
 
         // ==================== ENTITY MANAGEMENT ====================
         
+        public PlayerCharacter GetPlayerCharacter => player;
         public int GetNextEntityID() => nextEntityID++;
 
         public void AddEntity(Entity.Entity entity)
         {
-            if (entity == null || allEntities.ContainsKey(entity.ID))
+            if (entity == null)
+            {
+                Console.WriteLine("[GameWorld] ERROR: Attempted to add null entity!");
                 return;
+            }
             
+            if (allEntities.ContainsKey(entity.ID))
+            {
+                Console.WriteLine($"[GameWorld] WARNING: Entity #{entity.ID} already exists!");
+                return;
+            }
+
+            // ✅ Set entity as active FIRST
+            entity.IsActive = true;
+            
+            // ✅ Add to main dictionary (includes Player!)
             allEntities[entity.ID] = entity;
             
-            // Add to specific collections
-            if (entity is NPCBody npc)
+            // ✅ Add to specific collections for faster queries
+            if (entity is PlayerCharacter player)
+            {
+                this.player = player;  // ← Set ở đây
+                Console.WriteLine($"[GameWorld] ✅ Added PLAYER #{player.ID}...");
+            }
+            else if (entity is NPCBody npc)
             {
                 npcs.Add(npc);
-                //GameLogger.Instance?.Debug("World", $"Added NPC #{npc.ID} at ({npc.Position.X:F0}, {npc.Position.Y:F0})");
-            }
-            else if (entity is PassiveAnimal passiveAnimal)
-            {
-                passiveAnimals.Add(passiveAnimal);
-                AnimalSpatialIndex.AddPassiveAnimal(passiveAnimal);
-                //GameLogger.Instance?.Debug("World", $"Added {passiveAnimal.Type} #{passiveAnimal.ID}");
+                Console.WriteLine($"[GameWorld] Added NPC #{npc.ID} at ({npc.Position.X:F0}, {npc.Position.Y:F0})");
             }
             else if (entity is AggressiveAnimal aggressiveAnimal)
             {
                 aggressiveAnimals.Add(aggressiveAnimal);
-                AnimalSpatialIndex.AddAggressiveAnimal(aggressiveAnimal);
-                //GameLogger.Instance?.Debug("World", $"Added {aggressiveAnimal.Type} #{aggressiveAnimal.ID}");
+                Console.WriteLine($"[GameWorld] Added {aggressiveAnimal.Type} #{aggressiveAnimal.ID} at ({aggressiveAnimal.Position.X:F0}, {aggressiveAnimal.Position.Y:F0})");
+            }
+            else if (entity is PassiveAnimal passiveAnimal)
+            {
+                passiveAnimals.Add(passiveAnimal);
+                Console.WriteLine($"[GameWorld] Added {passiveAnimal.Type} #{passiveAnimal.ID} at ({passiveAnimal.Position.X:F0}, {passiveAnimal.Position.Y:F0})");
             }
             else if (entity is Mine mine)
             {
                 mines.Add(mine);
-                // Mines don't block paths - NPCs enter them
-                //GameLogger.Instance?.Debug("World", $"Added mine #{mine.ID}");
+                Console.WriteLine($"[GameWorld] Added Mine #{mine.ID}");
             }
             else if (entity is ResourceEntity resource)
             {
                 resources.Add(resource);
                 
                 // Update pathfinding - resources might block paths
-                //UpdatePathfindingForResource(resource, false);
+                UpdatePathfindingForResource(resource, false);
                 
-                //GameLogger.Instance?.Debug("World", $"Added resource #{resource.ID}");
+                // Only log every 10th resource to avoid spam
+                if (resources.Count % 10 == 0)
+                {
+                    Console.WriteLine($"[GameWorld] Added {resources.Count} resources so far...");
+                }
+            }
+        }
+
+         public void setPlayer(PlayerCharacter playerCharacter)
+        {
+            player = playerCharacter;
+            Console.WriteLine($"[GameWorld] ✅ Set Player reference: #{playerCharacter.ID}");
+            // Verify player is in allEntities
+            if (!allEntities.ContainsKey(playerCharacter.ID))
+            {
+                Console.WriteLine($"⚠️ [GameWorld] WARNING: Player #{playerCharacter.ID} not in allEntities!");
             }
         }
 
@@ -273,7 +350,12 @@ namespace TribeBuild
             allEntities.Remove(entityID);
             
             // Remove from specific collections
-            if (entity is NPCBody npc)
+            if (entity is PlayerCharacter)
+            {
+                // Player reference is managed separately
+                Console.WriteLine($"[GameWorld] Removed PLAYER #{entityID}");
+            }
+            else if (entity is NPCBody npc)
             {
                 npcs.Remove(npc);
             }
@@ -294,8 +376,6 @@ namespace TribeBuild
                 resources.Remove(resource);
                 UpdatePathfindingForResource(resource, true);
             }
-            
-            //GameLogger.Instance?.Debug("World", $"Removed entity #{entityID}");
         }
 
         public Entity.Entity GetEntity(int id)
@@ -328,6 +408,70 @@ namespace TribeBuild
             
             return result;
         }
+
+        // Add to GameWorld.cs - Document 4
+
+        /// <summary>
+        /// ✅ SAFE: Query entities with validation
+        /// </summary>
+        public List<T> GetEntitiesInRadiusSafe<T>(Vector2 position, float radius, Predicate<T> predicate = null) 
+            where T : Entity.Entity
+        {
+            if (KDTree == null || KDTree.Count == 0)
+            {
+                Console.WriteLine("[GameWorld] WARNING: KD-Tree is empty!");
+                return new List<T>();
+            }
+            
+            var results = KDTree.FindInRadius(position, radius);
+            var filtered = new List<T>();
+            
+            foreach (var result in results)
+            {
+                if (result.Item is T entity && entity.IsActive)
+                {
+                    if (predicate == null || predicate(entity))
+                    {
+                        filtered.Add(entity);
+                    }
+                }
+            }
+            
+            return filtered;
+        }
+
+        /// <summary>
+        /// ✅ Use this in AggressiveAnimal detection logic
+        /// </summary>
+        public PlayerCharacter FindNearestPlayer(Vector2 position, float maxRange)
+        {
+            var players = GetEntitiesInRadiusSafe<PlayerCharacter>(
+                position, 
+                maxRange, 
+                p => p.IsActive
+            );
+            
+            if (players.Count == 0)
+                return null;
+            
+            // Return closest player
+            PlayerCharacter nearest = null;
+            float nearestDist = float.MaxValue;
+            
+            foreach (var p in players)
+            {
+                float dist = Vector2.Distance(position, p.Position);
+                if (dist < nearestDist)
+                {
+                    nearestDist = dist;
+                    nearest = p;
+                }
+            }
+            
+            return nearest;
+        }
+
+
 
         public NPCBody GetNearestNPC(Vector2 position, float maxDistance = float.MaxValue)
         {
@@ -510,7 +654,8 @@ namespace TribeBuild
                 MineCount = mines.Count(m => m.IsActive),
                 PendingTasks = TaskManager.GetTaskCount(TaskStatus.Pending),
                 ActiveTasks = TaskManager.GetTaskCount(TaskStatus.InProgress),
-                CompletedTasks = TaskManager.CompletedTasksCount
+                CompletedTasks = TaskManager.CompletedTasksCount,
+                SpatialTreeSize = KDTree.Count
             };
         }
 
@@ -546,17 +691,122 @@ namespace TribeBuild
             // Reset pathfinding grid
             Pathfinder = new GridPathfinder(Width, Height, TileSize);
             
-            nextEntityID = 1;
+            // Reset KD-Tree
+            KDTree.Clear();
             
-            //GameLogger.Instance?.Info("World", "World cleared");
+            nextEntityID = 1;
         }
-         private interface IDrawable
+
+         
+        /// <summary>
+        /// ✅ FIXED: Now actually gets called every 5 seconds
+        /// </summary>
+        private void DebugLog()
+        {
+            Console.WriteLine("\n========== GAMEWORLD DEBUG ==========");
+            Console.WriteLine($"Total Entities: {allEntities.Count}");
+            Console.WriteLine($"KD-Tree Size: {KDTree.Count}");
+            
+            if (player != null)
+            {
+                Console.WriteLine($"Player: #{player.ID} at ({player.Position.X:F0}, {player.Position.Y:F0}), Active: {player.IsActive}");
+                
+                // ✅ Test KD-Tree player query
+                var playersInTree = KDTree.FindInRadius(
+                    Vector2.Zero, 
+                    float.MaxValue, 
+                    e => e is PlayerCharacter
+                );
+                Console.WriteLine($"  - Players in KD-Tree: {playersInTree.Count}");
+                
+                if (playersInTree.Count == 0)
+                {
+                    Console.WriteLine("  ⚠️ WARNING: Player NOT in KD-Tree!");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Player: NULL");
+            }
+            
+            Console.WriteLine($"Aggressive Animals: {aggressiveAnimals.Count(a => a.IsActive)}");
+            foreach (var animal in aggressiveAnimals.Where(a => a.IsActive).Take(3))
+            {
+                Console.WriteLine($"  - {animal.Type} #{animal.ID} at ({animal.Position.X:F0}, {animal.Position.Y:F0})");
+                
+                // Test if this animal can find player
+                if (player != null)
+                {
+                    var nearbyPlayers = KDTree.FindInRadius(
+                        animal.Position,
+                        300f,
+                        e => e is PlayerCharacter p && p.IsActive
+                    );
+                    float distance = Vector2.Distance(animal.Position, player.Position);
+                    Console.WriteLine($"    Distance to player: {distance:F1}, Can detect: {nearbyPlayers.Count > 0}");
+                    
+                    if (nearbyPlayers.Count == 0 && distance < 300f)
+                    {
+                        Console.WriteLine($"    ⚠️ BUG: Player within range but NOT detected by KD-Tree!");
+                    }
+                }
+            }
+            
+            Console.WriteLine($"Passive Animals: {passiveAnimals.Count(a => a.IsActive)}");
+            Console.WriteLine($"Resources: {resources.Count(r => r.IsActive)} (Trees: {resources.OfType<Tree>().Count(t => t.IsActive)})");
+            Console.WriteLine("=====================================\n");
+        }
+
+        /// <summary>
+        /// ✅ ADD: Manual debug command for immediate logging
+        /// </summary>
+        public void ForceDebugLog()
+        {
+            DebugLog();
+        }
+
+
+        
+        public void SyncPathfinderWithTilemap()
+        {
+            var tilemap = GameManager.Instance.World.Tilemap;
+            var pathfinder = GameManager.Instance.World.Pathfinder;
+            
+            Console.WriteLine("[GameWorld] Syncing pathfinder with tilemap...");
+            
+            for (int y = 0; y < tilemap.Height; y++)
+            {
+                for (int x = 0; x < tilemap.Width; x++)
+                {
+                    // ✅ Mark water tiles as non-walkable in pathfinder
+                    if (tilemap.IsWaterTile(x, y))
+                    {
+                        pathfinder.SetWalkable(x, y, false);
+                    }
+                    
+                    // ✅ Also check collision matrix
+                    if (!tilemap.IsTileWalkable(x, y))
+                    {
+                        pathfinder.SetWalkable(x, y, false);
+                    }
+                }
+            }
+            
+            Console.WriteLine("[GameWorld] Pathfinder sync complete");
+        }
+
+        internal bool CanMoveTo(AggressiveAnimal aggressiveAnimal, Vector2 newPosition)
+        {
+            throw new NotImplementedException();
+        }
+
+        private interface IDrawable
         {
             Entity.Entity Entity { get; }
             float Depth { get; }
         }
-        
-       private class DrawableEntity :IDrawable
+    
+     private class DrawableEntity : IDrawable
         {
             public Entity.Entity Entity { get; }
             public float Depth => Entity.GetFootY();
@@ -566,23 +816,8 @@ namespace TribeBuild
                 Entity = entity;
             }
         }
-
-
-        public void SyncPathfinderWithTilemap(Tilemap tilemap, GridPathfinder pathfinder)
-        {
-            for (int y = 0; y < tilemap.Height; y++)
-            {
-                for (int x = 0; x < tilemap.Width; x++)
-                {
-                    bool walkable = tilemap.IsTileWalkable(x, y);
-                    pathfinder.SetWalkable(x, y, walkable);
-                }
-            }
-        }
     }
-
     
-
     
 
     // ==================== STATISTICS ====================
@@ -598,6 +833,7 @@ namespace TribeBuild
         public int PendingTasks;
         public int ActiveTasks;
         public int CompletedTasks;
+        public int SpatialTreeSize;
     }
     
 }

@@ -1,10 +1,10 @@
 using System;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using MonoGameLibrary.Behavior;
 using MonoGameLibrary.Graphics;
 using MonoGameLibrary.PathFinding;
 using MonoGameLibrary.Spatial;
+using TribeBuild.World;
 
 namespace TribeBuild.Entity.NPC.Animals
 {
@@ -232,6 +232,7 @@ namespace TribeBuild.Entity.NPC.Animals
             string direction = Direction.ToString().ToLower();
             return $"{state}-{direction}";
         }
+
 
         /// <summary>
         /// Get animated sprite from atlas

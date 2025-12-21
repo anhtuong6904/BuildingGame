@@ -1,18 +1,7 @@
-using System;
-using System.Runtime.CompilerServices;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using MonoGameLibrary;
-using MonoGameLibrary.Graphics;
-using MonoGameLibrary.Input;
-using MonoGameLibrary.Scenes;
 using Myra;
 using TribeBuild.Scenes;
-using Myra.Graphics2D.UI;
-using System.Diagnostics;
 using FontStashSharp;
 
 

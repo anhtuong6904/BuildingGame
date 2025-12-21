@@ -1,16 +1,13 @@
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using MonoGameLibrary;
 using MonoGameLibrary.Graphics;
 using MonoGameLibrary.Scenes;
-using MonoGameLibrary.Input;
-using TribeBuild;
-using MonoGameLibrary.PathFinding;
-
+using TribeBuild.World;
 using TribeBuild.UI;
-using FontStashSharp;
+using TribeBuild.Player;
+
 
 
 
@@ -20,10 +17,10 @@ namespace TribeBuild.Scenes
     {
         // Game systems
         private MyraUIManager uiManager;
-
-        private SpriteFont spriteFont;
         private GameManager gameManager;
         private GameWorld gameWorld;
+        public RPGCamera rpgCamera {get; set;}
+        private TextureAtlas PlayerAtlas;
         
         // Rendering
         private Tilemap tilemap;
@@ -51,11 +48,11 @@ namespace TribeBuild.Scenes
 
             
             uiManager = new MyraUIManager(Core.Instance);
-            uiManager.ShowGame();
+            uiManager.ShowMainMenu();
             
 
 
-            
+            PlayerAtlas = TextureAtlas.FromFile(Core.Content, "Images/farmer.xml");
             
             // Load tilemap first
             tilemap = Tilemap.FromFile(
@@ -102,16 +99,10 @@ namespace TribeBuild.Scenes
             gameManager.Initialize((int)tilemap.ScaleMapWidth, (int)tilemap.ScaleMapHeight);
             gameWorld = gameManager.World;
 
-            gameWorld.SyncPathfinderWithTilemap(tilemap, gameWorld.Pathfinder);
+            gameWorld.SyncPathfinderWithTilemap();
             
 
-
-            
-            // Set world reference for all NPCs
-            foreach (var npc in gameWorld.GetEntitiesOfType<Entity.NPC.NPCBody>())
-            {
-                npc.SetWorld(gameWorld);
-            }
+            rpgCamera = new RPGCamera(camera, gameWorld.GetPlayerCharacter);
             
             // Load debug font if available
             try
@@ -126,49 +117,33 @@ namespace TribeBuild.Scenes
             // Start the game
             gameManager.StartGame();
             
+            
             //GameLogger.Instance?.Info("Scene", "GameplayScene loaded successfully");
         }
+
+
 
         public override void Update(GameTime gameTime)
         {
             base.Update(gameTime);
             
             // Handle custom input (pause, debug, time scale)
-            HandleCustomInput();
-            
             // Update tilemap animations
             tilemap.UpdateAnimations(gameTime);
+
+            rpgCamera.Update(gameTime);
+            
             
             // Update camera controller (handles WASD, mouse drag, zoom)
-            cameraController.Update(gameTime);
             
             // Update game systems
-            // if (gameManager.CurrentState == GameState.Playing)
-            // {
+            if (gameManager.CurrentState == GameState.Playing)
+            {
                 gameManager.Update(gameTime);
 
                 uiManager?.Update(gameTime);
 
-            // }
-        }
-
-        private void HandleCustomInput()
-        {
-           if (Core.Input.Keyboard.WasKeyPressed(Keys.P) || 
-                Core.Input.Keyboard.WasKeyPressed(Keys.Escape))
-            {
-                if (gameManager.CurrentState == GameState.Playing)
-                {
-                    gameManager.PauseGame();
-                    uiManager.ShowPause();
-                }
-                else if (gameManager.CurrentState == GameState.Paused)
-                {
-                    gameManager.ResumeGame();
-                    uiManager.ShowGame();
-                }
             }
-
         }
 
         public override void Draw(GameTime gameTime)
@@ -203,187 +178,6 @@ namespace TribeBuild.Scenes
             Core.SpriteBatch.End();
 
             base.Draw(gameTime);
-        }
-
-        private void DrawUI(GameTime gameTime)
-        {
-            if (debugFont == null) return;
-            
-            int yPos = 10;
-            int lineHeight = 20;
-            
-            // Game time
-            string timeStr = $"Day {gameManager.CurrentDay} - {gameManager.GetTimeString()} ({(gameManager.IsNight() ? "Night" : "Day")})";
-            Core.SpriteBatch.DrawString(debugFont, timeStr, new Vector2(10, yPos), Color.White);
-            yPos += lineHeight;
-            
-            // Time scale
-            if (gameManager.TimeScale != 1f)
-            {
-                string scaleStr = $"Time Scale: x{gameManager.TimeScale:F1}";
-                Core.SpriteBatch.DrawString(debugFont, scaleStr, new Vector2(10, yPos), Color.Yellow);
-                yPos += lineHeight;
-            }
-            
-            // Game state
-            if (gameManager.CurrentState == GameState.Paused)
-            {
-                string pausedStr = "PAUSED (Press P or ESC to resume)";
-                var textSize = debugFont.MeasureString(pausedStr);
-                Vector2 position = new Vector2(
-                    (Core.GraphicsDevice.Viewport.Width - textSize.X) / 2,
-                    (Core.GraphicsDevice.Viewport.Height - textSize.Y) / 2
-                );
-                
-                // Draw shadow
-                Core.SpriteBatch.DrawString(debugFont, pausedStr, position + new Vector2(2, 2), Color.Black);
-                // Draw text
-                Core.SpriteBatch.DrawString(debugFont, pausedStr, position, Color.White);
-            }
-            
-            // Resources collected
-            yPos = Core.GraphicsDevice.Viewport.Height - 80;
-            Core.SpriteBatch.DrawString(debugFont, $"Wood: {gameManager.WoodCollected}", new Vector2(10, yPos), Color.SaddleBrown);
-            yPos += lineHeight;
-            Core.SpriteBatch.DrawString(debugFont, $"Stone: {gameManager.StoneCollected}", new Vector2(10, yPos), Color.Gray);
-            yPos += lineHeight;
-            Core.SpriteBatch.DrawString(debugFont, $"Food: {gameManager.FoodCollected}", new Vector2(10, yPos), Color.YellowGreen);
-            
-            // Demo complete message
-            if (gameManager.DemoComplete)
-            {
-                string completeStr = "DEMO OBJECTIVES COMPLETE!";
-                var textSize = debugFont.MeasureString(completeStr);
-                Vector2 position = new Vector2(
-                    (Core.GraphicsDevice.Viewport.Width - textSize.X) / 2,
-                    50
-                );
-                
-                // Draw with pulsing effect
-                float pulse = (float)Math.Sin(gameTime.TotalGameTime.TotalSeconds * 3) * 0.3f + 0.7f;
-                Color color = Color.Gold * pulse;
-                
-                Core.SpriteBatch.DrawString(debugFont, completeStr, position + new Vector2(2, 2), Color.Black);
-                Core.SpriteBatch.DrawString(debugFont, completeStr, position, color);
-            }
-        }
-
-        private void DrawDebugInfo(GameTime gameTime)
-        {
-            int yPos = Core.GraphicsDevice.Viewport.Height - 240;
-            int lineHeight = 18;
-            int xPos = Core.GraphicsDevice.Viewport.Width - 200;
-            
-            // FPS
-            float fps = 1f / (float)gameTime.ElapsedGameTime.TotalSeconds;
-            Core.SpriteBatch.DrawString(debugFont, $"FPS: {fps:F0}", new Vector2(xPos, yPos), Color.Lime);
-            yPos += lineHeight;
-            
-            // Camera info
-            Core.SpriteBatch.DrawString(debugFont, $"Camera: ({camera.Position.X:F0}, {camera.Position.Y:F0})", 
-                new Vector2(xPos, yPos), Color.White);
-            yPos += lineHeight;
-            
-            Core.SpriteBatch.DrawString(debugFont, $"Zoom: {camera.Zoom:F2}x", 
-                new Vector2(xPos, yPos), Color.White);
-            yPos += lineHeight;
-            
-            // Mouse world position
-            Vector2 mouseWorldPos = cameraController.GetMouseWorldPosition();
-            Core.SpriteBatch.DrawString(debugFont, $"Mouse: ({mouseWorldPos.X:F0}, {mouseWorldPos.Y:F0})", 
-                new Vector2(xPos, yPos), Color.Cyan);
-            yPos += lineHeight;
-            
-            // Dragging state
-            if (cameraController.IsDragging)
-            {
-                Core.SpriteBatch.DrawString(debugFont, "Dragging Camera", 
-                    new Vector2(xPos, yPos), Color.Yellow);
-                yPos += lineHeight;
-            }
-            
-            // World statistics
-            var stats = gameWorld.GetStatistics();
-            yPos += lineHeight;
-            
-            Core.SpriteBatch.DrawString(debugFont, $"Entities: {stats.TotalEntities}", 
-                new Vector2(xPos, yPos), Color.White);
-            yPos += lineHeight;
-            
-            Core.SpriteBatch.DrawString(debugFont, $"NPCs: {stats.NPCCount}", 
-                new Vector2(xPos, yPos), Color.Cyan);
-            yPos += lineHeight;
-            
-            Core.SpriteBatch.DrawString(debugFont, $"Animals: {stats.PassiveAnimalCount + stats.AggressiveAnimalCount}", 
-                new Vector2(xPos, yPos), Color.Orange);
-            yPos += lineHeight;
-            
-            Core.SpriteBatch.DrawString(debugFont, $"Resources: {stats.ResourceCount}", 
-                new Vector2(xPos, yPos), Color.Green);
-            yPos += lineHeight;
-            
-            // Task statistics
-            yPos += lineHeight;
-            Core.SpriteBatch.DrawString(debugFont, $"Tasks Pending: {stats.PendingTasks}", 
-                new Vector2(xPos, yPos), Color.Yellow);
-            yPos += lineHeight;
-            
-            Core.SpriteBatch.DrawString(debugFont, $"Tasks Active: {stats.ActiveTasks}", 
-                new Vector2(xPos, yPos), Color.LightGreen);
-            yPos += lineHeight;
-            
-            Core.SpriteBatch.DrawString(debugFont, $"Tasks Done: {stats.CompletedTasks}", 
-                new Vector2(xPos, yPos), Color.Gray);
-            
-            // Controls hint
-            DrawControlsHint();
-        }
-
-        private void DrawControlsHint()
-        {
-            if (debugFont == null) return;
-            
-            string[] controls = new string[]
-            {
-                "=== CAMERA CONTROLS ===",
-                "WASD / Arrows: Move Camera",
-                "Right Mouse: Drag Camera",
-                "Mouse Wheel: Zoom",
-                "Q/E: Keyboard Zoom",
-                "R: Reset Camera",
-                "",
-                "=== GAME CONTROLS ===",
-                "P / ESC: Pause",
-                "+/-: Time Scale",
-                "0: Reset Time Scale",
-                "F3: Toggle Debug",
-                "L: Log Statistics"
-            };
-            
-            int yPos = 100;
-            int lineHeight = 16;
-            int xPos = 10;
-            
-            // Draw semi-transparent background
-            var bgRect = new Rectangle(xPos - 5, yPos - 5, 220, controls.Length * lineHeight + 10);
-            DrawRectangle(Core.SpriteBatch, bgRect, Color.Black * 0.5f);
-            
-            // Draw controls text
-            foreach (var line in controls)
-            {
-                Color color = line.StartsWith("===") ? Color.Yellow : Color.White;
-                Core.SpriteBatch.DrawString(debugFont, line, new Vector2(xPos, yPos), color);
-                yPos += lineHeight;
-            }
-        }
-
-        private void DrawRectangle(SpriteBatch spriteBatch, Rectangle rect, Color color)
-        {
-            // Create a 1x1 white texture if needed
-            Texture2D whitePixel = new Texture2D(Core.GraphicsDevice, 1, 1);
-            whitePixel.SetData(new[] { Color.White });
-            
-            spriteBatch.Draw(whitePixel, rect, color);
         }
 
         public override void UnloadContent()

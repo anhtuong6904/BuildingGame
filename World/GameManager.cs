@@ -7,10 +7,11 @@ using TribeBuild.Entity;
 using TribeBuild.Entity.NPC;
 using TribeBuild.Entity.Resource;
 using TribeBuild.Entity.NPC.Animals;
-using TribeBuild.Spatial;
-using TribeBuild.Tasks;
 
-namespace TribeBuild
+using TribeBuild.Tasks;
+using TribeBuild.Player;
+
+namespace TribeBuild.World
 {
     public enum GameState
     {
@@ -36,7 +37,6 @@ namespace TribeBuild
         public GameWorld World { get; private set; }
         public ResourceManager Resources { get; private set; }
         public TaskManager Task { get; private set; }
-        public ResourceSpatialIndex SpatialIndex { get; private set; }
         
         // Tilemap
         private Tilemap tilemap;
@@ -57,6 +57,7 @@ namespace TribeBuild
         private TextureAtlas atlasBoar;
         private TextureAtlas atlasBush;
         private TextureAtlas atlasChicken;
+        private TextureAtlas atlasPlayer;
         private TextureAtlas atlasMine;
         private TextureAtlas atlasResource;
         private TextureAtlas atlasSheep;
@@ -84,6 +85,7 @@ namespace TribeBuild
             
             // Load texture atlases
             atlasBoar = TextureAtlas.FromFile(Core.Content, "Images/boar.xml");
+            atlasPlayer = TextureAtlas.FromFile(Core.Content, "Images/farmer.xml");
             atlasBush = TextureAtlas.FromFile(Core.Content, "Images/Bush.xml");
             atlasChicken = TextureAtlas.FromFile(Core.Content, "Images/Chicken.xml");
             atlasMine = TextureAtlas.FromFile(Core.Content, "Images/Mine.xml");
@@ -110,15 +112,20 @@ namespace TribeBuild
             
             Resources = ResourceManager.Instance;
             Task = TaskManager.Instance;
-            SpatialIndex = new ResourceSpatialIndex();
-        }
+                   }
         
-        public void Initialize(int worldWidth, int worldHeight)
+       public void Initialize(int worldWidth, int worldHeight)
         {
             World.Initialize();
             Resources.Initialize(new Rectangle(0, 0, worldWidth, worldHeight), Scale);
             
+            // ✅ CRITICAL: Sync pathfinder with water tiles
+            World.SyncPathfinderWithTilemap();
+            
             SpawnInitialEntities();
+            
+            // ✅ Validate player position after spawn
+            World.player?.ValidatePosition();
         }
 
         
@@ -131,15 +138,31 @@ namespace TribeBuild
             
             Console.WriteLine("[GameManager] Spawning entities...");
             
-            SpawnVillagers(random, 3);
-            SpawnHunter(random);
+            SpawnPlayer();
+            // SpawnVillagers(random, 3);
+            // SpawnHunter(random);
             SpawnResources(random, treeCount: 30, bushCount: 20);
             SpawnAnimals(random, chickens: 15, sheep: 15, boars: 8);
             SpawnMine(random);
             
             Console.WriteLine("[GameManager] Spawn complete");
         }
-        
+       private void SpawnPlayer()
+        {
+            Vector2 spawnPos = tilemap.TileToWorld(10, 10);
+            int playerId = 1;
+
+            var player = new PlayerCharacter(playerId, spawnPos, atlasPlayer, Scale);
+            
+            // ✅ FIX: Explicitly ensure player is active
+            player.IsActive = true;
+            
+            World.AddEntity(player);
+            World.player = player;
+            
+            Console.WriteLine($"[Player] Spawned at ({spawnPos.X:F0}, {spawnPos.Y:F0})");
+            Console.WriteLine($"[Player] IsActive: {player.IsActive}, ID: {player.ID}");
+        }
         private void SpawnVillagers(Random random, int count)
         {
             Point homeArea = new Point(10, 10);
@@ -178,9 +201,8 @@ namespace TribeBuild
             int bushesSpawned = SpawnBushes(random, bushCount);
             
             Console.WriteLine($"[Resources] Trees: {treesSpawned}/{treeCount} | Bushes: {bushesSpawned}/{bushCount}");
-            SpatialIndex.LogStatistics();
         }
-        
+                    
         private int SpawnTrees(Random random, int count)
         {
             int spawned = 0;
@@ -192,27 +214,32 @@ namespace TribeBuild
                 attempts++;
                 
                 Point tile = new Point(
-                    random.Next(0, tilemap.Width ),
-                    random.Next(0, tilemap.Height - 0)
+                    random.Next(0, tilemap.Width - 1),
+                    random.Next(0, tilemap.Height - 2)  // -2 vì tree cao 2 tiles
                 );
                 
-                if (!CanPlaceResource(tile, 2, 2, RESOURCE_SPACING))
+                // ✅ Tree sprite: 16x32 (1 tile wide, 2 tiles tall)
+                // Check cả 2 tiles chiều dọc
+                if (!CanPlaceResource(tile, 1, 2, RESOURCE_SPACING))
                     continue;
                 
-                Vector2 pos = tilemap.TileToWorld(tile.X, tile.Y);
-                var tree = new Tree(2000 + spawned, pos, Scale, TreeType.Oak, atlasResource);
+                // ✅ Block collision: 1 tile wide, 2 tiles tall
+                Rectangle blockArea = new Rectangle(tile.X, tile.Y, 1, 2);
+                tilemap.CollisionMatrix.BlockArea(blockArea);
                 
+                // ✅ Let ResourceManager create the entity
+                Vector2 worldPos = tilemap.TileToWorld(tile.X, tile.Y);
+                Tree tree = Resources.AddTree(worldPos, Scale, TreeType.Oak, atlasResource);
+                
+                // ✅ Add SAME tree to GameWorld
                 World.AddEntity(tree);
-                Resources.AddTree(pos, Scale, TreeType.Oak, atlasResource);
-                SpatialIndex.AddTree(tree);
-                tilemap.BlockTilesForResource(pos, 2, 2);
                 
                 spawned++;
             }
             
             return spawned;
         }
-        
+
         private int SpawnBushes(Random random, int count)
         {
             int spawned = 0;
@@ -224,27 +251,31 @@ namespace TribeBuild
                 attempts++;
                 
                 Point tile = new Point(
-                    random.Next(0, tilemap.Width ),
-                    random.Next(0, tilemap.Height)
+                    random.Next(0, tilemap.Width - 1),
+                    random.Next(0, tilemap.Height - 1)
                 );
                 
-                if (!CanPlaceResource(tile, 2, 2, RESOURCE_SPACING))
+                // ✅ Bush sprite: 16x16 (1 tile square)
+                if (!CanPlaceResource(tile, 1, 1, RESOURCE_SPACING))
                     continue;
                 
-                Vector2 pos = tilemap.TileToWorld(tile.X, tile.Y);
-                var bush = new Bush(4000 + spawned, pos, Scale, BushType.Berry, atlasResource);
+                // ✅ Block collision: 1x1 tile
+                Rectangle blockArea = new Rectangle(tile.X, tile.Y, 1, 1);
+                tilemap.CollisionMatrix.BlockArea(blockArea);
                 
+                // ✅ Let ResourceManager create the entity
+                Vector2 worldPos = tilemap.TileToWorld(tile.X, tile.Y);
+                Bush bush = Resources.AddBush(worldPos, BushType.Berry, atlasResource);
+                
+                // ✅ Add SAME bush to GameWorld
                 World.AddEntity(bush);
-                Resources.AddBush(pos, BushType.Berry, atlasResource);
-                SpatialIndex.AddBush(bush);
-                tilemap.BlockTilesForResource(pos, 2, 2);
                 
                 spawned++;
             }
             
             return spawned;
         }
-        
+                
         private void SpawnAnimals(Random random, int chickens, int sheep, int boars)
         {
             int chickenCount = SpawnAnimalType(random, chickens, 5000, AnimalType.Chicken, atlasChicken);
@@ -298,7 +329,7 @@ namespace TribeBuild
             var mine = new Mine(1000, pos, Mine);
             
             World.AddEntity(mine);
-            SpatialIndex.AddMine(mine);
+            
             tilemap.BlockTilesForResource(pos, 3, 3);
         }
         

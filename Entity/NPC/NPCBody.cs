@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using MonoGameLibrary.Graphics;
 using MonoGameLibrary.PathFinding;
 using TribeBuild.Tasks;
+using TribeBuild.World;
 
 namespace TribeBuild.Entity.NPC
 {
