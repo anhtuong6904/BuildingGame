@@ -7,6 +7,8 @@ using TribeBuild.Entity.Resource;
 using TribeBuild.Entity.NPC.Animals;
 using TribeBuild.Entity.NPC;
 using TribeBuild.World;
+using TribeBuild.Entity;
+using TribeBuild.Entity.Enemies;
 
 namespace TribeBuild.Player
 {
@@ -41,6 +43,11 @@ namespace TribeBuild.Player
         private PlayerState lastState;
         private KeyboardState _prevKeyboard;
         private MouseState _prevMouse;
+        private float stuckCheckTimer = 0f;
+        private Vector2 lastCheckedPosition;
+        private const float STUCK_CHECK_INTERVAL = 3f;
+        private const float STUCK_THRESHOLD = 10f;
+        private bool lockSprint;
         
         public enum PlayerState
         {
@@ -60,44 +67,44 @@ namespace TribeBuild.Player
             Stamina = MaxStamina;
             MoveSpeed = 150f;
             SprintSpeed = 250f;
+            KnockBack = 20;
             
             this.atlas = atlas;
             Direction = Direction.Font;
             currentState = PlayerState.Idle;
+            
+            // Collision setup
+            BlocksMovement = true;
+            IsPushable = false;
+            Layer = CollisionLayer.Player;
             
             // Load animation
             if (atlas != null)
             {
                 AnimatedSprite = atlas.CreateAnimatedSprite("idle-font");
             }
+            Scale = scale;
+            var bounds = AnimatedSprite._region.Bound;
 
-            Scale = scale != Vector2.Zero ? scale : Vector2.One;
-            
-            if (AnimatedSprite != null)
-            {
-                AnimatedSprite._scale = Scale;
-                
-                var bounds = AnimatedSprite._region.Bound;
-                Collider = new Rectangle(
-                    bounds.Width / 4,
-                    bounds.Height / 2,
-                    bounds.Width / 2,
-                    bounds.Height / 2
-                );
-            }
-            else
-            {
-                Collider = new Rectangle(0, 0, 32, 32);
-            }
+            AnimatedSprite._origin = new Vector2(0, 0);
+            AnimatedSprite._scale = Scale;
+
+            Collider = new Rectangle(
+                (int)(bounds.Width * Scale.X * 0.25f),
+                (int)(bounds.Height * Scale.X * 0.5f),
+                (int)(bounds.Width * Scale.X * 0.5f),
+                (int)(bounds.Height * Scale.X * 0.5f)
+            );
             
             Equipment = new EquipmentManager(this);
             Inventory = new PlayerInventory(20);
             Name = "Player";
+            lastCheckedPosition = pos;
+            stuckCheckTimer = 0f;
             
             Console.WriteLine("[Player] Character created");
         }
 
-        // ✅ FIX: Single Update method
         public override void Update(GameTime gameTime)
         {
             if (!IsActive) return;
@@ -106,13 +113,21 @@ namespace TribeBuild.Player
             
             var keyState = Keyboard.GetState();
             var mouseState = Mouse.GetState();
+            if(Stamina <= 0)
+            {
+                isSprinting = false;
+                lockSprint = true;
+            }
             
             // Regenerate stamina
             if (!isSprinting && Stamina < MaxStamina)
             {
-                Stamina = Math.Min(Stamina + 20f * deltaTime, MaxStamina);
+                Stamina = Math.Min(Stamina + 10f * deltaTime, MaxStamina);
+                if(Stamina >= 30)
+                    lockSprint = false;
             }
             
+            // Update cooldowns
             if (actionCooldown > 0)
                 actionCooldown -= deltaTime;
 
@@ -126,10 +141,40 @@ namespace TribeBuild.Player
                 isActing = false;
             }
             
-            // Handle input
-            HandleMovement(keyState, deltaTime);
-            HandleEquipment(keyState, _prevKeyboard);
-            HandleActions(keyState, _prevKeyboard, mouseState);
+            // Update knockback
+            UpdateKnockback(deltaTime);
+            
+            // Handle input (only if no knockback)
+            if (KnockbackVelocity.LengthSquared() < 0.1f)
+            {
+                HandleMovement(keyState, deltaTime);
+                HandleEquipment(keyState, _prevKeyboard);
+                HandleActions(keyState, _prevKeyboard, mouseState);
+            }
+            
+            // Resolve overlaps
+            var world = GameManager.Instance?.World;
+            if (world != null)
+            {
+                ResolveOverlaps(world, pushStrength: 1.2f);
+            }
+
+            #if DEBUG
+            stuckCheckTimer += deltaTime;
+            if (stuckCheckTimer >= STUCK_CHECK_INTERVAL)
+            {
+                float distanceMoved = Vector2.Distance(Position, lastCheckedPosition);
+                
+                if (distanceMoved < STUCK_THRESHOLD && Velocity.LengthSquared() > 0)
+                {
+                    Console.WriteLine($"[Player] ⚠️ WARNING: Possible stuck! Moved only {distanceMoved:F1} pixels");
+                    ValidatePosition();
+                }
+                
+                lastCheckedPosition = Position;
+                stuckCheckTimer = 0f;
+            }
+            #endif
             
             // Update animation
             UpdateAnimation();
@@ -139,7 +184,10 @@ namespace TribeBuild.Player
             _prevKeyboard = keyState;
             _prevMouse = mouseState;
         }
-        
+
+        /// <summary>
+        /// ✅ Movement with collision
+        /// </summary>
         private void HandleMovement(KeyboardState keyState, float deltaTime)
         {
             Vector2 moveDir = Vector2.Zero;
@@ -164,26 +212,19 @@ namespace TribeBuild.Player
                 float speed = isSprinting ? SprintSpeed : MoveSpeed;
                 Velocity = moveDir * speed;
                 
-                // ✅ FIXED COLLISION: Check each axis separately
-                Vector2 originalPos = Position;
-                Vector2 newPosition = Position;
+                Vector2 desiredPosition = Position + Velocity * deltaTime;
+                var world = GameManager.Instance?.World;
                 
-                // Try X axis movement
-                Vector2 testPosX = originalPos + new Vector2(Velocity.X * deltaTime, 0);
-                if (CanMoveTo(testPosX))
+                if (world != null)
                 {
-                    newPosition.X = testPosX.X;
+                    Position = MoveWithCollision(desiredPosition, deltaTime, world);
+                }
+                else
+                {
+                    Position = desiredPosition;
                 }
                 
-                // Try Y axis movement
-                Vector2 testPosY = originalPos + new Vector2(0, Velocity.Y * deltaTime);
-                if (CanMoveTo(testPosY))
-                {
-                    newPosition.Y = testPosY.Y;
-                }
-                
-                Position = newPosition;
-                
+                // Update stamina
                 if (isSprinting)
                 {
                     Stamina = Math.Max(0, Stamina - 30f * deltaTime);
@@ -198,142 +239,48 @@ namespace TribeBuild.Player
                 currentState = PlayerState.Idle;
             }
         }
-
-        /// <summary>
-        /// ✅ FIXED: Check ALL tiles covered by player collider
-        /// </summary>
-        private bool CanMoveTo(Vector2 newPosition)
-        {
-            var world = GameManager.Instance?.World;
-            if (world == null) return true;
-            
-            var tilemap = world.Tilemap;
-            if (tilemap == null) return true;
-            
-            // ✅ Bounds check
-            if (newPosition.X < 0 || newPosition.Y < 0 || 
-                newPosition.X >= tilemap.ScaleMapWidth || 
-                newPosition.Y >= tilemap.ScaleMapHeight)
-            {
-                Console.WriteLine($"[Player] Out of bounds: ({newPosition.X:F0}, {newPosition.Y:F0})");
-                return false;
-            }
-            
-            // ✅ Create world-space collider at new position
-            Rectangle newCollider = new Rectangle(
-                (int)newPosition.X + Collider.X,
-                (int)newPosition.Y + Collider.Y,
-                Collider.Width,
-                Collider.Height
-            );
-            
-            // ✅ CRITICAL FIX: Check ALL 4 corners of collider
-            Vector2[] cornerOffsets = new Vector2[]
-            {
-                new Vector2(newCollider.Left, newCollider.Top),      // Top-left
-                new Vector2(newCollider.Right, newCollider.Top),     // Top-right
-                new Vector2(newCollider.Left, newCollider.Bottom),   // Bottom-left
-                new Vector2(newCollider.Right, newCollider.Bottom)   // Bottom-right
-            };
-            
-            foreach (var corner in cornerOffsets)
-            {
-                Point tilePos = tilemap.WorldToTile(corner);
-                
-                // ✅ Check if tile exists
-                if (tilePos.X < 0 || tilePos.X >= tilemap.Width ||
-                    tilePos.Y < 0 || tilePos.Y >= tilemap.Height)
-                {
-                    return false;
-                }
-                
-                // ✅ Check if tile is walkable
-                if (!tilemap.IsTileWalkable(tilePos.X, tilePos.Y))
-                {
-                    // ✅ Debug log for water tiles
-                    if (tilemap.IsWaterTile(tilePos.X, tilePos.Y))
-                    {
-                        Console.WriteLine($"[Player] ⛔ Cannot walk on WATER at tile ({tilePos.X}, {tilePos.Y})");
-                    }
-                    return false;
-                }
-            }
-            
-            // ✅ Check collision with static entities
-            var nearbyEntities = world.KDTree.FindInRadius(newPosition, 64f);
-            
-            foreach (var entityResult in nearbyEntities)
-            {
-                var entity = entityResult.Item;
-                if (entity == this || !entity.IsActive) continue;
-                
-                if (EntityBlocksMovement(entity))
-                {
-                    Rectangle entityCollider = GetEntityWorldCollider(entity);
-                    if (newCollider.Intersects(entityCollider))
-                    {
-                        return false;
-                    }
-                }
-            }
-            
-            return true;
-        }
-
-
-        private bool EntityBlocksMovement(Entity.Entity entity)
-        {
-            return entity switch
-            {
-                Tree tree => tree.IsActive,
-                Bush bush => bush.IsActive,
-                Mine mine => mine.IsActive,
-                AnimalEntity => false,
-                NPCBody => false,
-                PlayerCharacter => false,
-                _ => false
-            };
-        }
-
-        private Rectangle GetEntityWorldCollider(Entity.Entity entity)
-        {
-            return new Rectangle(
-                (int)entity.Position.X + entity.Collider.X,
-                (int)entity.Position.Y + entity.Collider.Y,
-                entity.Collider.Width,
-                entity.Collider.Height
-            );
-        }
         
+        /// <summary>
+        /// ✅ Handle equipment switching
+        /// </summary>
         private void HandleEquipment(KeyboardState keyState, KeyboardState prevKeyState)
         {
             Equipment.HandleInput(keyState, prevKeyState);
         }
         
+        /// <summary>
+        /// ✅ IMPROVED: Handle actions with better tool logic
+        /// </summary>
         private void HandleActions(KeyboardState keyState, KeyboardState prevKeyState, MouseState mouseState)
         {
+            // Attack/Use tool (SPACE or LEFT CLICK)
             if ((keyState.IsKeyDown(Keys.Space) && !prevKeyState.IsKeyDown(Keys.Space)) || 
                 (mouseState.LeftButton == ButtonState.Pressed &&
-                _prevMouse.LeftButton == ButtonState.Released &&
-                actionCooldown <= 0))
+                _prevMouse.LeftButton == ButtonState.Released))
             {
                 UseTool();
             }
             
+            // Interact (E key) - Quick pickup/talk
             if (keyState.IsKeyDown(Keys.E) && !prevKeyState.IsKeyDown(Keys.E))
             {
                 TryInteract();
             }
         }
         
+        /// <summary>
+        /// ✅ IMPROVED: Use current tool with effectiveness system
+        /// </summary>
         private void UseTool()
         {
             if (actionCooldown > 0) return;
             
             Tool currentTool = Equipment.CurrentTool;
-            isActing = true;
+            
+            // Set cooldown and lock
             actionCooldown = currentTool.Cooldown;
             actionLockTime = 0.25f;
+            isActing = true;
             
             var world = GameManager.Instance?.World;
             if (world == null) return;
@@ -346,6 +293,8 @@ namespace TribeBuild.Player
                 if (entity == this) continue;
                 
                 bool actionPerformed = false;
+                float effectiveness = Equipment.GetEffectiveness(currentTool.Type, entity);
+                float finalDamage = currentTool.Damage * effectiveness;
                 
                 switch (currentTool.Type)
                 {
@@ -353,62 +302,108 @@ namespace TribeBuild.Player
                         if (entity is Tree tree && tree.IsActive)
                         {
                             currentState = PlayerState.Working;
-                            tree.TakeDamage(currentTool.Damage, this);
+                            tree.TakeDamage(finalDamage, this);
                             actionPerformed = true;
+                            
+                            if (effectiveness > 1f)
+                                Console.WriteLine($"[Player] Axe effectiveness: {effectiveness:F1}x!");
                         }
+                        break;
+                        
+                    case ToolType.Pickaxe:
+                        // TODO: Add stone/rock gathering
                         break;
                         
                     case ToolType.Sword:
                         if (entity is AnimalEntity animal && animal.IsActive)
                         {
                             currentState = PlayerState.Attacking;
-                            animal.TakeDamage(currentTool.Damage, this);
+                            animal.TakeDamage(finalDamage, this);
                             actionPerformed = true;
+                            if(animal.Health <= 0f)
+                            {
+                                Random random = new Random();
+                                int foodCount = random.Next(1,3);
+                                Inventory.AddItem("food", foodCount);
+                            }
+                                
                         }
+                        else if (entity is NightEnemyEntity enemy && enemy.IsActive)
+                        {
+                            currentState = PlayerState.Attacking;
+                            enemy.TakeDamage(finalDamage, this);
+                            actionPerformed = true;
+                            
+                            if (effectiveness > 1f)
+                                Console.WriteLine($"[Player] Sword effectiveness: {effectiveness:F1}x!");
+                        }
+                        
                         break;
                         
-                    case ToolType.None:
+                    case ToolType.Hoe:
+                        // TODO: Add farming
+                        break;
+                        
+                    case ToolType.None: // Bare hands
                         if (entity is Tree handTree && handTree.IsActive)
                         {
                             currentState = PlayerState.Working;
-                            handTree.TakeDamage(currentTool.Damage, this);
+                            handTree.TakeDamage(finalDamage, this);
                             actionPerformed = true;
                         }
                         else if (entity is AnimalEntity handAnimal && handAnimal.IsActive)
                         {
                             currentState = PlayerState.Attacking;
-                            handAnimal.TakeDamage(currentTool.Damage, this);
+                            handAnimal.TakeDamage(finalDamage, this);
                             actionPerformed = true;
                         }
                         break;
                 }
                 
-                if (actionPerformed) break;
+                if (actionPerformed)
+                {
+                    // Play sound effect here
+                    break; // Only hit one entity
+                }
             }
         }
         
+        /// <summary>
+        /// ✅ IMPROVED: Quick interact (pickup, talk, etc.)
+        /// </summary>
         private void TryInteract()
         {
             var world = GameManager.Instance?.World;
             if (world == null) return;
             
-            var entities = world.GetEntitiesInRadius(Position, 64f);
+            const float INTERACT_RANGE = 64f;
+            var entities = world.GetEntitiesInRadius(Position, INTERACT_RANGE);
             
             foreach (var entity in entities)
             {
                 if (entity == this) continue;
                 
+                // Pick berries from bushes
                 if (entity is Bush bush && bush.IsActive)
                 {
-                    Inventory.AddItem("berry", 3);
-                    bush.IsActive = false;
-                    Console.WriteLine($"[Player] Picked berries");
+                    int berries = 3;
+                    if (Inventory.AddItem("berry", berries))
+                    {
+                        bush.IsActive = false;
+                        GameManager.Instance?.OnResourceCollected("berry", berries);
+                        Console.WriteLine($"[Player] Picked {berries} berries");
+                    }
                     return;
                 }
                 
+                // Quick pickup fallen items (if implemented)
+                // TODO: Add item pickup system
+                
+                // Talk to NPCs
                 if (entity is NPCBody npc && npc.IsActive)
                 {
                     Console.WriteLine($"[Player] Talking to NPC #{npc.ID}");
+                    // TODO: Open dialogue system
                     return;
                 }
             }
@@ -451,35 +446,26 @@ namespace TribeBuild.Player
             lastState = currentState;
         }
 
-        /// <summary>
-        /// ✅ Validate and correct player position if stuck on invalid tile
-        /// </summary>
         public void ValidatePosition()
         {
-            var tilemap = GameManager.Instance?.World?.Tilemap;
+            var world = GameManager.Instance?.World;
+            if (world == null) return;
+            
+            var tilemap = world.Tilemap;
             if (tilemap == null) return;
             
             Point currentTile = tilemap.WorldToTile(Position);
             
             if (!tilemap.IsTileWalkable(currentTile.X, currentTile.Y))
             {
-                Console.WriteLine($"[Player] ⚠️ INVALID POSITION: ({Position.X:F0}, {Position.Y:F0}) on tile ({currentTile.X}, {currentTile.Y})");
-                
-                if (tilemap.IsWaterTile(currentTile.X, currentTile.Y))
-                {
-                    Console.WriteLine($"[Player] Standing on WATER!");
-                }
+                Console.WriteLine($"[Player] ⚠️ INVALID POSITION");
                 
                 Point? nearestWalkable = FindNearestWalkableTile(tilemap, currentTile, 10);
                 
                 if (nearestWalkable.HasValue)
                 {
                     Position = tilemap.TileToWorld(nearestWalkable.Value.X, nearestWalkable.Value.Y);
-                    Console.WriteLine($"[Player] ✅ Corrected to ({Position.X:F0}, {Position.Y:F0})");
-                }
-                else
-                {
-                    Console.WriteLine($"[Player] ❌ Could not find walkable tile nearby!");
+                    Console.WriteLine($"[Player] ✅ Corrected position");
                 }
             }
         }
@@ -520,11 +506,13 @@ namespace TribeBuild.Player
             string dir = Direction.ToString().ToLower();
             return $"{state}-{dir}";
         }
-        
-        public void TakeDamage(float damage)
+
+        public void TakeDamage(float damage, Vector2 knockbackDir, float knockbackForce = 200f)
         {
             Health -= damage;
             Console.WriteLine($"[Player] Took {damage} damage! HP: {Health:F0}/{MaxHealth:F0}");
+            
+            ApplyKnockback(knockbackDir, knockbackForce);
             
             if (Health <= 0)
             {

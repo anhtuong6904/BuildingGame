@@ -48,7 +48,6 @@ D:\tai_lieu_hoc\Game_Dev\TribeBuild\bin\Debug\net9.0\Content\Images\W_Idle_(NoSh
 D:\tai_lieu_hoc\Game_Dev\TribeBuild\bin\Debug\net9.0\Content\Images\W_Spawn.xnb
 D:\tai_lieu_hoc\Game_Dev\TribeBuild\bin\Debug\net9.0\Content\Images\doituong\Pawn_Blue.xml
 D:\tai_lieu_hoc\Game_Dev\TribeBuild\bin\Debug\net9.0\Content\Images\punyworld-overworld-tiles.xml
-D:\tai_lieu_hoc\Game_Dev\TribeBuild\bin\Debug\net9.0\Content\Images\punyworld-overworld-tileset.xnb
 D:\tai_lieu_hoc\Game_Dev\TribeBuild\bin\Debug\net9.0\Content\Images\samplemap5.tmx
 D:\tai_lieu_hoc\Game_Dev\TribeBuild\bin\Debug\net9.0\Content\Images\Boar-sheet.xnb
 D:\tai_lieu_hoc\Game_Dev\TribeBuild\bin\Debug\net9.0\Content\Images\boar.xml
@@ -89,8 +88,10 @@ D:\tai_lieu_hoc\Game_Dev\TribeBuild\bin\Debug\net9.0\Content\Font\Baskic8.sprite
 D:\tai_lieu_hoc\Game_Dev\TribeBuild\bin\Debug\net9.0\Content\Font\Essentle4.spritefont
 D:\tai_lieu_hoc\Game_Dev\TribeBuild\bin\Debug\net9.0\Content\Font\File.spritefont
 D:\tai_lieu_hoc\Game_Dev\TribeBuild\bin\Debug\net9.0\Content\Font\Baskic8.otf
-D:\tai_lieu_hoc\Game_Dev\TribeBuild\bin\Debug\net9.0\Content\Font\Baskic8.xnb
 D:\tai_lieu_hoc\Game_Dev\TribeBuild\bin\Debug\net9.0\Content\Font\Essentle4.otf
-D:\tai_lieu_hoc\Game_Dev\TribeBuild\bin\Debug\net9.0\Content\Font\Essentle4.xnb
-D:\tai_lieu_hoc\Game_Dev\TribeBuild\bin\Debug\net9.0\Content\Font\File.xnb
 D:\tai_lieu_hoc\Game_Dev\TribeBuild\bin\Debug\net9.0\Content\Font\Wongdongs.otf
+D:\tai_lieu_hoc\Game_Dev\TribeBuild\bin\Debug\net9.0\Content\Images\Sprite-0001.xml
+D:\tai_lieu_hoc\Game_Dev\TribeBuild\bin\Debug\net9.0\Content\Images\punyworld-overworld-tileset-sheet.xml
+D:\tai_lieu_hoc\Game_Dev\TribeBuild\bin\Debug\net9.0\Content\Images\punyworld-overworld-tileset-sheet.xnb
+D:\tai_lieu_hoc\Game_Dev\TribeBuild\bin\Debug\net9.0\Content\Images\AssasinTemplate-sheet.xnb
+D:\tai_lieu_hoc\Game_Dev\TribeBuild\bin\Debug\net9.0\Content\Images\Assassin.xml

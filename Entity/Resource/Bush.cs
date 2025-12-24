@@ -23,18 +23,29 @@ namespace TribeBuild.Entity.Resource
         private float berryGrowthTimer;
         private float berryGrowthTime = 30f;
 
-        private Vector2 Scale;
+        private Vector2 _scale;
 
         public Bush(int id, Vector2 pos, Vector2 scale, BushType bushType = BushType.Berry, TextureAtlas atlas = null)
             : base(id, pos, ResourceType.Bush, atlas)
         {
             BushType = bushType;
-            Scale = scale;
+            _scale = scale;
+            
+            // ✅ Collision setup - bushes don't block movement
+            BlocksMovement = true;  // Bushes don't block!
+            IsPushable = false;
+            Layer = CollisionLayer.Resource;
             
             if (atlas != null)
             {
                 spriteWithBerries = atlas.CreateSprite("Sprite-0001 2");
                 spriteWithoutBerries = atlas.CreateSprite("Sprite-0001 4");
+                
+                spriteWithBerries._origin = Vector2.Zero;
+                spriteWithBerries._scale = scale;
+                
+                spriteWithoutBerries._origin = Vector2.Zero;
+                spriteWithoutBerries._scale = scale;
             }
 
             switch (bushType)
@@ -61,27 +72,19 @@ namespace TribeBuild.Entity.Resource
             berryGrowthTimer = 0f;
             
             Sprite = hasBerries ? spriteWithBerries : spriteWithoutBerries;
-            Sprite._scale = scale;
             
-            // ✅ CRITICAL FIX: Store OFFSET, not absolute position
-            float baseTileSize = 16f;
-            float scaledTileSize = baseTileSize * scale.X;
-            
-            // Bush collider: centered horizontally, bottom half of sprite
-            float colliderOffsetX = 0f;                      // Centered (sprite draws from top-left)
-            float colliderOffsetY = scaledTileSize * 0.5f;  // Bottom half
-            float colliderWidth = scaledTileSize;            // Full width
-            float colliderHeight = scaledTileSize * 0.5f;   // Half height
+            // ✅ Calculate collider (full sprite size for interaction)
+            float scaledSize = 16f * scale.X;
             
             Collider = new Rectangle(
-                (int)colliderOffsetX,
-                (int)colliderOffsetY,
-                (int)colliderWidth,
-                (int)colliderHeight
+                (int)(scaledSize *0.2f),
+                (int)(scaledSize * 0.5f),
+                (int)(scaledSize - 2 *scaledSize *0.2f),
+                (int)(scaledSize * 0.5f)
             );
             
-            Console.WriteLine($"[Bush] ID={id}, Pos=({pos.X:F1},{pos.Y:F1})");
-            Console.WriteLine($"       Collider OFFSET: ({Collider.X},{Collider.Y}) size {Collider.Width}x{Collider.Height}");
+            Console.WriteLine($"[Bush] #{id} created at ({pos.X:F0},{pos.Y:F0})");
+            Console.WriteLine($"       AABB: {Collider.Width}x{Collider.Height}, BlocksMovement: {BlocksMovement}");
         }
 
         public override void Update(GameTime gameTime)
@@ -101,6 +104,7 @@ namespace TribeBuild.Entity.Resource
                     berryGrowthTimer = 0f;
                     Sprite = spriteWithBerries;
                     Health = MaxHealth;
+                    Console.WriteLine($"[Bush] #{ID} berries regrown!");
                 }
             }
         }
@@ -114,15 +118,15 @@ namespace TribeBuild.Entity.Resource
             berryGrowthTimer = 0f;
             Health = 0;
             Sprite = spriteWithoutBerries;
-            Sprite._scale = Scale;
             OnDepleted();
+            
+            Console.WriteLine($"[Bush] #{ID} harvested!");
         }
 
         public override void OnDepleted()
         {
             IsBeingHarvested = false;
             Harvester = null;
-            BlocksPath = false;
             berryGrowthTimer = 0f;
         }
 
@@ -132,7 +136,6 @@ namespace TribeBuild.Entity.Resource
             hasBerries = true;
             berryGrowthTimer = 0f;
             Sprite = spriteWithBerries;
-            Sprite._scale = Scale;
         }
 
         public override void Draw(SpriteBatch spriteBatch, GameTime gameTime)
@@ -145,31 +148,36 @@ namespace TribeBuild.Entity.Resource
                 Sprite.Draw(spriteBatch, Position);
             }
             
-            #if DEBUG
-            if (!hasBerries && berryGrowthTime > 0)
-            {
-                DrawGrowthProgress(spriteBatch);
-            }
-            #endif
+            // #if DEBUG
+            // DrawDebugAABB(spriteBatch);
+            
+            // // Draw growth progress
+            // if (!hasBerries && berryGrowthTime > 0)
+            // {
+            //     DrawGrowthBar(spriteBatch);
+            // }
+            // #endif
         }
 
         #if DEBUG
-        private void DrawGrowthProgress(SpriteBatch spriteBatch)
+        private void DrawGrowthBar(SpriteBatch spriteBatch)
         {
             float progress = berryGrowthTimer / berryGrowthTime;
             int barWidth = 30;
             int barHeight = 3;
-            int barX = (int)Position.X - barWidth / 2;
+            int barX = (int)Position.X + Collider.Width / 2 - barWidth / 2;
             int barY = (int)Position.Y - 10;
 
-            var whitePixel = new Texture2D(spriteBatch.GraphicsDevice, 1, 1);
-            whitePixel.SetData(new[] { Color.White });
+            var pixel = new Texture2D(spriteBatch.GraphicsDevice, 1, 1);
+            pixel.SetData(new[] { Color.White });
 
             var bgRect = new Rectangle(barX, barY, barWidth, barHeight);
-            spriteBatch.Draw(whitePixel, bgRect, Color.Gray * 0.5f);
+            spriteBatch.Draw(pixel, bgRect, Color.Gray * 0.5f);
 
             var progressRect = new Rectangle(barX, barY, (int)(barWidth * progress), barHeight);
-            spriteBatch.Draw(whitePixel, progressRect, Color.LightGreen);
+            spriteBatch.Draw(pixel, progressRect, Color.LightGreen);
+            
+            pixel.Dispose();
         }
         #endif
 
@@ -187,8 +195,10 @@ namespace TribeBuild.Entity.Resource
             hasBerries = true;
             berryGrowthTimer = 0f;
             Sprite = spriteWithBerries;
-            Sprite._scale = Scale;
             Health = MaxHealth;
+            Console.WriteLine($"[Bush] #{ID} force regrow berries");
         }
+        
+        Vector2 IPosition.Position => Position;
     }
 }

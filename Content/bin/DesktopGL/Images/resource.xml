@@ -2,12 +2,12 @@
 <TextureAtlas imagePath="Sprite-0001.png">
     <Texture>Images/Sprite-0001</Texture>
     <Regions>
-        <Region name="Sprite-0001 0" x="0" y="0" width="16" height="32" />
+        <Region name="Sprite-0001 0" x="0" y="16" width="16" height="16" />
         <Region name="Sprite-0001 1" x="16" y="0" width="16" height="32" />
-        <Region name="Sprite-0001 2" x="32" y="0" width="16" height="32" />
-        <Region name="Sprite-0001 3" x="48" y="0" width="16" height="32" />
-        <Region name="Sprite-0001 4" x="64" y="0" width="16" height="32" />
-        <Region name="Sprite-0001 5" x="80" y="0" width="16" height="32" />
+        <Region name="Sprite-0001 2" x="32" y="16" width="16" height="16" />
+        <Region name="Sprite-0001 3" x="48" y="16" width="16" height="16" />
+        <Region name="Sprite-0001 4" x="64" y="16" width="16" height="16" />
+        <Region name="Sprite-0001 5" x="80" y="16" width="16" height="16" />
     </Regions>
     <Animations>
         <Animation name="stump" delay="0">

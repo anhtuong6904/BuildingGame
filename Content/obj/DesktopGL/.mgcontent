@@ -4,9 +4,7 @@
   <Platform>DesktopGL</Platform>
   <Config />
   <SourceFiles>
-    <File>d:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Font/Baskic8.spritefont</File>
-    <File>d:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Font/Essentle4.spritefont</File>
-    <File>d:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Font/File.spritefont</File>
+    <File>d:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/AssasinTemplate-sheet.png</File>
     <File>d:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/Boar-sheet.png</File>
     <File>d:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/BowmanTemplate-sheet.png</File>
     <File>d:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/bush-sheet.png</File>
@@ -15,14 +13,12 @@
     <File>d:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/FarmerTemplate-sheet.png</File>
     <File>d:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/mine1.png</File>
     <File>d:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/object-sheet.png</File>
-    <File>d:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/punyworld-overworld-tileset.png</File>
+    <File>d:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/punyworld-overworld-tileset-sheet.png</File>
     <File>d:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/Sheep-sheet.png</File>
     <File>d:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/Sprite-0001.png</File>
     <File>d:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/tree.png</File>
   </SourceFiles>
   <DestFiles>
-    <File xsi:nil="true" />
-    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />

@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Input;
@@ -15,7 +14,7 @@ namespace TribeBuild.Player
     }
     
     /// <summary>
-    /// Tool data class
+    /// ✅ Tool data class - Balanced stats
     /// </summary>
     public class Tool
     {
@@ -33,25 +32,30 @@ namespace TribeBuild.Player
             Damage = damage;
             Range = range;
             Cooldown = cooldown;
-            AnimationName = "work"; // Default work animation
+            AnimationName = type == ToolType.Sword ? "attack" : "work";
         }
         
-        // Predefined tools
-        public static Tool Axe => new Tool(ToolType.Axe, "Axe", 10f, 48f, 1f);
-        public static Tool Pickaxe => new Tool(ToolType.Pickaxe, "Pickaxe", 8f, 48f, 1f);
-        public static Tool Sword => new Tool(ToolType.Sword, "Sword", 20f, 64f, 1f);
-        public static Tool Hoe => new Tool(ToolType.Hoe, "Hoe", 5f, 48f, 1f);
-        public static Tool Hands => new Tool(ToolType.None, "Hands", 5f, 32f, 1f);
+        // ✅ Predefined tools with balanced stats
+        public static Tool Hands => new Tool(ToolType.None, "Hands", 5f, 32f, 0.5f);
+        public static Tool Axe => new Tool(ToolType.Axe, "Axe", 15f, 48f, 1.2f);
+        public static Tool Pickaxe => new Tool(ToolType.Pickaxe, "Pickaxe", 12f, 48f, 1.0f);
+        public static Tool Sword => new Tool(ToolType.Sword, "Sword", 25f, 64f, 0.8f);
+        public static Tool Hoe => new Tool(ToolType.Hoe, "Hoe", 8f, 48f, 1.0f);
     }
     
     /// <summary>
-    /// Equipment manager for player
+    /// ✅ FINAL: Equipment manager with fixed controls
+    /// Controls:
+    /// - 1-9: Direct slot selection
+    /// - Q: Previous tool
+    /// - R: Next tool (changed from E to avoid conflict with Interact)
     /// </summary>
     public class EquipmentManager
     {
         private PlayerCharacter player;
-        private Dictionary<int, Tool> hotbar; // Key slots 1-9
+        private Dictionary<int, Tool> hotbar;
         private int currentSlot = 1;
+        private KeyboardState previousKeyState;
         
         public Tool CurrentTool => hotbar.ContainsKey(currentSlot) ? hotbar[currentSlot] : Tool.Hands;
         public int CurrentSlot => currentSlot;
@@ -61,12 +65,19 @@ namespace TribeBuild.Player
             this.player = player;
             hotbar = new Dictionary<int, Tool>();
             
-            // Default equipment
-            hotbar[1] = Tool.Sword;   // Slot 1: Sword
-            hotbar[2] = Tool.Axe;     // Slot 2: Axe
-            hotbar[3] = Tool.Pickaxe; // Slot 3: Pickaxe
+            // ✅ Default equipment setup
+            hotbar[1] = Tool.Sword;   // Combat first
+            hotbar[2] = Tool.Axe;     // Wood gathering
+            hotbar[3] = Tool.Pickaxe; // Stone gathering
+            hotbar[4] = Tool.Hoe;     // Farming
+            
+            Console.WriteLine("[Equipment] Default tools equipped");
+            Console.WriteLine("[Equipment] Controls: 1-9 (Select) | Q (Previous) | R (Next)");
         }
         
+        /// <summary>
+        /// ✅ FIXED: Handle input without E key conflict
+        /// </summary>
         public void HandleInput(KeyboardState keyState, KeyboardState prevKeyState)
         {
             // Number keys 1-9 to switch tools
@@ -79,36 +90,157 @@ namespace TribeBuild.Player
                 }
             }
             
-            // Mouse wheel to cycle tools
-            // (handled in PlayerCharacter.Update)
+            // Q to cycle previous
+            if (keyState.IsKeyDown(Keys.Q) && !prevKeyState.IsKeyDown(Keys.Q))
+            {
+                CyclePrevious();
+            }
+            
+            // R to cycle next (changed from E to avoid Interact conflict)
+            if (keyState.IsKeyDown(Keys.R) && !prevKeyState.IsKeyDown(Keys.R))
+            {
+                CycleNext();
+            }
+            
+            previousKeyState = keyState;
         }
         
+        /// <summary>
+        /// ✅ Select specific slot
+        /// </summary>
         public void SelectSlot(int slot)
         {
             if (slot < 1 || slot > 9) return;
             
             currentSlot = slot;
-            Console.WriteLine($"[Equipment] Selected slot {slot}: {CurrentTool.Name}");
+            string toolName = hotbar.ContainsKey(slot) ? hotbar[slot].Name : "Empty";
+            Console.WriteLine($"[Equipment] Slot {slot}: {toolName}");
         }
         
+        /// <summary>
+        /// ✅ Cycle to next equipped tool (skip empty slots)
+        /// </summary>
         public void CycleNext()
         {
-            currentSlot = currentSlot >= 9 ? 1 : currentSlot + 1;
-            Console.WriteLine($"[Equipment] Selected slot {currentSlot}: {CurrentTool.Name}");
+            int startSlot = currentSlot;
+            int attempts = 0;
+            
+            do
+            {
+                currentSlot = currentSlot >= 9 ? 1 : currentSlot + 1;
+                attempts++;
+                
+                if (hotbar.ContainsKey(currentSlot))
+                {
+                    Console.WriteLine($"[Equipment] → {hotbar[currentSlot].Name}");
+                    return;
+                }
+            } 
+            while (attempts < 9);
+            
+            // If no tools found, stay at current
+            currentSlot = startSlot;
         }
         
+        /// <summary>
+        /// ✅ Cycle to previous equipped tool (skip empty slots)
+        /// </summary>
         public void CyclePrevious()
         {
-            currentSlot = currentSlot <= 1 ? 9 : currentSlot - 1;
-            Console.WriteLine($"[Equipment] Selected slot {currentSlot}: {CurrentTool.Name}");
+            int startSlot = currentSlot;
+            int attempts = 0;
+            
+            do
+            {
+                currentSlot = currentSlot <= 1 ? 9 : currentSlot - 1;
+                attempts++;
+                
+                if (hotbar.ContainsKey(currentSlot))
+                {
+                    Console.WriteLine($"[Equipment] ← {hotbar[currentSlot].Name}");
+                    return;
+                }
+            } 
+            while (attempts < 9);
+            
+            currentSlot = startSlot;
         }
         
+        /// <summary>
+        /// ✅ Equip tool to specific slot
+        /// </summary>
         public void EquipTool(int slot, Tool tool)
         {
             if (slot < 1 || slot > 9) return;
+            
             hotbar[slot] = tool;
+            Console.WriteLine($"[Equipment] Equipped {tool.Name} to slot {slot}");
         }
         
+        /// <summary>
+        /// ✅ Remove tool from slot
+        /// </summary>
+        public void UnequipSlot(int slot)
+        {
+            if (hotbar.ContainsKey(slot))
+            {
+                Console.WriteLine($"[Equipment] Unequipped {hotbar[slot].Name} from slot {slot}");
+                hotbar.Remove(slot);
+            }
+        }
+        
+        /// <summary>
+        /// ✅ Check if tool can be used
+        /// </summary>
+        public bool CanUseTool(ToolType type, Entity.Entity target)
+        {
+            if (target == null) return false;
+            
+            switch (type)
+            {
+                case ToolType.Axe:
+                    return target is Entity.Resource.Tree;
+                    
+                case ToolType.Pickaxe:
+                    return target.Name?.Contains("Rock") ?? false;
+                    
+                case ToolType.Sword:
+                    return target is Entity.NPC.Animals.AnimalEntity || 
+                           target is Entity.Enemies.NightEnemyEntity;
+                    
+                case ToolType.Hoe:
+                    return false; // Farming not implemented yet
+                    
+                case ToolType.None:
+                    return true; // Hands can interact with anything
+                    
+                default:
+                    return false;
+            }
+        }
+        
+        /// <summary>
+        /// ✅ Get hotbar for UI display
+        /// </summary>
         public Dictionary<int, Tool> GetHotbar() => new Dictionary<int, Tool>(hotbar);
+        
+        /// <summary>
+        /// ✅ Get tool effectiveness against target
+        /// </summary>
+        public float GetEffectiveness(ToolType type, Entity.Entity target)
+        {
+            if (target is Entity.Resource.Tree && type == ToolType.Axe)
+                return 1.5f; // 50% bonus
+            
+            if (target.Name?.Contains("Rock") == true && type == ToolType.Pickaxe)
+                return 1.5f;
+            
+            if ((target is Entity.NPC.Animals.AnimalEntity || 
+                 target is Entity.Enemies.NightEnemyEntity) && 
+                type == ToolType.Sword)
+                return 1.3f; // 30% bonus
+            
+            return 1.0f; // Normal effectiveness
+        }
     }
 }

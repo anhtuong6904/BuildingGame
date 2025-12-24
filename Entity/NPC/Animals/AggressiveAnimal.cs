@@ -13,6 +13,15 @@ namespace TribeBuild.Entity.NPC.Animals
     /// </summary>
     public class AggressiveAnimal : AnimalEntity
     {
+
+        
+        private bool isReturningHome = false;
+        private bool isDespawning = false;
+        private float despawnTimer = 0f;
+        private const float DESPAWN_DURATION = 1.5f;
+        public float Alpha { get; private set; } = 1f;
+        private Rectangle spawnZone = Rectangle.Empty;
+        private const float DESPAWN_ZONE_RADIUS = 50f;
         // Combat
         public float AttackDamage { get; private set; }
         public float AttackRange { get; private set; }
@@ -49,7 +58,10 @@ namespace TribeBuild.Entity.NPC.Animals
         {
             IsAggressive = true;
             Scale = scale;
-
+             // ✅ CRITICAL FIX: Animals MUST block movement
+            BlocksMovement = true;  // ← NOT false!
+            IsPushable = true;
+            Layer = CollisionLayer.Animal;
             // Setup stats based on type
             switch (type)
             {
@@ -76,10 +88,10 @@ namespace TribeBuild.Entity.NPC.Animals
             if (AnimatedSprite != null)
             {
                 Collider = new Rectangle(
-                    AnimatedSprite._region.Width / 4,
-                    AnimatedSprite._region.Height / 2,
-                    AnimatedSprite._region.Width / 2,
-                    AnimatedSprite._region.Height / 2
+                (int)(AnimatedSprite._region.Width * Scale.X / 4),
+                (int)(AnimatedSprite._region.Height * Scale.X / 4),
+                (int)(AnimatedSprite._region.Width * Scale.X  / 2),
+                (int)(AnimatedSprite._region.Width * Scale.X / 2)
                 );
             }
             else
@@ -96,23 +108,30 @@ namespace TribeBuild.Entity.NPC.Animals
             //GameLogger.Instance?.Debug("Animal", $"Created aggressive {type} at ({pos.X:F0}, {pos.Y:F0})");
         }
 
-        protected override void InitializeBehaviorTree()
+       protected override void InitializeBehaviorTree()
         {
             var builder = new BehaviorTreeBuilder();
 
             behaviorTree = builder
                 .Selector($"{Type} Behavior")
-                    // 1. ATTACK target
+                    // ✅ 1. NIGHT - Return home
+                    .Sequence("Night Behavior")
+                        .Condition(ctx => IsNight() && !isDespawning, "Is Night?")
+                        .Action(ReturnHomeAction, "Return to Spawn")
+                    .End()
+
+                    // 2. ATTACK target
                     .Sequence("Attack")
                         .Condition(ctx => ThreatTarget != null && ThreatTarget.IsActive, "Has Target?")
                         .Action(AttackAction, "Attack Target")
                     .End()
 
-                    // 2. WANDER around territory
+                    // 3. WANDER around territory
                     .Action(WanderAction, "Wander")
                 .End()
                 .Build($"{Type} Behavior Tree");
         }
+
 
         public override void Update(GameTime gameTime)
         {
@@ -137,8 +156,11 @@ namespace TribeBuild.Entity.NPC.Animals
             {
                 behaviorContext.GameTime = gameTime;
 
+                // ✅ Only detect during day
                 if (ThreatTarget == null &&
                     allowDetection &&
+                    !isReturningHome &&
+                    !IsNight() &&
                     (State == AnimalState.Idle || State == AnimalState.Walk) &&
                     wanderPauseTimer <= 0f)
                 {
@@ -148,7 +170,6 @@ namespace TribeBuild.Entity.NPC.Animals
                 behaviorTree.Tick(behaviorContext);
                 aiTickTimer = AI_TICK_INTERVAL;
             }
-
             // 4. MOVEMENT
             UpdatePathfindingMovement(gameTime);
 
@@ -234,6 +255,69 @@ namespace TribeBuild.Entity.NPC.Animals
                 Console.WriteLine($"[{Type}] 🎯 Detected {targetType} at distance {nearestDistance:F1}");
             }
         }
+
+
+        public void SetSpawnZone(Rectangle zone)
+        {
+            spawnZone = zone;
+        }
+
+        // ✅ ADD THESE METHODS
+        private bool IsNight()
+        {
+            var gameManager = GameManager.Instance;
+            if (gameManager == null) return false;
+            return gameManager.TimeOfDay < 6f || gameManager.TimeOfDay > 19.5f;
+        }
+
+        private NodeState ReturnHomeAction(BehaviorContext ctx)
+        {
+            isReturningHome = true;
+            ThreatTarget = null;
+            currentWanderTarget = null;
+
+            if (IsInSpawnZone())
+            {
+                if (!isDespawning)
+                {
+                    Stop();
+                    State = AnimalState.Idle;
+                    isDespawning = true;
+                    despawnTimer = 0f;
+                    Console.WriteLine($"[{Type}] Reached spawn zone, starting despawn");
+                }
+                return NodeState.Running;
+            }
+
+            if (!IsMoving() || PathFollower.GetRemainingDistance(Position) < 20f)
+            {
+                Vector2 spawnCenter = GetSpawnZoneCenter();
+                MoveToWithPathfinding(spawnCenter);
+            }
+
+            State = AnimalState.Walk;
+            return NodeState.Running;
+        }
+
+        private bool IsInSpawnZone()
+        {
+            if (spawnZone == Rectangle.Empty)
+            {
+                return Vector2.Distance(Position, SpawnPosition) < DESPAWN_ZONE_RADIUS;
+            }
+            return spawnZone.Contains(new Point((int)Position.X, (int)Position.Y));
+        }
+
+        private Vector2 GetSpawnZoneCenter()
+        {
+            if (spawnZone == Rectangle.Empty)
+                return SpawnPosition;
+
+            return new Vector2(
+                spawnZone.X + spawnZone.Width / 2f,
+                spawnZone.Y + spawnZone.Height / 2f
+            );
+        }
         private NodeState AttackAction(BehaviorContext ctx)
         {
             if (ThreatTarget == null || !ThreatTarget.IsActive)
@@ -289,27 +373,32 @@ namespace TribeBuild.Entity.NPC.Animals
 
         private void PerformAttack(Entity target)
         {
-            // ✅ Handle player attacks
+            // ✅ Handle player attacks WITH KNOCKBACK
             if (target is PlayerCharacter player)
             {
-                player.TakeDamage(AttackDamage);
+                Vector2 knockbackDir = player.Position - Position;
+                player.TakeDamage(AttackDamage, knockbackDir, knockbackForce: 250f);
                 Console.WriteLine($"[{Type}] Attacked PLAYER for {AttackDamage} damage!");
                 return;
             }
 
             // Handle NPC attacks
-            if (target is NPCBody npc)
-            {
-                if (npc.AI is VillagerAI villager)
-                {
-                    villager.OnAttacked(this);
-                }
-                else if (npc.AI is HunterAI hunter)
-                {
-                    hunter.OnAttacked(this);
-                }
-                Console.WriteLine($"[{Type}] Attacked NPC #{npc.ID}");
-            }
+            // if (target is NPCBody npc)
+            // {
+            //     // Apply knockback to NPC
+            //     Vector2 knockbackDir = npc.Position - Position;
+            //     npc.ApplyKnockback(knockbackDir, 150f);
+                
+            //     if (npc.AI is VillagerAI villager)
+            //     {
+            //         villager.OnAttacked(this);
+            //     }
+            //     else if (npc.AI is HunterAI hunter)
+            //     {
+            //         hunter.OnAttacked(this);
+            //     }
+            //     Console.WriteLine($"[{Type}] Attacked NPC #{npc.ID}");
+            // }
         }
 
         private NodeState WanderAction(BehaviorContext ctx)
@@ -387,9 +476,8 @@ namespace TribeBuild.Entity.NPC.Animals
                 return;
 
             AnimatedSprite = GetAnimatedSprite(GetAnimationName());
-
-            // ✅ SET SCALE NGAY SAU KHI TẠO
             AnimatedSprite._scale = Scale;
+            AnimatedSprite._color = Color.White * Alpha; // ← ADD THIS
 
             lastState = State;
             lastDirection = Direction;

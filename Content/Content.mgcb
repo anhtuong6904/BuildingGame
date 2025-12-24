@@ -17,31 +17,34 @@
 /copy:Font/Baskic8.otf
 
 #begin Font/Baskic8.spritefont
-/importer:FontDescriptionImporter
-/processor:FontDescriptionProcessor
-/processorParam:PremultiplyAlpha=True
-/processorParam:TextureFormat=Compressed
-/build:Font/Baskic8.spritefont
+/copy:Font/Baskic8.spritefont
 
 #begin Font/Essentle4.otf
 /copy:Font/Essentle4.otf
 
 #begin Font/Essentle4.spritefont
-/importer:FontDescriptionImporter
-/processor:FontDescriptionProcessor
-/processorParam:PremultiplyAlpha=True
-/processorParam:TextureFormat=Compressed
-/build:Font/Essentle4.spritefont
+/copy:Font/Essentle4.spritefont
 
 #begin Font/File.spritefont
-/importer:FontDescriptionImporter
-/processor:FontDescriptionProcessor
-/processorParam:PremultiplyAlpha=True
-/processorParam:TextureFormat=Compressed
-/build:Font/File.spritefont
+/copy:Font/File.spritefont
 
 #begin Font/Wongdongs.otf
 /copy:Font/Wongdongs.otf
+
+#begin Images/AssasinTemplate-sheet.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Images/AssasinTemplate-sheet.png
+
+#begin Images/Assassin.xml
+/copy:Images/Assassin.xml
 
 #begin Images/Boar-sheet.png
 /importer:TextureImporter
@@ -166,7 +169,7 @@
 #begin Images/punyworld-overworld-tiles.xml
 /copy:Images/punyworld-overworld-tiles.xml
 
-#begin Images/punyworld-overworld-tileset.png
+#begin Images/punyworld-overworld-tileset-sheet.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -176,7 +179,10 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Images/punyworld-overworld-tileset.png
+/build:Images/punyworld-overworld-tileset-sheet.png
+
+#begin Images/punyworld-overworld-tileset-sheet.xml
+/copy:Images/punyworld-overworld-tileset-sheet.xml
 
 #begin Images/resource.xml
 /copy:Images/resource.xml
@@ -210,6 +216,9 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Images/Sprite-0001.png
+
+#begin Images/Sprite-0001.xml
+/copy:Images/Sprite-0001.xml
 
 #begin Images/tree.png
 /importer:TextureImporter

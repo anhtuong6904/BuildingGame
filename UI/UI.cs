@@ -3,12 +3,12 @@ using System.IO;
 using FontStashSharp;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Graphics;
 using Myra;
 using Myra.Graphics2D;
 using Myra.Graphics2D.Brushes;
 using Myra.Graphics2D.UI;
-using Myra.Graphics2D.UI.Styles;
-using TribeBuild.Tasks;
+using TribeBuild.Player;
 using TribeBuild.World;
 
 namespace TribeBuild.UI
@@ -18,357 +18,743 @@ namespace TribeBuild.UI
         MainMenu,
         InGame,
         Paused,
-        Settings
+        Settings,
+        DaySummary
     }
     
     /// <summary>
-    /// Myra UI Manager v1.5.10
+    /// ✅ FIXED: Modern Myra UI with Custom Progress Bars
     /// </summary>
     public class MyraUIManager
     {
         private Desktop desktop;
-
-        static readonly Color BgDark = new(18, 18, 24);
-        static readonly Color PanelDark = new(28, 28, 36);
-        static readonly Color Accent = new(80, 180, 255);
-        static readonly Color TextSoft = new(220, 220, 230);
-
-
+        
+        // Color Palette
+        static readonly Color BgDark = new Color(12, 12, 18);
+        static readonly Color PanelDark = new Color(24, 24, 32);
+        static readonly Color PanelLight = new Color(32, 32, 42);
+        static readonly Color Accent = new Color(88, 166, 255);
+        static readonly Color AccentDark = new Color(52, 120, 200);
+        static readonly Color TextPrimary = new Color(240, 240, 245);
+        static readonly Color TextSecondary = new Color(160, 160, 170);
+        static readonly Color Success = new Color(80, 220, 100);
+        static readonly Color Warning = new Color(255, 180, 60);
+        static readonly Color Danger = new Color(255, 80, 80);
+        
         // Screens
-        private FontAtlas fontAtlas;
         private Panel mainMenuScreen;
         private Panel gameHUDScreen;
         private Panel pauseMenuScreen;
         private Panel settingsScreen;
         
-        // HUD elements
+        // HUD Components
+        private RPGHudPanel rpgHud;
+        private HotbarPanel hotbar;
+        private InventoryPanel inventory;
         private Label timeLabel;
-        private Label resourceLabel;
-        private Label taskLabel;
+        private Label dayLabel;
+        private Label woodLabel;
+        private Label stoneLabel;
+        private Label foodLabel;
         
+        // State
         public UIScreen CurrentScreen { get; private set; }
+        private KeyboardState previousKeyState;
+        private bool showInventory = false;
         
         public MyraUIManager(Game game)
         {
             MyraEnvironment.Game = game;
             desktop = new Desktop();
             
-                    // Tạo FontSystem để quản lý font vector
+            // Load font
             var fontSystem = new FontSystem();
-            // Nạp trực tiếp từ file gốc (Baskic8.otf hoặc Baskic8.ttf)
-            fontSystem.AddFont(File.ReadAllBytes("Content/Font/Baskic8.otf")); 
-
-            // Lấy font với kích thước mong muốn (ví dụ: 18px)
-            var _defaultFont = fontSystem.GetFont(18);
-
-
-            Stylesheet.Current.LabelStyle.Font = _defaultFont;
-
-            Stylesheet.Current.TextBoxStyle.Font = _defaultFont;
-
-            Stylesheet.Current.CheckBoxStyle.LabelStyle.Font = _defaultFont;
-
+            fontSystem.AddFont(File.ReadAllBytes("Content/Font/Baskic8.otf"));
+            var defaultFont = fontSystem.GetFont(18);
             
-
-            // Tạo các màn hình (Lúc này Myra đã biết font mặc định là gì rồi)
+            // Apply font
+            Myra.Graphics2D.UI.Styles.Stylesheet.Current.LabelStyle.Font = defaultFont;
+            Myra.Graphics2D.UI.Styles.Stylesheet.Current.TextBoxStyle.Font = defaultFont;
+            Myra.Graphics2D.UI.Styles.Stylesheet.Current.CheckBoxStyle.LabelStyle.Font = defaultFont;
+            
+            CreateAllScreens();
+            ShowMainMenu();
+        }
+        
+        private void CreateAllScreens()
+        {
             CreateMainMenuScreen();
             CreateGameHUDScreen();
             CreatePauseMenuScreen();
             CreateSettingsScreen();
-
-            ShowMainMenu();
         }
         
-
         // ==================== MAIN MENU ====================
         
         private void CreateMainMenuScreen()
         {
-            var container = new Panel
+            var root = new Panel
             {
-                Background = new SolidBrush(new Color(15, 15, 20))
+                Background = new SolidBrush(BgDark)
             };
-
-            var grid = new Grid
+            
+            var container = new VerticalStackPanel
             {
-                RowSpacing = 16,
+                Spacing = 40,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center
             };
-
-            for (int i = 0; i < 4; i++)
-                grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
-
+            
+            // Title
+            var titlePanel = new Panel
+            {
+                Width = 500,
+                Height = 120,
+                Background = new SolidBrush(PanelDark),
+                HorizontalAlignment = HorizontalAlignment.Center
+            };
+            
             var title = new Label
             {
                 Text = "TRIBE BUILD",
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+                TextColor = Accent
+            };
+            title.Scale = new Vector2(2.5f);
+            titlePanel.Widgets.Add(title);
+            container.Widgets.Add(titlePanel);
+            
+            // Subtitle
+            var subtitle = new Label
+            {
+                Text = "Build • Survive • Thrive",
+                TextColor = TextSecondary,
                 HorizontalAlignment = HorizontalAlignment.Center
             };
-            title.Scale = new Vector2(2f, 2f);
-            Grid.SetRow(title, 0);
-            grid.Widgets.Add(title);
-
-            TextButton MakeButton(string text, Action onClick)
+            subtitle.Scale = new Vector2(1.2f);
+            container.Widgets.Add(subtitle);
+            
+            // Buttons
+            var buttonPanel = new VerticalStackPanel
             {
-                var btn = new TextButton
-                {
-                    Text = text,
-                    Width = 260,
-                    Height = 52,
-                    Background = new SolidBrush(PanelDark),
-                    OverBackground = new SolidBrush(new Color(50, 50, 70)),
-                    PressedBackground = new SolidBrush(Accent),
-                    HorizontalAlignment = HorizontalAlignment.Center
-                };
-
-                btn.Click += (_, __) => onClick();
-                return btn;
-            }
-
-
-            var play = MakeButton("PLAY", () =>
+                Spacing = 16,
+                HorizontalAlignment = HorizontalAlignment.Center
+            };
+            
+            buttonPanel.Widgets.Add(CreateModernButton("▶  NEW GAME", () =>
             {
                 ShowGame();
                 GameManager.Instance?.StartGame();
-            });
-            Grid.SetRow(play, 1);
-            grid.Widgets.Add(play);
-
-            var settings = MakeButton("SETTINGS", ShowSettings);
-            Grid.SetRow(settings, 2);
-            grid.Widgets.Add(settings);
-
-            var exit = MakeButton("EXIT", () => Environment.Exit(0));
-            Grid.SetRow(exit, 3);
-            grid.Widgets.Add(exit);
-
-            container.Widgets.Add(grid);
-            mainMenuScreen = container;
+            }, Accent));
+            
+            buttonPanel.Widgets.Add(CreateModernButton("⚙  SETTINGS", ShowSettings, AccentDark));
+            buttonPanel.Widgets.Add(CreateModernButton("✕  EXIT", () => Environment.Exit(0), Danger));
+            
+            container.Widgets.Add(buttonPanel);
+            
+            // Version
+            var version = new Label
+            {
+                Text = "v1.0.0 Alpha",
+                TextColor = TextSecondary * 0.6f,
+                HorizontalAlignment = HorizontalAlignment.Right,
+                VerticalAlignment = VerticalAlignment.Bottom,
+                Margin = new Thickness(0, 0, 20, 20)
+            };
+            
+            root.Widgets.Add(container);
+            root.Widgets.Add(version);
+            
+            mainMenuScreen = root;
         }
         
         // ==================== GAME HUD ====================
+        
         private void CreateGameHUDScreen()
         {
-            var root = new HorizontalStackPanel
-            {
-                Margin = new Thickness(12),
-                HorizontalAlignment = HorizontalAlignment.Left,
-                VerticalAlignment = VerticalAlignment.Top,
-                Spacing = 10
-            };
-
+            var root = new Panel();
             
-
-            timeLabel = new Label { Text = "Day 1 • 06:00" };
-
-            resourceLabel = new Label { Text = "🌲 0   🪨 0   🍖 0" };
-
-
-            taskLabel = new Label { Text = "Tasks: 0 / 0" };
-
+            // Top bar
+            var topBar = CreateTopBar();
+            topBar.HorizontalAlignment = HorizontalAlignment.Stretch;
+            topBar.VerticalAlignment = VerticalAlignment.Top;
+            topBar.Margin = new Thickness(16);
+            root.Widgets.Add(topBar);
             
-
-            root.Widgets.Add(MakeHudCard("Time", timeLabel));
-            root.Widgets.Add(MakeHudCard("Resources", resourceLabel));
-            root.Widgets.Add(MakeHudCard("Tasks", taskLabel));
-
-            gameHUDScreen = new Panel();
-            gameHUDScreen.Widgets.Add(root);
+            // Left - Player stats
+            rpgHud = new RPGHudPanel();
+            rpgHud.HorizontalAlignment = HorizontalAlignment.Left;
+            rpgHud.VerticalAlignment = VerticalAlignment.Top;
+            rpgHud.Margin = new Thickness(16, 100, 0, 0);
+            root.Widgets.Add(rpgHud);
+            
+            // Right - Resources
+            var resourcePanel = CreateResourcePanel();
+            resourcePanel.HorizontalAlignment = HorizontalAlignment.Right;
+            resourcePanel.VerticalAlignment = VerticalAlignment.Top;
+            resourcePanel.Margin = new Thickness(0, 100, 16, 0);
+            root.Widgets.Add(resourcePanel);
+            
+            // Bottom - Hotbar
+            hotbar = new HotbarPanel();
+            hotbar.HorizontalAlignment = HorizontalAlignment.Center;
+            hotbar.VerticalAlignment = VerticalAlignment.Bottom;
+            hotbar.Margin = new Thickness(0, 0, 0, 20);
+            root.Widgets.Add(hotbar);
+            
+            // Center - Inventory
+            inventory = new InventoryPanel();
+            inventory.HorizontalAlignment = HorizontalAlignment.Center;
+            inventory.VerticalAlignment = VerticalAlignment.Center;
+            inventory.Visible = false;
+            root.Widgets.Add(inventory);
+            
+            gameHUDScreen = root;
         }
-
-        private Panel MakeHudCard(string title, Widget content)
+        
+        private Panel CreateTopBar()
         {
-            content.Scale = new Vector2(1.05f);
-
             var panel = new Panel
             {
-                Background = new SolidBrush(new Color(20, 20, 28, 210)),
-                Padding = new Thickness(12),
+                Background = new SolidBrush(new Color(PanelDark, 200)),
+                Padding = new Thickness(20, 12),
+                Width = 400
+            };
+            
+            var grid = new Grid { ColumnSpacing = 20 };
+            grid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
+            grid.ColumnsProportions.Add(new Proportion(ProportionType.Fill));
+            
+            dayLabel = new Label
+            {
+                Text = "Day 1",
+                TextColor = Accent
+            };
+            dayLabel.Scale = new Vector2(1.3f);
+            Grid.SetColumn(dayLabel, 0);
+            grid.Widgets.Add(dayLabel);
+            
+            timeLabel = new Label
+            {
+                Text = "06:00",
+                TextColor = TextPrimary,
+                HorizontalAlignment = HorizontalAlignment.Right
+            };
+            timeLabel.Scale = new Vector2(1.3f);
+            Grid.SetColumn(timeLabel, 1);
+            grid.Widgets.Add(timeLabel);
+            
+            panel.Widgets.Add(grid);
+            return panel;
+        }
+        
+        private Panel CreateResourcePanel()
+        {
+            var panel = new Panel
+            {
+                Background = new SolidBrush(new Color(PanelDark, 200)),
+                Padding = new Thickness(16),
                 Width = 220
             };
-
-            var stack = new VerticalStackPanel { Spacing = 6 };
-
-            stack.Widgets.Add(new Label
+            
+            var stack = new VerticalStackPanel { Spacing = 12 };
+            
+            var title = new Label
             {
-                Text = title.ToUpper(),
-                TextColor = Accent,
-                Scale = new Vector2(0.9f),
-                Opacity = 0.85f
-            });
+                Text = "RESOURCES",
+                TextColor = TextSecondary
+            };
+            title.Scale = new Vector2(0.9f);
+            stack.Widgets.Add(title);
+            
+            woodLabel = new Label { Text = "🌲 0", TextColor = TextPrimary };
 
-            stack.Widgets.Add(content);
+            woodLabel.Scale = new Vector2(1.1f);
+            stack.Widgets.Add(woodLabel);
+            
+            // stoneLabel = new Label { Text = "🪨 0", TextColor = TextPrimary };
+            // stoneLabel.Scale = new Vector2(1.1f);
+            // stack.Widgets.Add(stoneLabel);
+            
+            foodLabel = new Label { Text = "🍖 0", TextColor = TextPrimary };
+            foodLabel.Scale = new Vector2(1.1f);
+            stack.Widgets.Add(foodLabel);
+            
             panel.Widgets.Add(stack);
-
             return panel;
         }
 
-
+         public void UpdateResource(PlayerCharacter player)
+            {
+                if (player == null) return;
+                
+                woodLabel.Text = $"  🌲: {player.Inventory.GetItemCount("wood")} ";
+                foodLabel.Text = $"  🍖 : {player.Inventory.GetItemCount("food")}";
+                
+            }
 
         
-        // ==================== PAUSE MENU ====================
+        // ==================== CUSTOM PROGRESS BAR ====================
+        
+        private class CustomProgressBar : Panel
+        {
+            private Panel fillPanel;
+            private int barWidth;
+            private float maxValue = 100f;
+            private float currentValue = 100f;
+            private Color fillColor;
+            
+            public CustomProgressBar(int width, int height, Color color)
+            {
+                barWidth = width;
+                Width = width;
+                Height = height;
+                fillColor = color;
+                
+                // Background
+                Background = new SolidBrush(Color.Black * 0.5f);
+                
+                // Fill
+                fillPanel = new Panel
+                {
+                    Width = width,
+                    Height = height,
+                    Background = new SolidBrush(fillColor)
+                };
+                
+                Widgets.Add(fillPanel);
+            }
+            
+            public void SetValue(float value, float max)
+            {
+                maxValue = max;
+                currentValue = value;
+                
+                float percent = Math.Max(0f, Math.Min(1f, value / max));
+                fillPanel.Width = (int)(barWidth * percent);
+                
+                // Color feedback
+                if (percent > 0.5f)
+                    fillPanel.Background = new SolidBrush(fillColor);
+                else if (percent > 0.25f)
+                    fillPanel.Background = new SolidBrush(Warning);
+                else
+                    fillPanel.Background = new SolidBrush(Danger);
+            }
+        }
+        
+        // ==================== RPG HUD ====================
+        
+        private class RPGHudPanel : Panel
+        {
+            private Label healthText;
+            private Label staminaText;
+            private CustomProgressBar healthBar;
+            private CustomProgressBar staminaBar;
+            private const int BAR_WIDTH = 250;
+            private const int BAR_HEIGHT = 24;
+            
+            public RPGHudPanel()
+            {
+                Background = new SolidBrush(new Color(PanelDark, 200));
+                Padding = new Thickness(16);
+                Width = BAR_WIDTH + 32;
+                
+                var stack = new VerticalStackPanel { Spacing = 16 };
+                
+                var title = new Label
+                {
+                    Text = "PLAYER",
+                    TextColor = TextSecondary
+                };
+                title.Scale = new Vector2(0.9f);
+                stack.Widgets.Add(title);
+                
+                // Health
+                var healthContainer = new VerticalStackPanel { Spacing = 4 };
+                healthText = new Label
+                {
+                    Text = "HP: 100 / 100",
+                    TextColor = TextPrimary
+                };
+                healthContainer.Widgets.Add(healthText);
+                
+                healthBar = new CustomProgressBar(BAR_WIDTH, BAR_HEIGHT, Success);
+                healthContainer.Widgets.Add(healthBar);
+                stack.Widgets.Add(healthContainer);
+                
+                // Stamina
+                var staminaContainer = new VerticalStackPanel { Spacing = 4 };
+                staminaText = new Label
+                {
+                    Text = "Stamina: 100 / 100",
+                    TextColor = TextPrimary
+                };
+                staminaContainer.Widgets.Add(staminaText);
+                
+                staminaBar = new CustomProgressBar(BAR_WIDTH, BAR_HEIGHT, Accent);
+                staminaContainer.Widgets.Add(staminaBar);
+                stack.Widgets.Add(staminaContainer);
+                
+                Widgets.Add(stack);
+            }
+            
+            public void UpdatePlayerStats(PlayerCharacter player)
+            {
+                if (player == null) return;
+                
+                healthText.Text = $"HP: {(int)player.Health} / {(int)player.MaxHealth}";
+                staminaText.Text = $"Stamina: {(int)player.Stamina} / {(int)player.MaxStamina}";
+                
+                healthBar.SetValue(player.Health, player.MaxHealth);
+                staminaBar.SetValue(player.Stamina, player.MaxStamina);
+            }
+        }
+        
+        // ==================== HOTBAR ====================
+        
+        private class HotbarPanel : Panel
+        {
+            private Label[] slotLabels;
+            private Panel[] slotPanels;
+            private const int SLOT_SIZE = 64;
+            private const int SLOT_COUNT = 9;
+            
+            public HotbarPanel()
+            {
+                Background = new SolidBrush(new Color(PanelDark, 220));
+                Padding = new Thickness(12);
+                Width = (SLOT_SIZE + 8) * SLOT_COUNT + 24;
+                Height = SLOT_SIZE + 48;
+                
+                var stack = new VerticalStackPanel { Spacing = 8 };
+                
+                var title = new Label
+                {
+                    Text = "HOTBAR",
+                    TextColor = TextSecondary,
+                    HorizontalAlignment = HorizontalAlignment.Center
+                };
+                title.Scale = new Vector2(0.8f);
+                stack.Widgets.Add(title);
+                
+                var slotsGrid = new HorizontalStackPanel { Spacing = 8 };
+                
+                slotLabels = new Label[SLOT_COUNT];
+                slotPanels = new Panel[SLOT_COUNT];
+                
+                for (int i = 0; i < SLOT_COUNT; i++)
+                {
+                    var slotPanel = new Panel
+                    {
+                        Width = SLOT_SIZE,
+                        Height = SLOT_SIZE,
+                        Background = new SolidBrush(new Color(PanelLight, 180))
+                    };
+                    
+                    var slotStack = new VerticalStackPanel
+                    {
+                        HorizontalAlignment = HorizontalAlignment.Center,
+                        VerticalAlignment = VerticalAlignment.Center
+                    };
+                    
+                    var numberLabel = new Label
+                    {
+                        Text = (i + 1).ToString(),
+                        TextColor = TextSecondary,
+                        HorizontalAlignment = HorizontalAlignment.Center
+                    };
+                    numberLabel.Scale = new Vector2(0.8f);
+                    slotStack.Widgets.Add(numberLabel);
+                    
+                    var itemLabel = new Label
+                    {
+                        Text = "",
+                        TextColor = TextPrimary,
+                        HorizontalAlignment = HorizontalAlignment.Center
+                    };
+                    slotStack.Widgets.Add(itemLabel);
+                    
+                    slotPanel.Widgets.Add(slotStack);
+                    slotsGrid.Widgets.Add(slotPanel);
+                    
+                    slotLabels[i] = itemLabel;
+                    slotPanels[i] = slotPanel;
+                }
+                
+                stack.Widgets.Add(slotsGrid);
+                Widgets.Add(stack);
+            }
+            
+            public void UpdateHotbar(PlayerCharacter player)
+            {
+                if (player?.Equipment == null) return;
+                
+                var hotbar = player.Equipment.GetHotbar();
+                int currentSlot = player.Equipment.CurrentSlot;
+                
+                for (int i = 0; i < SLOT_COUNT; i++)
+                {
+                    int slot = i + 1;
+                    
+                    if (hotbar.ContainsKey(slot))
+                    {
+                        var tool = hotbar[slot];
+                        slotLabels[i].Text = GetToolIcon(tool.Type);
+                        slotLabels[i].Scale = new Vector2(1.5f);
+                    }
+                    else
+                    {
+                        slotLabels[i].Text = "—";
+                        slotLabels[i].Scale = new Vector2(1f);
+                    }
+                    
+                    if (slot == currentSlot)
+                    {
+                        slotPanels[i].Background = new SolidBrush(Accent * 0.6f);
+                    }
+                    else
+                    {
+                        slotPanels[i].Background = new SolidBrush(new Color(PanelLight, 180));
+                    }
+                }
+            }
+            
+            private string GetToolIcon(ToolType type)
+            {
+                return type switch
+                {
+                    ToolType.Axe => "🪓",
+                    ToolType.Pickaxe => "⛏️",
+                    ToolType.Sword => "⚔️",
+                    ToolType.Hoe => "🔨",
+                    _ => "✋"
+                };
+            }
+        }
+        
+        // ==================== INVENTORY ====================
+        
+        private class InventoryPanel : Panel
+        {
+            public InventoryPanel()
+            {
+                Background = new SolidBrush(new Color(0, 0, 0, 200));
+                Width = 500;
+                Height = 400;
+                
+                var contentPanel = new Panel
+                {
+                    Background = new SolidBrush(PanelDark),
+                    Padding = new Thickness(20),
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+                
+                var stack = new VerticalStackPanel { Spacing = 16 };
+                
+                var title = new Label
+                {
+                    Text = "INVENTORY",
+                    TextColor = Accent,
+                    HorizontalAlignment = HorizontalAlignment.Center
+                };
+                title.Scale = new Vector2(1.5f);
+                stack.Widgets.Add(title);
+                
+                var hint = new Label
+                {
+                    Text = "Press TAB to close",
+                    TextColor = TextSecondary,
+                    HorizontalAlignment = HorizontalAlignment.Center
+                };
+                hint.Scale = new Vector2(0.9f);
+                stack.Widgets.Add(hint);
+                
+                contentPanel.Widgets.Add(stack);
+                Widgets.Add(contentPanel);
+            }
+            
+            public void UpdateInventory(PlayerCharacter player)
+            {
+                // TODO: Display inventory items
+            }
+        }
+        
+        // ==================== PAUSE & SETTINGS ====================
         
         private void CreatePauseMenuScreen()
         {
             var overlay = new Panel
             {
-                Background = new SolidBrush(new Color(0, 0, 0, 200))
+                Background = new SolidBrush(new Color(0, 0, 0, 220))
             };
-
-           var box = new Panel
+            
+            var box = new Panel
             {
                 Background = new SolidBrush(PanelDark),
-                Padding = new Thickness(28),
-                Width = 320,
+                Padding = new Thickness(32),
+                Width = 400,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center
             };
-
-
-
-            var grid = new Grid { RowSpacing = 12 };
-
-            for (int i = 0; i < 3; i++)
-                grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
-
+            
+            var stack = new VerticalStackPanel { Spacing = 24 };
+            
             var title = new Label
             {
                 Text = "PAUSED",
                 HorizontalAlignment = HorizontalAlignment.Center,
-                Scale = new Vector2(1.5f)
+                TextColor = Accent
             };
-
-            var resume = new TextButton { Text = "RESUME", Width = 220, Height = 44 };
-            resume.Click += (_, __) =>
+            title.Scale = new Vector2(2f);
+            stack.Widgets.Add(title);
+            
+            var divider = new Panel
+            {
+                Height = 2,
+                Background = new SolidBrush(TextSecondary * 0.3f)
+            };
+            stack.Widgets.Add(divider);
+            
+            stack.Widgets.Add(CreateModernButton("▶  RESUME", () =>
             {
                 ShowGame();
                 GameManager.Instance?.ResumeGame();
-            };
-
-            var menu = new TextButton { Text = "MAIN MENU", Width = 220, Height = 44 };
-            menu.Click += (_, __) => ShowMainMenu();
-
-            Grid.SetRow(title, 0);
-            Grid.SetRow(resume, 1);
-            Grid.SetRow(menu, 2);
-
-            grid.Widgets.Add(title);
-            grid.Widgets.Add(resume);
-            grid.Widgets.Add(menu);
-
-            box.Widgets.Add(grid);
+            }, Success));
+            
+            stack.Widgets.Add(CreateModernButton("⚙  SETTINGS", ShowSettings, AccentDark));
+            stack.Widgets.Add(CreateModernButton("⌂  MAIN MENU", ShowMainMenu, Warning));
+            
+            box.Widgets.Add(stack);
             overlay.Widgets.Add(box);
-
+            
             pauseMenuScreen = overlay;
         }
-
-        
-        // ==================== SETTINGS ====================
         
         private void CreateSettingsScreen()
         {
-            var grid = new Grid
+            var overlay = new Panel
             {
-                RowSpacing = 8,
-                ColumnSpacing = 8
+                Background = new SolidBrush(new Color(0, 0, 0, 220))
             };
             
-            grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
-            grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
-            grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
-            grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
+            var box = new Panel
+            {
+                Background = new SolidBrush(PanelDark),
+                Padding = new Thickness(32),
+                Width = 500,
+                Height = 400,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            
+            var stack = new VerticalStackPanel { Spacing = 20 };
+            
+            var title = new Label
+            {
+                Text = "SETTINGS",
+                HorizontalAlignment = HorizontalAlignment.Center,
+                TextColor = Accent
+            };
+            title.Scale = new Vector2(1.8f);
+            stack.Widgets.Add(title);
+            
+            var grid = new Grid
+            {
+                RowSpacing = 16,
+                ColumnSpacing = 16
+            };
+            
+            for (int i = 0; i < 3; i++)
+                grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
             
             grid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
             grid.ColumnsProportions.Add(new Proportion(ProportionType.Fill));
             
-            // Title
-            var title = new Label
-            {
-                Text = "SETTINGS",
-                HorizontalAlignment = HorizontalAlignment.Center
-            };
-            Grid.SetRow(title, 0);
-            Grid.SetColumnSpan(title, 2);
-            grid.Widgets.Add(title);
-
-            settingsScreen = new Panel
-            {
-                Background = new SolidBrush(BgDark),
-                Padding = new Thickness(40)
-            };
-            settingsScreen.Widgets.Add(grid);
-
-            
-            // Volume Label
+            // Volume
             var volumeLabel = new Label
             {
-                Text = "Volume:",
-                VerticalAlignment = VerticalAlignment.Center
+                Text = "Master Volume:",
+                VerticalAlignment = VerticalAlignment.Center,
+                TextColor = TextPrimary
             };
-            Grid.SetRow(volumeLabel, 1);
+            Grid.SetRow(volumeLabel, 0);
             Grid.SetColumn(volumeLabel, 0);
             grid.Widgets.Add(volumeLabel);
             
-            // Volume Slider
             var volumeSlider = new HorizontalSlider
             {
-                Width = 300,
+                Width = 200,
                 Minimum = 0,
                 Maximum = 100,
-                Value = 50
+                Value = 75
             };
-            Grid.SetRow(volumeSlider, 1);
+            Grid.SetRow(volumeSlider, 0);
             Grid.SetColumn(volumeSlider, 1);
             grid.Widgets.Add(volumeSlider);
             
-            // Fullscreen Label
+            // Fullscreen
             var fullscreenLabel = new Label
             {
                 Text = "Fullscreen:",
-                VerticalAlignment = VerticalAlignment.Center
+                VerticalAlignment = VerticalAlignment.Center,
+                TextColor = TextPrimary
             };
-            Grid.SetRow(fullscreenLabel, 2);
+            Grid.SetRow(fullscreenLabel, 1);
             Grid.SetColumn(fullscreenLabel, 0);
             grid.Widgets.Add(fullscreenLabel);
             
-            // Fullscreen Checkbox
-            var fullscreenCheckbox = new CheckBox
-            {
-                IsChecked = false
-            };
-            Grid.SetRow(fullscreenCheckbox, 2);
-            Grid.SetColumn(fullscreenCheckbox, 1);
-            grid.Widgets.Add(fullscreenCheckbox);
+            var fullscreenCheck = new CheckBox { IsChecked = false };
+            Grid.SetRow(fullscreenCheck, 1);
+            Grid.SetColumn(fullscreenCheck, 1);
+            grid.Widgets.Add(fullscreenCheck);
             
-            // Back Button
-            var backButton = new TextButton
+            // VSync
+            var vsyncLabel = new Label
             {
-                Text = "BACK",
-                Width = 200,
-                HorizontalAlignment = HorizontalAlignment.Center
+                Text = "VSync:",
+                VerticalAlignment = VerticalAlignment.Center,
+                TextColor = TextPrimary
             };
-            backButton.Click += (s, e) => ShowMainMenu();
-            Grid.SetRow(backButton, 3);
-            Grid.SetColumnSpan(backButton, 2);
-            grid.Widgets.Add(backButton);
+            Grid.SetRow(vsyncLabel, 2);
+            Grid.SetColumn(vsyncLabel, 0);
+            grid.Widgets.Add(vsyncLabel);
             
-            settingsScreen = new Panel();
-            settingsScreen.Widgets.Add(grid);
-
-            var box = new Panel
+            var vsyncCheck = new CheckBox { IsChecked = true };
+            Grid.SetRow(vsyncCheck, 2);
+            Grid.SetColumn(vsyncCheck, 1);
+            grid.Widgets.Add(vsyncCheck);
+            
+            stack.Widgets.Add(grid);
+            stack.Widgets.Add(new Panel { Height = 20 });
+            stack.Widgets.Add(CreateModernButton("← BACK", ShowMainMenu, AccentDark));
+            
+            box.Widgets.Add(stack);
+            overlay.Widgets.Add(box);
+            
+            settingsScreen = overlay;
+        }
+        
+        // ==================== HELPERS ====================
+        
+        private TextButton CreateModernButton(string text, Action onClick, Color color)
+        {
+            var btn = new TextButton
             {
-                Background = new SolidBrush(PanelDark),
-                Padding = new Thickness(24),
-                Width = 420,
-                Height = 420,
+                Text = text,
+                Width = 320,
+                Height = 56,
+                Background = new SolidBrush(color),
+                OverBackground = new SolidBrush(color * 1.2f),
+                PressedBackground = new SolidBrush(color * 0.8f),
                 HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center
+                Padding = new Thickness(16)
             };
-
-            box.Widgets.Add(grid);
-            settingsScreen.Widgets.Add(box);
-
-
+            
+            btn.Click += (_, __) => onClick();
+            return btn;
         }
         
         // ==================== SCREEN MANAGEMENT ====================
@@ -401,16 +787,44 @@ namespace TribeBuild.UI
         
         public void Update(GameTime gameTime)
         {
-            if (Keyboard.GetState().IsKeyDown(Keys.Escape))
-    {
+            var keyState = Keyboard.GetState();
+            
+            // ESC - Pause
+            if (keyState.IsKeyDown(Keys.Escape) && !previousKeyState.IsKeyDown(Keys.Escape))
+            {
                 if (CurrentScreen == UIScreen.InGame)
-                    ShowPause();
+                {
+                    if (showInventory)
+                    {
+                        showInventory = false;
+                        inventory.Visible = false;
+                    }
+                    else
+                    {
+                        GameManager.Instance?.PauseGame();
+                        ShowPause();
+                    }
+                }
                 else if (CurrentScreen == UIScreen.Paused)
+                {
+                    GameManager.Instance?.ResumeGame();
                     ShowGame();
+                }
             }
-
+            
+            // TAB - Inventory
             if (CurrentScreen == UIScreen.InGame)
+            {
+                if (keyState.IsKeyDown(Keys.Tab) && !previousKeyState.IsKeyDown(Keys.Tab))
+                {
+                    showInventory = !showInventory;
+                    inventory.Visible = showInventory;
+                }
+                
                 UpdateGameHUD();
+            }
+            
+            previousKeyState = keyState;
         }
         
         private void UpdateGameHUD()
@@ -418,17 +832,29 @@ namespace TribeBuild.UI
             var gm = GameManager.Instance;
             if (gm == null) return;
             
-            // Update time
-            timeLabel.Text = $"Day {gm.CurrentDay} - {gm.GetTimeString()}";
+            dayLabel.Text = $"Day {gm.CurrentDay}";
+            timeLabel.Text = gm.GetTimeString();
             
-            // Update resources
-           resourceLabel.Text =
-                  $"🌲 {gm.WoodCollected}   🪨 {gm.StoneCollected}   🍖 {gm.FoodCollected}";
-                  
-            // Update tasks
-            int pending = TaskManager.Instance.GetTaskCount(TaskStatus.Pending);
-            int active = TaskManager.Instance.GetTaskCount(TaskStatus.InProgress);
-            taskLabel.Text = $"Tasks: {active} active | {pending} pending";
+            var phase = gm.DayNightCycle.CurrentPhase;
+            timeLabel.TextColor = phase switch
+            {
+                DayNightCycleManager.TimeOfDayPhase.Night => Danger,
+                DayNightCycleManager.TimeOfDayPhase.Evening => Warning,
+                _ => TextPrimary
+            };
+            
+            var player = gm.World.GetPlayerCharacter;
+            if (player != null)
+            {
+                rpgHud.UpdatePlayerStats(player);
+                hotbar.UpdateHotbar(player);
+                UpdateResource(player);
+                
+                if (showInventory)
+                {
+                    inventory.UpdateInventory(player);
+                }
+            }
         }
         
         public void Draw()

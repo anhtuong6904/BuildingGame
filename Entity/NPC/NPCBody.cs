@@ -3,12 +3,11 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGameLibrary.Graphics;
 using MonoGameLibrary.PathFinding;
-using TribeBuild.Tasks;
 using TribeBuild.World;
 
 namespace TribeBuild.Entity.NPC
 {
-    /// <summary>
+        /// <summary>
     /// Physical representation of an NPC with movement, rendering, and combat
     /// </summary>
     public class NPCBody : Entity
@@ -31,7 +30,6 @@ namespace TribeBuild.Entity.NPC
         public float MaxHealth { get; private set; }
         
         // Task tracking
-        public Task CurrentTask { get; set; }
 
         private Direction lastDirection;
         private NPCState lastState;
@@ -87,7 +85,7 @@ namespace TribeBuild.Entity.NPC
         public override void Update(GameTime gameTime)
         {
             if (!IsActive) return;
-            
+
             // Update pathfinding movement
             UpdatePathfindingMovement(gameTime);
             
@@ -136,8 +134,8 @@ namespace TribeBuild.Entity.NPC
                 Position += Velocity * deltaTime;
 
                 // Update facing direction
-                UpdateDirection(direction.Value);
-            }
+                    UpdateDirection(direction.Value);
+                }
             else
             {
                 // Reached destination
@@ -172,7 +170,7 @@ namespace TribeBuild.Entity.NPC
                     AnimatedSprite._region.Width / 2,
                     AnimatedSprite._region.Height / 4
                 );
-            }
+                }
             else
             {
                 Collider = new Rectangle(
@@ -264,27 +262,27 @@ namespace TribeBuild.Entity.NPC
         /// Take damage from attacks
         /// </summary>
         public void TakeDamage(float damage, Entity attacker = null)
-        {
+            {
             Health -= damage;
             
             //GameLogger.Instance?.LogCombat(attacker?.ID ?? -1, ID, damage);
-            
+
             if (Health <= 0)
             {
                 Die();
             }
-            else
-            {
-                // Notify AI of attack
-                if (AI is VillagerAI villager)
-                {
-                    villager.OnAttacked(attacker);
-                }
-                else if (AI is HunterAI hunter)
-                {
-                    hunter.OnAttacked(attacker);
-                }
-            }
+            // else
+            // {
+            //     // Notify AI of attack
+            //     if (AI is VillagerAI villager)
+            //     {
+            //         villager.OnAttacked(attacker);
+            //     }
+            //     else if (AI is HunterAI hunter)
+            //     {
+            //         hunter.OnAttacked(attacker);
+            //     }
+            // }
         }
 
         /// <summary>
@@ -308,16 +306,6 @@ namespace TribeBuild.Entity.NPC
         protected virtual void Die()
         {
             IsActive = false;
-            
-            
-            // Cancel current task
-            if (CurrentTask != null)
-            {
-                TaskManager.Instance.CancelTask(CurrentTask);
-                CurrentTask = null;
-            }
-            
-            //GameLogger.Instance?.GameEvent("NPC", $"NPC #{ID} died at ({Position.X:F0}, {Position.Y:F0})");
         }
 
         // ==================== ANIMATION ====================

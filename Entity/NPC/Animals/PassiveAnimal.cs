@@ -8,7 +8,11 @@ using TribeBuild.World;
 namespace TribeBuild.Entity.NPC.Animals
 {
     /// <summary>
-    /// Động vật ôn hòa - chỉ biết chạy trốn
+    /// ✅ Động vật ôn hòa với chu kỳ ngày/đêm
+    /// - Ban ngày: Wander bình thường
+    /// - Khi trời tối: Di chuyển về spawn zone
+    /// - Vào spawn zone: Despawn (biến mất)
+    /// - Sáng: Respawn tại spawn zone
     /// </summary>
     public class PassiveAnimal : AnimalEntity
     {
@@ -25,14 +29,11 @@ namespace TribeBuild.Entity.NPC.Animals
         private const float MAX_PAUSE_TIME = 5f;
         private Direction lastDirection;
 
-
         private float territoryRadius = 250f;
         private BehaviorTree behaviorTree;
         private BehaviorContext behaviorContext;
         
-
         // Grazing
-
         private float grazeTimer = 0f;
         private const float GRAZE_DURATION = 3f;
 
@@ -40,17 +41,33 @@ namespace TribeBuild.Entity.NPC.Animals
         private float aiTickTimer = 0f;
         private const float AI_TICK_INTERVAL = 0.4f;
 
+        // ✅ DAY/NIGHT CYCLE
+        private bool isReturningHome = false;
+        private bool isDespawning = false;
+        private float despawnTimer = 0f;
+        private const float DESPAWN_DURATION = 1.5f;
+        public float Alpha { get; private set; } = 1f;
+        
+        // ✅ Spawn zone (from SpawnZoneManager)
+        private Rectangle spawnZone = Rectangle.Empty;
+        private const float DESPAWN_ZONE_RADIUS = 50f; // Radius to check if inside spawn zone
+
+        
+
         public PassiveAnimal(int id, Vector2 pos, AnimalType type, TextureAtlas atlas, Vector2 scale)
             : base(id, pos, type, atlas)
         {
             IsAggressive = false;
             Scale = scale;
+            BlocksMovement = true;
+            IsPushable = true;
+            Layer = CollisionLayer.Animal;
 
             // Setup stats based on type
             switch (type)
             {
                 case AnimalType.Chicken:
-                    MaxHealth = 20f;
+                    MaxHealth = 50f;
                     Speed = 50f;
                     LootItems = new[] { "meat", "feather" };
                     LootAmount = 2;
@@ -78,10 +95,10 @@ namespace TribeBuild.Entity.NPC.Animals
             if (AnimatedSprite != null)
             {
                 Collider = new Rectangle(
-                    AnimatedSprite._region.Width / 4,
-                    AnimatedSprite._region.Height / 2,
-                    AnimatedSprite._region.Width / 2,
-                    AnimatedSprite._region.Height / 2
+                    (int)(AnimatedSprite._region.Width * Scale.X / 4),
+                    (int)(AnimatedSprite._region.Height * Scale.Y / 2),
+                    (int)(AnimatedSprite._region.Width * Scale.X / 2),
+                    (int)(AnimatedSprite._region.Height * Scale.Y / 2)
                 );
             }
             else
@@ -89,14 +106,21 @@ namespace TribeBuild.Entity.NPC.Animals
                 Collider = new Rectangle(0, 0, 32, 32);
             }
 
-             InitializeBehaviorTree();
+            InitializeBehaviorTree();
     
             behaviorContext = new BehaviorContext(
                 target: this,
                 gameTime: null
             );
+        }
 
-            //GameLogger.Instance?.Debug("Animal", $"Created {type} at ({pos.X:F0}, {pos.Y:F0})");
+        /// <summary>
+        /// ✅ Set spawn zone from SpawnZoneManager
+        /// </summary>
+        public void SetSpawnZone(Rectangle zone)
+        {
+            spawnZone = zone;
+            Console.WriteLine($"[{Type}] Spawn zone set: ({zone.X}, {zone.Y}) {zone.Width}x{zone.Height}");
         }
 
         protected override void InitializeBehaviorTree()
@@ -105,13 +129,19 @@ namespace TribeBuild.Entity.NPC.Animals
 
             behaviorTree = builder
                 .Selector($"{Type} Behavior")
-                    // 1. FLEE from threats
+                    // ✅ 1. NIGHT - Return home and despawn
+                    .Sequence("Night Behavior")
+                        .Condition(ctx => IsNight() && !isDespawning, "Is Night?")
+                        .Action(ReturnHomeAction, "Return to Spawn")
+                    .End()
+
+                    // 2. FLEE from threats
                     .Sequence("Flee")
                         .Condition(ctx => ThreatTarget != null && ThreatTarget.IsActive, "Threat Detected?")
                         .Action(FleeAction, "Run Away")
                     .End()
 
-                    // 2. WANDER and occasionally graze
+                    // 3. WANDER and graze (day only)
                     .Action(WanderAction, "Wander")
                 .End()
                 .Build($"{Type} Behavior Tree");
@@ -121,33 +151,51 @@ namespace TribeBuild.Entity.NPC.Animals
         {
             if (!IsActive) return;
 
+            float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+            // ✅ DESPAWN FADE OUT
+            if (isDespawning)
+            {
+                despawnTimer += deltaTime;
+                Alpha = Math.Max(0f, 1f - (despawnTimer / DESPAWN_DURATION));
+                
+                if (AnimatedSprite != null)
+                    AnimatedSprite._color = Color.White * Alpha;
+
+                if (despawnTimer >= DESPAWN_DURATION)
+                {
+                    IsActive = false;
+                    Console.WriteLine($"[{Type}] Despawned at night");
+                    return;
+                }
+            }
+
             // 1. Update pause timer
             if (wanderPauseTimer > 0f)
             {
-                wanderPauseTimer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+                wanderPauseTimer -= deltaTime;
             }
 
             // 2. Update graze timer if idling
             if (State == AnimalState.Idle && wanderPauseTimer > 0f)
             {
-                grazeTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
+                grazeTimer += deltaTime;
             }
             else
             {
                 grazeTimer = 0f;
             }
 
-            // 3. Detect threats
-            if (ThreatTarget == null)
+            // 3. Detect threats (only during day)
+            if (ThreatTarget == null && !isReturningHome && !IsNight())
             {
                 DetectThreats();
             }
 
             // 4. AI tick
-            aiTickTimer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+            aiTickTimer -= deltaTime;
             if (aiTickTimer <= 0f)
             {
-                // ✅ FIX: Use correct variable name
                 behaviorContext.GameTime = gameTime;
                 behaviorTree?.Tick(behaviorContext);
                 aiTickTimer = AI_TICK_INTERVAL;
@@ -158,6 +206,82 @@ namespace TribeBuild.Entity.NPC.Animals
             AnimatedSprite?.Update(gameTime);
         }
 
+        /// <summary>
+        /// ✅ Check if it's night
+        /// </summary>
+        private bool IsNight()
+        {
+            var gameManager = GameManager.Instance;
+            if (gameManager == null) return false;
+
+            float timeOfDay = gameManager.TimeOfDay;
+            return timeOfDay < 6f || timeOfDay > 19.5f; // Night starts at 19:30 (dusk)
+        }
+
+        /// <summary>
+        /// ✅ NEW: Return home behavior at night
+        /// </summary>
+        private NodeState ReturnHomeAction(BehaviorContext ctx)
+        {
+            isReturningHome = true;
+            ThreatTarget = null; // Clear threats
+            currentWanderTarget = null;
+
+            // Check if already in spawn zone
+            if (IsInSpawnZone())
+            {
+                // Start despawning
+                if (!isDespawning)
+                {
+                    Stop();
+                    State = AnimalState.Idle;
+                    isDespawning = true;
+                    despawnTimer = 0f;
+                    Console.WriteLine($"[{Type}] Reached spawn zone, starting despawn");
+                }
+                return NodeState.Running;
+            }
+
+            // Move to spawn position
+            if (!IsMoving() || PathFollower.GetRemainingDistance(Position) < 20f)
+            {
+                Vector2 spawnCenter = GetSpawnZoneCenter();
+                MoveToWithPathfinding(spawnCenter);
+            }
+
+            State = AnimalState.Walk;
+            return NodeState.Running;
+        }
+
+        /// <summary>
+        /// ✅ Check if animal is inside spawn zone
+        /// </summary>
+        private bool IsInSpawnZone()
+        {
+            if (spawnZone == Rectangle.Empty)
+            {
+                // Fallback: use spawn position
+                float distToSpawn = Vector2.Distance(Position, SpawnPosition);
+                return distToSpawn < DESPAWN_ZONE_RADIUS;
+            }
+
+            // Check if inside spawn zone rectangle
+            return spawnZone.Contains(new Point((int)Position.X, (int)Position.Y));
+        }
+
+        /// <summary>
+        /// ✅ Get center of spawn zone
+        /// </summary>
+        private Vector2 GetSpawnZoneCenter()
+        {
+            if (spawnZone == Rectangle.Empty)
+                return SpawnPosition;
+
+            return new Vector2(
+                spawnZone.X + spawnZone.Width / 2f,
+                spawnZone.Y + spawnZone.Height / 2f
+            );
+        }
 
         /// <summary>
         /// Detect nearby threats (hunters, aggressive animals)
@@ -167,7 +291,7 @@ namespace TribeBuild.Entity.NPC.Animals
             var world = GameManager.Instance?.World;
             if (world == null) return;
 
-            // ✅ Check for player first (most common threat)
+            // Check for player first
             var player = world.FindNearestPlayer(Position, detectionRange);
             if (player != null && player.IsActive)
             {
@@ -177,7 +301,7 @@ namespace TribeBuild.Entity.NPC.Animals
                 return;
             }
 
-            // ✅ Then check for other threats via KD-Tree
+            // Check for aggressive animals
             var nearbyEntities = world.KDTree.FindInRadius(Position, detectionRange);
 
             foreach (var result in nearbyEntities)
@@ -187,16 +311,6 @@ namespace TribeBuild.Entity.NPC.Animals
                 if (entity == null || !entity.IsActive)
                     continue;
 
-                // Hunter NPCs
-                if (entity is NPCBody npc && npc.AI is HunterAI)
-                {
-                    ThreatTarget = npc;
-                    currentWanderTarget = null;
-                    wanderPauseTimer = 0f;
-                    return;
-                }
-
-                // Aggressive animals
                 if (entity is AggressiveAnimal aggAnimal)
                 {
                     ThreatTarget = aggAnimal;
@@ -238,12 +352,11 @@ namespace TribeBuild.Entity.NPC.Animals
             float distFromSpawn = Vector2.Distance(fleeTarget, SpawnPosition);
             if (distFromSpawn > WanderRadius)
             {
-                // Flee towards spawn instead
                 Vector2 toSpawn = Vector2.Normalize(SpawnPosition - Position);
                 fleeTarget = Position + toSpawn * 100f;
             }
 
-            // Update path if not moving or close to current target
+            // Update path if not moving
             if (!IsMoving() || (currentWanderTarget.HasValue && 
                 Vector2.Distance(Position, currentWanderTarget.Value) < 20f))
             {
@@ -259,6 +372,12 @@ namespace TribeBuild.Entity.NPC.Animals
 
         private NodeState WanderAction(BehaviorContext ctx)
         {
+            // Reset night flag during day
+            if (!IsNight())
+            {
+                isReturningHome = false;
+            }
+
             // If pausing (grazing), stay idle
             if (wanderPauseTimer > 0f)
             {
@@ -273,7 +392,6 @@ namespace TribeBuild.Entity.NPC.Animals
             {
                 float distanceToTarget = Vector2.Distance(Position, currentWanderTarget.Value);
                 
-                // Check if reached destination or path completed
                 if (!IsMoving() || distanceToTarget <= 10f)
                 {
                     currentWanderTarget = null;
@@ -283,11 +401,9 @@ namespace TribeBuild.Entity.NPC.Animals
 
                     Stop();
                     State = AnimalState.Idle;
-
-                    return NodeState.Success; // ✅ QUAN TRỌNG
+                    return NodeState.Success;
                 }
                 
-                // Still moving towards target
                 State = AnimalState.Walk;
                 UpdateAnimation();
                 return NodeState.Running;
@@ -296,11 +412,9 @@ namespace TribeBuild.Entity.NPC.Animals
             // Pick new wander point
             Vector2 newTarget = PickRandomWanderPoint();
             
-            // Make sure the point is within wander radius
             float distFromSpawn = Vector2.Distance(newTarget, SpawnPosition);
             if (distFromSpawn > WanderRadius)
             {
-                // Pull it back towards spawn
                 Vector2 direction = Vector2.Normalize(SpawnPosition - newTarget);
                 newTarget = SpawnPosition + direction * (WanderRadius * 0.8f);
             }
@@ -313,9 +427,6 @@ namespace TribeBuild.Entity.NPC.Animals
             return NodeState.Running;
         }
 
-        /// <summary>
-        /// Pick a random point near current position for wandering
-        /// </summary>
         private Vector2 PickRandomWanderPoint()
         {
             float angle = (float)(rng.NextDouble() * Math.PI * 2);
@@ -337,9 +448,8 @@ namespace TribeBuild.Entity.NPC.Animals
             if (Atlas != null)
             {
                 AnimatedSprite = GetAnimatedSprite(GetAnimationName());
-
-                // ✅ SET SCALE NGAY SAU KHI TẠO
                 AnimatedSprite._scale = Scale;
+                AnimatedSprite._color = Color.White * Alpha;
             }
 
             lastState = State;

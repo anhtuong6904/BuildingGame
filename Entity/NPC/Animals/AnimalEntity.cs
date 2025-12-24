@@ -4,6 +4,8 @@ using MonoGameLibrary.Behavior;
 using MonoGameLibrary.Graphics;
 using MonoGameLibrary.PathFinding;
 using MonoGameLibrary.Spatial;
+using Myra.Graphics2D.UI;
+using TribeBuild.Player;
 using TribeBuild.World;
 
 namespace TribeBuild.Entity.NPC.Animals
@@ -75,9 +77,14 @@ namespace TribeBuild.Entity.NPC.Animals
         // Texture Atlas
         public TextureAtlas Atlas { get; protected set; }
 
+        private float stuckCheckTimer = 0f;
+        private Vector2 lastCheckedPosition;
+        private const float STUCK_CHECK_INTERVAL = 2f;  // Check every 2 seconds
+        private const float STUCK_THRESHOLD = 5f; 
+
         // Constructor
         public AnimalEntity(int id, Vector2 pos, AnimalType type, TextureAtlas atlas) 
-            : base(id, pos)
+        : base(id, pos)
         {
             Type = type;
             State = AnimalState.Idle;
@@ -85,19 +92,132 @@ namespace TribeBuild.Entity.NPC.Animals
             Direction = Direction.Font;
             Velocity = Vector2.Zero;
             Atlas = atlas;
-            // AnimalEntity
             
-
-
+            // ✅ INITIALIZE STUCK DETECTION
+            lastCheckedPosition = pos;
+            stuckCheckTimer = 0f;
             
             PathFollower = new PathFollower(10f);
         }
 
-       public override void Update(GameTime gameTime)
+
+        public override void Update(GameTime gameTime)
         {
             if (!IsActive) return;
 
-            UpdatePathfindingMovement(gameTime);
+            float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+            // ✅ 1. KNOCKBACK (priority)
+            UpdateKnockback(deltaTime);
+
+            // ✅ 2. NORMAL MOVEMENT (only if no knockback)
+            if (KnockbackVelocity.LengthSquared() < 0.1f)
+            {
+                UpdatePathfindingMovement(gameTime);
+            }
+
+            // ✅ 3. RESOLVE OVERLAPS
+            var world = GameManager.Instance?.World;
+            if (world != null)
+            {
+                ResolveOverlaps(world, pushStrength: 1.0f);
+            }
+
+            // ✅ 4. STUCK DETECTION
+            stuckCheckTimer += deltaTime;
+            if (stuckCheckTimer >= STUCK_CHECK_INTERVAL)
+            {
+                float distanceMoved = Vector2.Distance(Position, lastCheckedPosition);
+                
+                if (distanceMoved < STUCK_THRESHOLD && IsMoving())
+                {
+                    Console.WriteLine($"[{Type}] ⚠️ STUCK! Attempting unstuck...");
+                    AttemptUnstuck();
+                }
+                
+                lastCheckedPosition = Position;
+                stuckCheckTimer = 0f;
+            }
+        }
+
+
+        public  void TakeDamage(float damage, Entity attacker)
+        {
+            Health -= damage;
+
+            if (Health <= 0)
+            {
+                Die();
+            }
+            else
+            {
+                ThreatTarget = attacker;
+                
+                // ✅ KNOCKBACK when hit
+                if (attacker != null)
+                {
+                    Vector2 knockbackDir = Position - attacker.Position;
+                    ApplyKnockback(knockbackDir, force: 150f);
+                }
+            }
+        }
+
+        
+
+        /// <summary>
+        /// ✅ Attempt to unstuck animal by trying different positions
+        /// </summary>
+        private void AttemptUnstuck()
+        {
+            var world = GameManager.Instance?.World;
+            if (world == null) return;
+
+            // Try 8 directions around current position
+            Random rng = new Random();
+            for (int i = 0; i < 8; i++)
+            {
+                float angle = i * (MathHelper.TwoPi / 8);
+                Vector2 testPos = Position + new Vector2(
+                    (float)Math.Cos(angle) * 50f,
+                    (float)Math.Sin(angle) * 50f
+                );
+
+                // Check if position is valid
+                if (IsTileWalkableAt(testPos, world.Tilemap))
+                {
+                    // Check entity collisions
+                    bool blocked = false;
+                    var nearby = world.GetEntitiesInRadius(testPos, 100f);
+                    
+                    foreach (var e in nearby)
+                    {
+                        if (e == this || !e.IsActive || !e.BlocksMovement)
+                            continue;
+
+                        if (!Layer.CanCollideWith(e.Layer))
+                            continue;
+
+                        if (WouldCollideAt(testPos, e))
+                        {
+                            blocked = true;
+                            break;
+                        }
+                    }
+
+                    if (!blocked)
+                    {
+                        Position = testPos;
+                        Stop();
+                        Console.WriteLine($"[{Type}] ✅ Unstuck successful at angle {MathHelper.ToDegrees(angle):F0}°");
+                        return;
+                    }
+                }
+            }
+
+            // Last resort: teleport to spawn position
+            Console.WriteLine($"[{Type}] ⚠️ Could not find unstuck position, teleporting to spawn");
+            Position = SpawnPosition;
+            Stop();
         }
 
 
@@ -196,17 +316,25 @@ namespace TribeBuild.Entity.NPC.Animals
             return PathFollower.HasPath && !PathFollower.ReachedDestination;
         }
 
-        public virtual void TakeDamage(float damage, Entity attacker)
-        {
-            Health -= damage;
 
-            if (Health <= 0)
+        public virtual void knockBack(Direction direction, float KnockBack)
+        {
+            float x = Position.X;
+            float y = Position.Y;
+            switch (direction)
             {
-                Die();
-            }
-            else
-            {
-                ThreatTarget = attacker;
+                case Direction.Font:
+                    Position = new Vector2(x, y + KnockBack);
+                    break;
+                case Direction.Back:
+                    Position = new Vector2(x, y - KnockBack);
+                    break;
+                case Direction.Right:
+                    Position = new Vector2(x - KnockBack, y);
+                    break;
+                case Direction.Left:
+                    Position = new Vector2(x + KnockBack, y);
+                    break;
             }
         }
 

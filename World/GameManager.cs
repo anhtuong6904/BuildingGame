@@ -7,9 +7,9 @@ using TribeBuild.Entity;
 using TribeBuild.Entity.NPC;
 using TribeBuild.Entity.Resource;
 using TribeBuild.Entity.NPC.Animals;
-
-using TribeBuild.Tasks;
+using TribeBuild.Entity.Enemies;
 using TribeBuild.Player;
+using TribeBuild.UI;
 
 namespace TribeBuild.World
 {
@@ -18,12 +18,12 @@ namespace TribeBuild.World
         MainMenu,
         Playing,
         Paused,
+        DaySummary,  // ✅ NEW: Day summary screen
         GameOver
     }
     
     /// <summary>
-    /// Central game manager for TribeBuild
-    /// Manages game state, entities, and systems
+    /// ✅ UPDATED: GameManager với chu kỳ ngày/đêm hoàn chỉnh
     /// </summary>
     public class GameManager
     {
@@ -36,41 +36,37 @@ namespace TribeBuild.World
         // Systems
         public GameWorld World { get; private set; }
         public ResourceManager Resources { get; private set; }
-        public TaskManager Task { get; private set; }
+        public DayNightCycleManager DayNightCycle { get; private set; } // ✅ NEW
+        
+        // UI
+        private DaySummaryScreen daySummaryScreen; // ✅ NEW
         
         // Tilemap
         private Tilemap tilemap;
         
-        // Time
-        public int CurrentDay { get; private set; }
-        public float TimeOfDay { get; private set; }
+        // ✅ UPDATED: Time management now handled by DayNightCycleManager
+        public int CurrentDay { get; set; }
+        public float TimeOfDay { get; set; }
         public float TimeScale { get; set; }
-        private float dayLength = 120f; // 2 minutes = 1 day
         
-        // Demo objectives
+        // Demo objectives (can be removed if not needed)
         public int WoodCollected { get; private set; }
         public int StoneCollected { get; private set; }
         public int FoodCollected { get; private set; }
-        public bool DemoComplete { get; private set; }
         
         // Texture atlases
-        private TextureAtlas atlasBoar;
-        private TextureAtlas atlasBush;
-        private TextureAtlas atlasChicken;
         private TextureAtlas atlasPlayer;
-        private TextureAtlas atlasMine;
         private TextureAtlas atlasResource;
+        private TextureAtlas atlasChicken;
         private TextureAtlas atlasSheep;
+        private TextureAtlas atlasBoar;
+        private TextureAtlas atlasAssassin;
         
-        // Sprites
-        private Sprite Mine;
         private Vector2 Scale;
+        private SpawnZoneManager spawnManager;
         
-        // Spawn settings (in tiles)
-        private const int RESOURCE_SPACING = 1;
-        private const int ANIMAL_SPACING = 1;
-        private const int NPC_SPACING = 1;
-        private const int MINE_SPACING = 6;
+        // ✅ Game over flag
+        private bool isGameOver = false;
         
         public GameManager(Tilemap tilemap)
         {
@@ -83,17 +79,10 @@ namespace TribeBuild.World
             this.tilemap = tilemap;
             Scale = tilemap.Scale;
             
-            // Load texture atlases
-            atlasBoar = TextureAtlas.FromFile(Core.Content, "Images/boar.xml");
-            atlasPlayer = TextureAtlas.FromFile(Core.Content, "Images/farmer.xml");
-            atlasBush = TextureAtlas.FromFile(Core.Content, "Images/Bush.xml");
-            atlasChicken = TextureAtlas.FromFile(Core.Content, "Images/Chicken.xml");
-            atlasMine = TextureAtlas.FromFile(Core.Content, "Images/Mine.xml");
-            atlasResource = TextureAtlas.FromFile(Core.Content, "Images/resource.xml");
-            atlasSheep = TextureAtlas.FromFile(Core.Content, "Images/sheep.xml");
+            Console.WriteLine("[GameManager] Initializing...");
             
-            Mine = atlasMine.CreateSprite("Sprite-0001 0");
-            Mine._scale = Scale;
+            // Load texture atlases
+            LoadAtlases();
             
             // Initialize state
             CurrentState = GameState.Playing;
@@ -111,342 +100,279 @@ namespace TribeBuild.World
             World.Tilemap = tilemap;
             
             Resources = ResourceManager.Instance;
-            Task = TaskManager.Instance;
-                   }
-        
-       public void Initialize(int worldWidth, int worldHeight)
-        {
-            World.Initialize();
-            Resources.Initialize(new Rectangle(0, 0, worldWidth, worldHeight), Scale);
             
-            // ✅ CRITICAL: Sync pathfinder with water tiles
+            // ✅ NEW: Initialize day/night cycle manager
+            DayNightCycle = DayNightCycleManager.Instance;
+            
+            spawnManager = SpawnZoneManager.Instance;
+            
+            Console.WriteLine("[GameManager] ✅ Systems initialized");
+        }
+        
+        private void LoadAtlases()
+        {
+            try
+            {
+                atlasPlayer = TextureAtlas.FromFile(Core.Content, "Images/farmer.xml");
+                atlasResource = TextureAtlas.FromFile(Core.Content, "Images/resource.xml");
+                atlasChicken = TextureAtlas.FromFile(Core.Content, "Images/Chicken.xml");
+                atlasSheep = TextureAtlas.FromFile(Core.Content, "Images/sheep.xml");
+                atlasBoar = TextureAtlas.FromFile(Core.Content, "Images/boar.xml");
+                atlasAssassin = TextureAtlas.FromFile(Core.Content, "Images/Assassin.xml");; // TODO: Load proper assassin atlas
+                
+                Console.WriteLine("[GameManager] ✅ All atlases loaded");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[GameManager] ❌ ERROR loading atlases: {ex.Message}");
+                throw;
+            }
+        }
+        
+        public void Initialize()
+        {
+            Console.WriteLine("[GameManager] Running initialization sequence...");
+            
+            // 1. Initialize world systems
+            World.Initialize();
+            Resources.Initialize(
+                new Rectangle(0, 0, (int)tilemap.ScaleMapWidth, (int)tilemap.ScaleMapHeight), 
+                Scale
+            );
+            
+            // 2. Setup spawn system
+            SetupSpawnSystem();
+            
+            // 3. Initialize day/night cycle
+            DayNightCycle.Initialize(this);
+            
+            // 4. Subscribe to events
+            SubscribeToEvents();
+            
+            // 5. Validate player position
+            World.player?.ValidatePosition();
+            
+            // 6. Sync pathfinder
             World.SyncPathfinderWithTilemap();
             
-            SpawnInitialEntities();
-            
-            // ✅ Validate player position after spawn
-            World.player?.ValidatePosition();
+            Console.WriteLine("[GameManager] ✅ Initialization complete!");
         }
-
         
-        
-        // ==================== ENTITY SPAWNING ====================
-        
-        private void SpawnInitialEntities()
+        /// <summary>
+        /// ✅ NEW: Initialize day summary UI
+        /// Call this after you have loaded fonts
+        /// </summary>
+        public void InitializeUI(SpriteFont titleFont, SpriteFont normalFont, SpriteFont smallFont, GraphicsDevice graphicsDevice)
         {
-            var random = new Random();
+            daySummaryScreen = new DaySummaryScreen(titleFont, normalFont, smallFont);
+            daySummaryScreen.Initialize(graphicsDevice);
             
-            Console.WriteLine("[GameManager] Spawning entities...");
+            Console.WriteLine("[GameManager] ✅ UI initialized");
+        }
+        
+        /// <summary>
+        /// ✅ NEW: Subscribe to day/night cycle events
+        /// </summary>
+        private void SubscribeToEvents()
+        {
+            DayNightCycle.OnDayStart += OnDayStart;
+            DayNightCycle.OnNightStart += OnNightStart;
+            DayNightCycle.OnDayEnd += OnDayEnd;
+            DayNightCycle.OnShowDaySummary += OnShowDaySummary;
             
+            Console.WriteLine("[GameManager] ✅ Subscribed to day/night events");
+        }
+        
+        private void OnDayStart()
+        {
+            Console.WriteLine($"[GameManager] ☀️ Day {CurrentDay} started!");
+            
+            // ✅ Don't reset stats - they accumulate across days
+            // WoodCollected, StoneCollected, FoodCollected keep growing
+        }
+        
+        private void OnNightStart()
+        {
+            Console.WriteLine("[GameManager] 🌙 Night has fallen... be careful!");
+            
+            // You can add UI warning here
+        }
+        
+        private void OnDayEnd()
+        {
+            Console.WriteLine($"[GameManager] 💤 Day {CurrentDay} ended at 2 AM");
+        }
+        
+        private void OnShowDaySummary(DaySummary summary)
+        {
+            CurrentState = GameState.DaySummary;
+            
+            if (daySummaryScreen != null)
+            {
+                daySummaryScreen.Show(summary);
+            }
+            
+            Console.WriteLine("[GameManager] 📊 Showing day summary screen");
+        }
+        
+        private void SetupSpawnSystem()
+        {
+            Console.WriteLine("[GameManager] Setting up spawn system...");
+            
+            spawnManager.Initialize(World, tilemap);
+            
+            // Register atlases
+            spawnManager.RegisterAtlas("player", atlasPlayer);
+            spawnManager.RegisterAtlas("resource", atlasResource);
+            spawnManager.RegisterAtlas("chicken", atlasChicken);
+            spawnManager.RegisterAtlas("sheep", atlasSheep);
+            spawnManager.RegisterAtlas("boar", atlasBoar);
+            spawnManager.RegisterAtlas("assassin", atlasAssassin);
+            
+            // Register atlases in World too (for night enemy spawning)
+            World.RegisterAtlas("assassin", atlasAssassin);
+            World.RegisterAtlas("boar", atlasBoar);
+            
+            // Parse object layer
+            spawnManager.ParseObjectLayer("Object Layer 1");
+            
+            // Spawn player
             SpawnPlayer();
-            // SpawnVillagers(random, 3);
-            // SpawnHunter(random);
-            SpawnResources(random, treeCount: 30, bushCount: 20);
-            SpawnAnimals(random, chickens: 15, sheep: 15, boars: 8);
-            SpawnMine(random);
             
-            Console.WriteLine("[GameManager] Spawn complete");
+            // Queue initial entities (trees, bushes, etc.)
+            // Animals will spawn at dawn via DayNightCycleManager
+            spawnManager.SpawnInitialEntities();
+            
+            Console.WriteLine("[GameManager] ✅ Spawn system setup complete");
         }
-       private void SpawnPlayer()
+        
+        private void SpawnPlayer()
         {
-            Vector2 spawnPos = tilemap.TileToWorld(10, 10);
-            int playerId = 1;
-
-            var player = new PlayerCharacter(playerId, spawnPos, atlasPlayer, Scale);
-            
-            // ✅ FIX: Explicitly ensure player is active
+            Vector2 spawnPos = tilemap.TileToWorld(22, 18);
+            var player = new PlayerCharacter(1, spawnPos, atlasPlayer, Scale);
             player.IsActive = true;
             
             World.AddEntity(player);
             World.player = player;
             
-            Console.WriteLine($"[Player] Spawned at ({spawnPos.X:F0}, {spawnPos.Y:F0})");
-            Console.WriteLine($"[Player] IsActive: {player.IsActive}, ID: {player.ID}");
+            Console.WriteLine($"[Player] ✅ Spawned at tile (22, 18) → world ({spawnPos.X:F0}, {spawnPos.Y:F0})");
         }
-        private void SpawnVillagers(Random random, int count)
-        {
-            Point homeArea = new Point(10, 10);
-            Vector2 homePos = tilemap.TileToWorld(homeArea.X, homeArea.Y);
-            
-            for (int i = 0; i < count; i++)
-            {
-                Point? tile = FindValidTile(homeArea, 5, random, NPC_SPACING);
-                if (!tile.HasValue) continue;
-                
-                Vector2 pos = tilemap.TileToWorld(tile.Value.X, tile.Value.Y);
-                var ai = new VillagerAI("Farmer") { HomePosition = homePos };
-                var villager = new NPCBody(100 + i, pos, ai, null);
-                
-                World.AddEntity(villager);
-            }
-        }
-        
-        private void SpawnHunter(Random random)
-        {
-            Point homeArea = new Point(15, 10);
-            Point? tile = FindValidTile(homeArea, 5, random, NPC_SPACING);
-            if (!tile.HasValue) return;
-            
-            Vector2 pos = tilemap.TileToWorld(tile.Value.X, tile.Value.Y);
-            Vector2 homePos = tilemap.TileToWorld(10, 10);
-            var ai = new HunterAI() { HomePosition = homePos };
-            var hunter = new NPCBody(200, pos, ai, null);
-            
-            World.AddEntity(hunter);
-        }
-        
-        private void SpawnResources(Random random, int treeCount, int bushCount)
-        {
-            int treesSpawned = SpawnTrees(random, treeCount);
-            int bushesSpawned = SpawnBushes(random, bushCount);
-            
-            Console.WriteLine($"[Resources] Trees: {treesSpawned}/{treeCount} | Bushes: {bushesSpawned}/{bushCount}");
-        }
-                    
-        private int SpawnTrees(Random random, int count)
-        {
-            int spawned = 0;
-            int attempts = 0;
-            int maxAttempts = count * 100;
-            
-            while (spawned < count && attempts < maxAttempts)
-            {
-                attempts++;
-                
-                Point tile = new Point(
-                    random.Next(0, tilemap.Width - 1),
-                    random.Next(0, tilemap.Height - 2)  // -2 vì tree cao 2 tiles
-                );
-                
-                // ✅ Tree sprite: 16x32 (1 tile wide, 2 tiles tall)
-                // Check cả 2 tiles chiều dọc
-                if (!CanPlaceResource(tile, 1, 2, RESOURCE_SPACING))
-                    continue;
-                
-                // ✅ Block collision: 1 tile wide, 2 tiles tall
-                Rectangle blockArea = new Rectangle(tile.X, tile.Y, 1, 2);
-                tilemap.CollisionMatrix.BlockArea(blockArea);
-                
-                // ✅ Let ResourceManager create the entity
-                Vector2 worldPos = tilemap.TileToWorld(tile.X, tile.Y);
-                Tree tree = Resources.AddTree(worldPos, Scale, TreeType.Oak, atlasResource);
-                
-                // ✅ Add SAME tree to GameWorld
-                World.AddEntity(tree);
-                
-                spawned++;
-            }
-            
-            return spawned;
-        }
-
-        private int SpawnBushes(Random random, int count)
-        {
-            int spawned = 0;
-            int attempts = 0;
-            int maxAttempts = count * 100;
-            
-            while (spawned < count && attempts < maxAttempts)
-            {
-                attempts++;
-                
-                Point tile = new Point(
-                    random.Next(0, tilemap.Width - 1),
-                    random.Next(0, tilemap.Height - 1)
-                );
-                
-                // ✅ Bush sprite: 16x16 (1 tile square)
-                if (!CanPlaceResource(tile, 1, 1, RESOURCE_SPACING))
-                    continue;
-                
-                // ✅ Block collision: 1x1 tile
-                Rectangle blockArea = new Rectangle(tile.X, tile.Y, 1, 1);
-                tilemap.CollisionMatrix.BlockArea(blockArea);
-                
-                // ✅ Let ResourceManager create the entity
-                Vector2 worldPos = tilemap.TileToWorld(tile.X, tile.Y);
-                Bush bush = Resources.AddBush(worldPos, BushType.Berry, atlasResource);
-                
-                // ✅ Add SAME bush to GameWorld
-                World.AddEntity(bush);
-                
-                spawned++;
-            }
-            
-            return spawned;
-        }
-                
-        private void SpawnAnimals(Random random, int chickens, int sheep, int boars)
-        {
-            int chickenCount = SpawnAnimalType(random, chickens, 5000, AnimalType.Chicken, atlasChicken);
-            int sheepCount = SpawnAnimalType(random, sheep, 5010, AnimalType.Sheep, atlasSheep);
-            int boarCount = SpawnAnimalType(random, boars, 6000, AnimalType.Boar, atlasBoar);
-            
-            Console.WriteLine($"[Animals] Chickens: {chickenCount}/{chickens} | Sheep: {sheepCount}/{sheep} | Boars: {boarCount}/{boars}");
-        }
-        
-        private int SpawnAnimalType(Random random, int count, int startID, AnimalType type, TextureAtlas atlas)
-        {
-            int spawned = 0;
-            
-            for (int i = 0; i < count; i++)
-            {
-                Point center = new Point(
-                    random.Next(10, tilemap.Width - 10),
-                    random.Next(10, tilemap.Height - 10)
-                );
-                
-                Point? tile = FindValidTile(center, 10, random, ANIMAL_SPACING);
-                if (!tile.HasValue) continue;
-                
-                Vector2 pos = tilemap.TileToWorld(tile.Value.X, tile.Value.Y);
-                
-                if (type == AnimalType.Boar)
-                {
-                    var boar = new AggressiveAnimal(startID + i, pos, type, atlas, Scale);
-                    World.AddEntity(boar);
-                }
-                else
-                {
-                    var animal = new PassiveAnimal(startID + i, pos, type, atlas, Scale);
-                    World.AddEntity(animal);
-                }
-                
-                spawned++;
-            }
-            
-            return spawned;
-        }
-        
-        private void SpawnMine(Random random)
-        {
-            Point center = new Point(tilemap.Width / 2, tilemap.Height / 2);
-            Point? tile = FindValidTile(center, 10, random, MINE_SPACING);
-            
-            if (!tile.HasValue) return;
-            
-            Vector2 pos = tilemap.TileToWorld(tile.Value.X, tile.Value.Y);
-            var mine = new Mine(1000, pos, Mine);
-            
-            World.AddEntity(mine);
-            
-            tilemap.BlockTilesForResource(pos, 3, 3);
-        }
-        
-        // ==================== SPAWN VALIDATION ====================
-        
-        private Point? FindValidTile(Point center, int searchRadius, Random random, int minSpacing)
-        {
-            if (IsTileValid(center, minSpacing))
-                return center;
-            
-            for (int r = 1; r <= searchRadius; r++)
-            {
-                for (int angle = 0; angle < 360; angle += 45)
-                {
-                    float rad = angle * MathHelper.ToRadians(1);
-                    int x = center.X + (int)(Math.Cos(rad) * r);
-                    int y = center.Y + (int)(Math.Sin(rad) * r);
-                    
-                    Point tile = new Point(x, y);
-                    if (IsTileValid(tile, minSpacing))
-                        return tile;
-                }
-            }
-            
-            return null;
-        }
-        
-        private bool IsTileValid(Point tile, int minSpacing)
-        {
-            if (tile.X < 0 || tile.X >= tilemap.Width || 
-                tile.Y < 0 || tile.Y >= tilemap.Height)
-                return false;
-            
-            // 1. Không cho spawn trên nước
-            if (tilemap.IsWaterTile(tile.X, tile.Y))
-                return false;
-
-            // 2. Không cho spawn trên tile bị block
-            if (!tilemap.IsTileWalkable(tile.X, tile.Y))
-                return false;
-            
-            Vector2 worldPos = tilemap.TileToWorld(tile.X, tile.Y);
-            float minDist = minSpacing * tilemap.ScaleTileWidth;
-            
-            return World.GetEntitiesInRadius(worldPos, minDist).Count == 0;
-        }
-        
-        private bool CanPlaceResource(Point tile, int width, int height, int minSpacing)
-        {
-            for (int y = tile.Y; y < tile.Y + height; y++)
-            {
-                for (int x = tile.X; x < tile.X + width; x++)
-                {
-                    // ⛔ chặn nước + collision + spacing
-                    if (!IsTileValid(new Point(x, y), minSpacing))
-                        return false;
-                }
-            }
-            return true;
-        }
-
-        
-        // ==================== UPDATE ====================
         
         public void Update(GameTime gameTime)
         {
-            if (CurrentState == GameState.Playing)
+            switch (CurrentState)
             {
-                UpdatePlaying(gameTime);
+                case GameState.Playing:
+                    UpdatePlaying(gameTime);
+                    break;
+                    
+                case GameState.DaySummary:
+                    UpdateDaySummary(gameTime);
+                    break;
+                    
+                case GameState.Paused:
+                    // Don't update game logic when paused
+                    break;
+                    
+                case GameState.GameOver:
+                    // Handle game over state
+                    break;
             }
+            
+            // ✅ Check game over condition
+            CheckGameOver();
         }
         
         private void UpdatePlaying(GameTime gameTime)
         {
             float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds * TimeScale;
             
+            // ✅ Update time
             UpdateTime(deltaTime);
+            
+            // ✅ Update day/night cycle manager
+            DayNightCycle.Update(gameTime);
+            
+            // Process batch spawning
+            spawnManager.Update(gameTime);
+            
+            // Update world
             World.Update(gameTime);
             Resources.Update(gameTime);
-            Task.Update(gameTime);
-            CheckDemoObjectives();
         }
         
+        private void UpdateDaySummary(GameTime gameTime)
+        {
+            // Update day summary screen
+            daySummaryScreen?.Update(gameTime);
+            
+            // Check if screen was closed
+            if (daySummaryScreen != null && !daySummaryScreen.IsVisible)
+            {
+                CurrentState = GameState.Playing;
+            }
+        }
+        
+        /// <summary>
+        /// ✅ Update game time with proper 6 AM → 2 AM cycle
+        /// </summary>
         private void UpdateTime(float deltaTime)
         {
-            TimeOfDay += (24f / dayLength) * deltaTime;
+            // Get day length from DayNightCycleManager
+            // Day cycle is 20 game hours (6 AM to 2 AM next day)
+            float dayLength = DayNightCycle.DayLengthInSeconds;
+            float gameHoursPerSecond = 20f / dayLength; // 20 hours in a cycle
             
+            TimeOfDay += gameHoursPerSecond * deltaTime;
+            
+            // ✅ CRITICAL: When reaching 24:00, wrap to 0:00 (midnight)
             if (TimeOfDay >= 24f)
             {
                 TimeOfDay -= 24f;
-                CurrentDay++;
-                OnNewDay();
+                Console.WriteLine("[GameManager] ⏰ Time wrapped to midnight (00:00)");
             }
-        }
-        
-        private void OnNewDay()
-        {
-            Console.WriteLine($"[GameManager] Day {CurrentDay} - Resources: Wood {WoodCollected}, Stone {StoneCollected}, Food {FoodCollected}");
-        }
-        
-        private void CheckDemoObjectives()
-        {
-            if (WoodCollected >= 50 && StoneCollected >= 30 && FoodCollected >= 20)
+            
+            // ✅ Time stops at 2 AM when day summary is shown
+            if (CurrentState == GameState.DaySummary)
             {
-                if (!DemoComplete)
-                {
-                    DemoComplete = true;
-                    Console.WriteLine("[GameManager] 🎉 DEMO OBJECTIVES COMPLETE! 🎉");
-                }
+                TimeOfDay = 2f; // Lock at 2 AM
             }
         }
-        
-        // ==================== DRAW ====================
+        public void DrawUI(SpriteBatch spriteBatch, GameTime gameTime)
+        {
+            if (CurrentState == GameState.DaySummary && daySummaryScreen != null)
+            {
+                daySummaryScreen.Draw(spriteBatch, gameTime);
+            }
+        }
+                
+        /// <summary>
+        /// ✅ Check if player is dead
+        /// </summary>
+        private void CheckGameOver()
+        {
+            if (isGameOver) return;
+            
+            if (World.player != null && World.player.Health <= 0)
+            {
+                isGameOver = true;
+                CurrentState = GameState.GameOver;
+                Console.WriteLine("[GameManager] ☠️ GAME OVER - Player died!");
+                
+                // TODO: Show game over screen
+            }
+        }
         
         public void Draw(SpriteBatch spriteBatch, GameTime gameTime, Rectangle viewBound)
         {
+            // Draw world
             World.Draw(spriteBatch, gameTime, viewBound);
+            
+            // Draw UI overlays
+            if (CurrentState == GameState.DaySummary)
+            {
+                daySummaryScreen?.Draw(spriteBatch, gameTime);
+            }
         }
         
         // ==================== RESOURCE TRACKING ====================
@@ -467,6 +393,18 @@ namespace TribeBuild.World
                     FoodCollected += amount;
                     break;
             }
+            
+            // Notify day/night cycle
+            DayNightCycle.OnResourceCollected(resourceType, amount);
+        }
+        
+        /// <summary>
+        /// ✅ NEW: Track enemy kills
+        /// </summary>
+        public void OnEnemyKilled(NightEnemyEntity enemy)
+        {
+            DayNightCycle.OnEnemyKilled();
+            Console.WriteLine($"[GameManager] Enemy killed: {enemy.EnemyType}");
         }
         
         // ==================== STATE MANAGEMENT ====================
@@ -474,35 +412,65 @@ namespace TribeBuild.World
         public void StartGame()
         {
             CurrentState = GameState.Playing;
+            Console.WriteLine("[GameManager] 🎮 Game started!");
         }
         
         public void PauseGame()
         {
-            CurrentState = GameState.Paused;
+            if (CurrentState == GameState.Playing)
+            {
+                CurrentState = GameState.Paused;
+                Console.WriteLine("[GameManager] ⏸️ Game paused");
+            }
         }
         
         public void ResumeGame()
         {
-            CurrentState = GameState.Playing;
+            if (CurrentState == GameState.Paused)
+            {
+                CurrentState = GameState.Playing;
+                Console.WriteLine("[GameManager] ▶️ Game resumed");
+            }
         }
         
         public void Shutdown()
         {
-            // Cleanup
+            Console.WriteLine("[GameManager] Shutting down...");
         }
         
         // ==================== HELPERS ====================
         
         public bool IsNight()
         {
-            return TimeOfDay < 6f || TimeOfDay > 20f;
+            return DayNightCycle.CurrentPhase == DayNightCycleManager.TimeOfDayPhase.Night;
+        }
+        
+        public bool IsDawn()
+        {
+            return TimeOfDay >= 5.5f && TimeOfDay <= 6.5f;
+        }
+        
+        public bool IsDusk()
+        {
+            return TimeOfDay >= 19.5f && TimeOfDay <= 20.5f;
         }
         
         public string GetTimeString()
         {
-            int hours = (int)TimeOfDay;
-            int minutes = (int)((TimeOfDay - hours) * 60);
-            return $"{hours:D2}:{minutes:D2}";
+            return DayNightCycle.GetTimeString();
+        }
+        
+        public string GetTimeOfDayName()
+        {
+            return DayNightCycle.CurrentPhase.ToString();
+        }
+        
+        /// <summary>
+        /// Get spawn queue count
+        /// </summary>
+        public int GetSpawnQueueCount()
+        {
+            return spawnManager.GetQueuedEntityCount();
         }
     }
 }

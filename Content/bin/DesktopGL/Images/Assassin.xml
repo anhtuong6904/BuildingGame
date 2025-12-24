@@ -1,0 +1,156 @@
+<?xml version='1.0' encoding='utf-8'?>
+<TextureAtlas >
+    <Texture>Images/AssasinTemplate-sheet</Texture>
+    <Regions>
+        <Region name="AssasinTemplate 0" x="0" y="0" width="16" height="16" />
+        <Region name="AssasinTemplate 1" x="16" y="0" width="16" height="16" />
+        <Region name="AssasinTemplate 2" x="0" y="0" width="16" height="16" />
+        <Region name="AssasinTemplate 3" x="16" y="0" width="16" height="16" />
+        <Region name="AssasinTemplate 4" x="32" y="0" width="16" height="16" />
+        <Region name="AssasinTemplate 5" x="16" y="0" width="16" height="16" />
+        <Region name="AssasinTemplate 6" x="48" y="0" width="16" height="16" />
+        <Region name="AssasinTemplate 7" x="64" y="0" width="16" height="16" />
+        <Region name="AssasinTemplate 8" x="80" y="0" width="16" height="16" />
+        <Region name="AssasinTemplate 9" x="64" y="0" width="16" height="16" />
+        <Region name="AssasinTemplate 10" x="80" y="0" width="16" height="16" />
+        <Region name="AssasinTemplate 11" x="96" y="0" width="16" height="16" />
+        <Region name="AssasinTemplate 12" x="80" y="0" width="16" height="16" />
+        <Region name="AssasinTemplate 13" x="0" y="16" width="16" height="16" />
+        <Region name="AssasinTemplate 14" x="16" y="16" width="16" height="16" />
+        <Region name="AssasinTemplate 15" x="32" y="16" width="16" height="16" />
+        <Region name="AssasinTemplate 16" x="16" y="16" width="16" height="16" />
+        <Region name="AssasinTemplate 17" x="32" y="16" width="16" height="16" />
+        <Region name="AssasinTemplate 18" x="48" y="16" width="16" height="16" />
+        <Region name="AssasinTemplate 19" x="64" y="16" width="16" height="16" />
+        <Region name="AssasinTemplate 20" x="80" y="16" width="16" height="16" />
+        <Region name="AssasinTemplate 21" x="96" y="16" width="16" height="16" />
+        <Region name="AssasinTemplate 22" x="0" y="32" width="16" height="16" />
+        <Region name="AssasinTemplate 23" x="96" y="16" width="16" height="16" />
+        <Region name="AssasinTemplate 24" x="0" y="32" width="16" height="16" />
+        <Region name="AssasinTemplate 25" x="16" y="32" width="16" height="16" />
+        <Region name="AssasinTemplate 26" x="0" y="32" width="16" height="16" />
+        <Region name="AssasinTemplate 27" x="32" y="32" width="16" height="16" />
+        <Region name="AssasinTemplate 28" x="48" y="32" width="16" height="16" />
+        <Region name="AssasinTemplate 29" x="64" y="32" width="16" height="16" />
+        <Region name="AssasinTemplate 30" x="80" y="32" width="16" height="16" />
+        <Region name="AssasinTemplate 31" x="96" y="32" width="16" height="16" />
+        <Region name="AssasinTemplate 32" x="0" y="48" width="16" height="16" />
+        <Region name="AssasinTemplate 33" x="16" y="48" width="16" height="16" />
+        <Region name="AssasinTemplate 34" x="32" y="48" width="16" height="16" />
+        <Region name="AssasinTemplate 35" x="48" y="48" width="16" height="16" />
+        <Region name="AssasinTemplate 36" x="64" y="48" width="16" height="16" />
+        <Region name="AssasinTemplate 37" x="80" y="48" width="16" height="16" />
+        <Region name="AssasinTemplate 38" x="96" y="48" width="16" height="16" />
+        <Region name="AssasinTemplate 39" x="0" y="64" width="16" height="16" />
+        <Region name="AssasinTemplate 40" x="16" y="64" width="16" height="16" />
+        <Region name="AssasinTemplate 41" x="32" y="64" width="16" height="16" />
+        <Region name="AssasinTemplate 42" x="48" y="64" width="16" height="16" />
+        <Region name="AssasinTemplate 43" x="64" y="64" width="16" height="16" />
+        <Region name="AssasinTemplate 44" x="80" y="64" width="16" height="16" />
+        <Region name="AssasinTemplate 45" x="96" y="64" width="16" height="16" />
+        <Region name="AssasinTemplate 46" x="16" y="16" width="16" height="16" />
+        <Region name="AssasinTemplate 47" x="0" y="80" width="16" height="16" />
+        <Region name="AssasinTemplate 48" x="16" y="80" width="16" height="16" />
+        <Region name="AssasinTemplate 49" x="32" y="80" width="16" height="16" />
+        <Region name="AssasinTemplate 50" x="48" y="80" width="16" height="16" />
+        <Region name="AssasinTemplate 51" x="16" y="16" width="16" height="16" />
+        <Region name="AssasinTemplate 52" x="64" y="80" width="16" height="16" />
+        <Region name="AssasinTemplate 53" x="80" y="80" width="16" height="16" />
+        <Region name="AssasinTemplate 54" x="96" y="80" width="16" height="16" />
+        <Region name="AssasinTemplate 55" x="0" y="96" width="16" height="16" />
+        <Region name="AssasinTemplate 56" x="96" y="16" width="16" height="16" />
+        <Region name="AssasinTemplate 57" x="16" y="96" width="16" height="16" />
+        <Region name="AssasinTemplate 58" x="32" y="96" width="16" height="16" />
+        <Region name="AssasinTemplate 59" x="48" y="96" width="16" height="16" />
+        <Region name="AssasinTemplate 60" x="64" y="96" width="16" height="16" />
+        <Region name="AssasinTemplate 61" x="96" y="16" width="16" height="16" />
+    </Regions>
+    <Animations>
+        <Animation name="idle-font" delay="100">
+            <Frame region="AssasinTemplate 0"  />
+            <Frame region="AssasinTemplate 1"  />
+        </Animation>
+        <Animation name="walk-font" delay="100">
+            <Frame region="AssasinTemplate 2"  />
+            <Frame region="AssasinTemplate 3"  />
+            <Frame region="AssasinTemplate 4"  />
+            <Frame region="AssasinTemplate 5"  />
+            <Frame region="AssasinTemplate 6"  />
+        </Animation>
+        <Animation name="idle-back" delay="100">
+            <Frame region="AssasinTemplate 7"  />
+            <Frame region="AssasinTemplate 8"  />
+        </Animation>
+        <Animation name="walk-back" delay="100">
+            <Frame region="AssasinTemplate 9"  />
+            <Frame region="AssasinTemplate 10"  />
+            <Frame region="AssasinTemplate 11"  />
+            <Frame region="AssasinTemplate 12"  />
+            <Frame region="AssasinTemplate 13"  />
+        </Animation>
+        <Animation name="idel-right" delay="100">
+            <Frame region="AssasinTemplate 14"  />
+            <Frame region="AssasinTemplate 15"  />
+        </Animation>
+        <Animation name="walk-right" delay="100">
+            <Frame region="AssasinTemplate 16"  />
+            <Frame region="AssasinTemplate 17"  />
+            <Frame region="AssasinTemplate 18"  />
+            <Frame region="AssasinTemplate 19"  />
+            <Frame region="AssasinTemplate 20"  />
+        </Animation>
+        <Animation name="idle-left" delay="100">
+            <Frame region="AssasinTemplate 21"  />
+            <Frame region="AssasinTemplate 22"  />
+        </Animation>
+        <Animation name="walk-left" delay="100">
+            <Frame region="AssasinTemplate 23"  />
+            <Frame region="AssasinTemplate 24"  />
+            <Frame region="AssasinTemplate 25"  />
+            <Frame region="AssasinTemplate 26"  />
+            <Frame region="AssasinTemplate 27"  />
+        </Animation>
+        <Animation name="font-attack" delay="100">
+            <Frame region="AssasinTemplate 28"  />
+            <Frame region="AssasinTemplate 29"  />
+            <Frame region="AssasinTemplate 30"  />
+            <Frame region="AssasinTemplate 31"  />
+            <Frame region="AssasinTemplate 32"  />
+            <Frame region="AssasinTemplate 33"  />
+            <Frame region="AssasinTemplate 34"  />
+        </Animation>
+        <Animation name="back-attack" delay="100">
+            <Frame region="AssasinTemplate 35"  />
+            <Frame region="AssasinTemplate 36"  />
+            <Frame region="AssasinTemplate 37"  />
+            <Frame region="AssasinTemplate 38"  />
+            <Frame region="AssasinTemplate 39"  />
+            <Frame region="AssasinTemplate 40"  />
+            <Frame region="AssasinTemplate 41"  />
+        </Animation>
+        <Animation name="right-attack" delay="100">
+            <Frame region="AssasinTemplate 42"  />
+            <Frame region="AssasinTemplate 43"  />
+            <Frame region="AssasinTemplate 44"  />
+            <Frame region="AssasinTemplate 45"  />
+            <Frame region="AssasinTemplate 46"  />
+            <Frame region="AssasinTemplate 47"  />
+            <Frame region="AssasinTemplate 48"  />
+            <Frame region="AssasinTemplate 49"  />
+            <Frame region="AssasinTemplate 50"  />
+            <Frame region="AssasinTemplate 51"  />
+        </Animation>
+        <Animation name="attack-left" delay="100">
+            <Frame region="AssasinTemplate 52"  />
+            <Frame region="AssasinTemplate 53"  />
+            <Frame region="AssasinTemplate 54"  />
+            <Frame region="AssasinTemplate 55"  />
+            <Frame region="AssasinTemplate 56"  />
+            <Frame region="AssasinTemplate 57"  />
+            <Frame region="AssasinTemplate 58"  />
+            <Frame region="AssasinTemplate 59"  />
+            <Frame region="AssasinTemplate 60"  />
+            <Frame region="AssasinTemplate 61"  />
+        </Animation>
+    </Animations>
+</TextureAtlas>

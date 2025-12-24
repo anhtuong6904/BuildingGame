@@ -13,7 +13,7 @@ public class Game1 : Core
     public SpriteFont debugFont {get; private set;}
     public SpriteFontBase font {get; private set;}
     
-    public Game1() : base("TribeBuild", 1920, 1080, true)
+    public Game1() : base("TribeBuild", 1920, 1080, false)
     {
         
         
