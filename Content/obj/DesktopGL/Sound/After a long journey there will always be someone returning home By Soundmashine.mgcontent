@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <SourceFile>d:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Sound/After a long journey there will always be someone returning home By Soundmashine.wav</SourceFile>
+  <SourceTime>2025-12-25T18:04:34.4331638+07:00</SourceTime>
+  <DestFile>d:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/bin/DesktopGL/Sound/After a long journey there will always be someone returning home By Soundmashine.xnb</DestFile>
+  <DestTime>2025-12-25T18:37:56.8875344+07:00</DestTime>
+  <Importer>WavImporter</Importer>
+  <ImporterTime>2025-10-20T21:25:32+07:00</ImporterTime>
+  <Processor>SongProcessor</Processor>
+  <ProcessorTime>2025-10-20T21:25:32+07:00</ProcessorTime>
+  <Parameters>
+    <Key>Quality</Key>
+    <Value>Best</Value>
+  </Parameters>
+  <Dependencies />
+  <BuildAsset />
+  <BuildOutput>
+    <string>d:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/bin/DesktopGL/Sound/After a long journey there will always be someone returning home By Soundmashine.ogg</string>
+  </BuildOutput>
+</PipelineBuildEvent>

@@ -1,0 +1,96 @@
+<?xml version='1.0' encoding='utf-8'?>
+<TextureAtlas >
+    <Texture>Images/Boar-sheet</Texture>
+    <Regions>
+        <Region name="Boar 0" x="0" y="0" width="16" height="16" />
+        <Region name="Boar 1" x="0" y="0" width="16" height="16" />
+        <Region name="Boar 2" x="16" y="0" width="16" height="16" />
+        <Region name="Boar 3" x="0" y="0" width="16" height="16" />
+        <Region name="Boar 4" x="32" y="0" width="16" height="16" />
+        <Region name="Boar 5" x="48" y="0" width="16" height="16" />
+        <Region name="Boar 6" x="48" y="0" width="16" height="16" />
+        <Region name="Boar 7" x="64" y="0" width="16" height="16" />
+        <Region name="Boar 8" x="48" y="0" width="16" height="16" />
+        <Region name="Boar 9" x="0" y="16" width="16" height="16" />
+        <Region name="Boar 10" x="16" y="16" width="16" height="16" />
+        <Region name="Boar 11" x="16" y="16" width="16" height="16" />
+        <Region name="Boar 12" x="32" y="16" width="16" height="16" />
+        <Region name="Boar 13" x="16" y="16" width="16" height="16" />
+        <Region name="Boar 14" x="48" y="16" width="16" height="16" />
+        <Region name="Boar 15" x="64" y="16" width="16" height="16" />
+        <Region name="Boar 16" x="64" y="16" width="16" height="16" />
+        <Region name="Boar 17" x="0" y="32" width="16" height="16" />
+        <Region name="Boar 18" x="64" y="16" width="16" height="16" />
+        <Region name="Boar 19" x="16" y="32" width="16" height="16" />
+        <Region name="Boar 20" x="0" y="0" width="16" height="16" />
+        <Region name="Boar 21" x="32" y="32" width="16" height="16" />
+        <Region name="Boar 22" x="48" y="32" width="16" height="16" />
+        <Region name="Boar 23" x="48" y="0" width="16" height="16" />
+        <Region name="Boar 24" x="64" y="32" width="16" height="16" />
+        <Region name="Boar 25" x="0" y="48" width="16" height="16" />
+        <Region name="Boar 26" x="16" y="16" width="16" height="16" />
+        <Region name="Boar 27" x="16" y="48" width="16" height="16" />
+        <Region name="Boar 28" x="32" y="48" width="16" height="16" />
+        <Region name="Boar 29" x="64" y="16" width="16" height="16" />
+        <Region name="Boar 30" x="48" y="48" width="16" height="16" />
+        <Region name="Boar 31" x="64" y="48" width="16" height="16" />
+    </Regions>
+    <Animations>
+        <Animation name="idle-font" delay="200">
+            <Frame region="Boar 0"/>
+        </Animation>
+        <Animation name="walk-font" delay="200">
+            <Frame region="Boar 1"/>
+            <Frame region="Boar 2"/>
+            <Frame region="Boar 3"/>
+            <Frame region="Boar 4"/>
+        </Animation>
+        <Animation name="idle-back" delay="200">
+            <Frame region="Boar 5"/>
+        </Animation>
+        <Animation name="walk-back" delay="200">
+            <Frame region="Boar 6"/>
+            <Frame region="Boar 7"/>
+            <Frame region="Boar 8"/>
+            <Frame region="Boar 9"/>
+        </Animation>
+        <Animation name="idle-right" delay="200">
+            <Frame region="Boar 10"/>
+        </Animation>
+        <Animation name="walk-right" delay="200">
+            <Frame region="Boar 11"/>
+            <Frame region="Boar 12"/>
+            <Frame region="Boar 13"/>
+            <Frame region="Boar 14"/>
+        </Animation>
+        <Animation name="idle-left" delay="200">
+            <Frame region="Boar 15"/>
+        </Animation>
+        <Animation name="walk-left" delay="200">
+            <Frame region="Boar 16"/>
+            <Frame region="Boar 17"/>
+            <Frame region="Boar 18"/>
+            <Frame region="Boar 19"/>
+        </Animation>
+        <Animation name="attack-font" delay="200">
+            <Frame region="Boar 20"/>
+            <Frame region="Boar 21"/>
+            <Frame region="Boar 22"/>
+        </Animation>
+        <Animation name="attack-back" delay="200">
+            <Frame region="Boar 23"/>
+            <Frame region="Boar 24"/>
+            <Frame region="Boar 25"/>
+        </Animation>
+        <Animation name="attack-right" delay="200">
+            <Frame region="Boar 26"/>
+            <Frame region="Boar 27"/>
+            <Frame region="Boar 28"/>
+        </Animation>
+        <Animation name="attack-left" delay="200">
+            <Frame region="Boar 29"/>
+            <Frame region="Boar 30"/>
+            <Frame region="Boar 31"/>
+        </Animation>
+    </Animations>
+</TextureAtlas>

@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("TribeBuild")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0d2ba22ef1ff93bd98f2a9938220298518406a23")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+39ed715c3c47c227d4523d8bf50e2aaeec4888c9")]
 [assembly: System.Reflection.AssemblyProductAttribute("TribeBuild")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TribeBuild")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

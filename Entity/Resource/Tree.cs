@@ -57,7 +57,7 @@ namespace TribeBuild.Entity.Resource
                 (int)(Sprite.Width  * 0.25f),                              // No X offset (aligned with left edge)
                 (int)(Sprite.Height * 0.5f),     // Bottom 50% starts here
                 (int)(Sprite.Width  * 0.5f),               // Full width
-                (int)(Sprite.Height * 0.5f)      // Bottom 50% height
+                (int)(Sprite.Height * 0.75f)      // Bottom 50% height
             );
             
             Console.WriteLine($"[Tree] ID={id}, Pos=({pos.X:F0},{pos.Y:F0}), Type={type}");

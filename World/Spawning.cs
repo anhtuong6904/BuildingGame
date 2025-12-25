@@ -10,10 +10,7 @@ using TribeBuild.Entity.Enemies;
 namespace TribeBuild.World
 {
     /// <summary>
-    /// ✅ Spawn manager with day/night cycle support
-    /// - Batch spawning to prevent lag
-    /// - Poisson Disk Sampling for better distribution
-    /// - Auto respawn animals at dawn
+    /// ✅ IMPROVED: Natural spawn distribution with biome-appropriate density
     /// </summary>
     public class SpawnZoneManager
     {
@@ -46,9 +43,9 @@ namespace TribeBuild.World
         
         // Batch spawning
         private Queue<SpawnJob> spawnQueue;
-        private const int MAX_SPAWNS_PER_FRAME = 5;
+        private const int MAX_SPAWNS_PER_FRAME = 3; // ✅ Reduced for smoother performance
         
-        // ✅ Day/Night cycle tracking
+        // Day/Night cycle tracking
         private Dictionary<SpawnZone, List<DespawnedAnimal>> despawnedAnimals;
         private bool hasRespawnedToday = false;
         
@@ -59,10 +56,9 @@ namespace TribeBuild.World
             public Vector2 Position;
             public SpawnType Type;
             public string SubType;
-            public SpawnZone Zone; // ✅ Track which zone this spawn belongs to
+            public SpawnZone Zone;
         }
 
-        // ✅ Track despawned animals for respawn
         private struct DespawnedAnimal
         {
             public Vector2 SpawnPosition;
@@ -92,6 +88,9 @@ namespace TribeBuild.World
             Console.WriteLine($"[SpawnZoneManager] Registered atlas: {name}");
         }
 
+        /// <summary>
+        /// ✅ IMPROVED: Parse zones with intelligent spawn counts
+        /// </summary>
         public void ParseObjectLayer(string layerName)
         {
             var objectLayer = tilemap.GetObjectLayer(layerName);
@@ -116,26 +115,40 @@ namespace TribeBuild.World
                     )
                 };
 
-                // Determine zone type
+                // ✅ Calculate zone area for density-based spawning
+                float areaInTiles = (zone.Bounds.Width / tilemap.ScaleTileWidth) * 
+                                   (zone.Bounds.Height / tilemap.ScaleTileHeight);
+
+                // ✅ Determine zone type with appropriate density
                 if (zoneName.Contains("forest"))
                 {
                     zone.Type = SpawnType.Tree;
-                    zone.SpawnCount = 30;
+                    // Dense forest: 1 tree per 3 tiles
+                    zone.SpawnCount = Math.Max(5, (int)(areaInTiles / 3f));
                 }
                 else if (zoneName.Contains("grass"))
                 {
                     zone.Type = SpawnType.PassiveAnimal;
-                    zone.SpawnCount = 5;
+                    // Sparse animals: 1 per 20 tiles
+                    zone.SpawnCount = Math.Max(2, (int)(areaInTiles / 20f));
                 }
                 else if (zoneName.Contains("riverside"))
                 {
                     zone.Type = SpawnType.Bush;
-                    zone.SpawnCount = 10;
+                    // Medium density: 1 bush per 5 tiles
+                    zone.SpawnCount = Math.Max(3, (int)(areaInTiles / 5f));
                 }
                 else if (zoneName.Contains("enemies"))
                 {
                     zone.Type = SpawnType.NightEnemy;
-                    zone.SpawnCount = 4;
+                    // Low density: 1 enemy per 30 tiles
+                    zone.SpawnCount = Math.Max(2, (int)(areaInTiles / 30f));
+                }
+                else if (zoneName.Contains("wild"))
+                {
+                    zone.Type = SpawnType.AggressiveAnimal;
+                    // Very sparse: 1 per 40 tiles
+                    zone.SpawnCount = Math.Max(1, (int)(areaInTiles / 40f));
                 }
 
                 if (!zones.ContainsKey(zoneName))
@@ -143,41 +156,45 @@ namespace TribeBuild.World
                 
                 zones[zoneName].Add(zone);
                 
-                // ✅ Initialize despawn tracking for animal zones
+                // Initialize despawn tracking for animal zones
                 if (zone.Type == SpawnType.PassiveAnimal || zone.Type == SpawnType.AggressiveAnimal)
                 {
                     despawnedAnimals[zone] = new List<DespawnedAnimal>();
                 }
                 
-                Console.WriteLine($"[SpawnZone] ✅ Added '{obj.Name}' at ({zone.Bounds.X}, {zone.Bounds.Y}) " +
-                    $"size {zone.Bounds.Width}x{zone.Bounds.Height}, type: {zone.Type}, count: {zone.SpawnCount}");
+                Console.WriteLine($"[SpawnZone] ✅ '{obj.Name}' | Area: {areaInTiles:F0} tiles | " +
+                    $"Type: {zone.Type} | Spawn Count: {zone.SpawnCount}");
             }
         }
+
         /// <summary>
-        /// ✅ Queue animal spawns with scaled count for difficulty
+        /// ✅ IMPROVED: Smart animal spawning with difficulty scaling
         /// </summary>
         public void QueueScaledAnimalSpawns(int totalCount)
         {
             var grassZones = GetZonesByType(SpawnType.PassiveAnimal);
             if (grassZones.Count == 0) return;
             
-            // Distribute animals across all grass zones
-            int animalsPerZone = totalCount / grassZones.Count;
-            int remainder = totalCount % grassZones.Count;
+            // ✅ Distribute proportionally by zone area
+            int totalArea = grassZones.Sum(z => z.Bounds.Width * z.Bounds.Height);
             
-            Random rng = new Random();
-            string[] animalTypes = { "chicken", "sheep", "boar" };
+            string[] animalTypes = { "chicken", "sheep" };
+            int spawned = 0;
             
             foreach (var zone in grassZones)
             {
-                int count = animalsPerZone + (remainder > 0 ? 1 : 0);
-                if (remainder > 0) remainder--;
+                // ✅ Calculate how many animals this zone should get based on its area
+                float zoneRatio = (float)(zone.Bounds.Width * zone.Bounds.Height) / totalArea;
+                int zoneCount = (int)(totalCount * zoneRatio);
+                zoneCount = Math.Max(1, zoneCount); // At least 1 per zone
                 
-                var spawnPoints = GenerateSpawnPoints(zone.Bounds, count, minSpacing: 80f);
+                // ✅ Use clustered distribution for more natural look
+                var spawnPoints = GenerateClusteredSpawnPoints(zone.Bounds, zoneCount, 
+                    minSpacing: 60f, clusterSize: 2);
                 
                 foreach (var point in spawnPoints)
                 {
-                    string animalType = animalTypes[rng.Next(animalTypes.Length)];
+                    string animalType = animalTypes[random.Next(animalTypes.Length)];
                     
                     spawnQueue.Enqueue(new SpawnJob
                     {
@@ -186,20 +203,28 @@ namespace TribeBuild.World
                         SubType = animalType,
                         Zone = zone
                     });
+                    spawned++;
                 }
                 
-                Console.WriteLine($"[SpawnZone] Queued {spawnPoints.Count} animals in '{zone.Name}'");
+                Console.WriteLine($"[SpawnZone] Queued {spawnPoints.Count} animals in '{zone.Name}' " +
+                    $"(area ratio: {zoneRatio:P0})");
             }
+            
+            Console.WriteLine($"[SpawnZoneManager] ✅ Total animals queued: {spawned}");
         }
 
         public void SpawnInitialEntities()
         {
-            Console.WriteLine("[SpawnZoneManager] 🚀 Starting optimized initial spawn...");
+            Console.WriteLine("[SpawnZoneManager] 🚀 Starting natural spawn distribution...");
+            
+            int totalQueued = 0;
             
             foreach (var zoneGroup in zones.Values)
             {
                 foreach (var zone in zoneGroup)
                 {
+                    int beforeCount = spawnQueue.Count;
+                    
                     switch (zone.Type)
                     {
                         case SpawnType.Tree:
@@ -222,22 +247,88 @@ namespace TribeBuild.World
                             // Don't spawn night enemies during day
                             break;
                     }
+                    
+                    int spawned = spawnQueue.Count - beforeCount;
+                    totalQueued += spawned;
                 }
             }
             
-            Console.WriteLine($"[SpawnZoneManager] ✅ Queued {spawnQueue.Count} entities for spawning");
+            Console.WriteLine($"[SpawnZoneManager] ✅ Queued {totalQueued} entities for natural spawning");
         }
 
+        /// <summary>
+        /// ✅ NEW: Generate spawn points with clustering for natural look
+        /// </summary>
+        private List<Vector2> GenerateClusteredSpawnPoints(Rectangle bounds, int count, 
+            float minSpacing = 48f, int clusterSize = 3)
+        {
+            var points = new List<Vector2>();
+            int clusters = Math.Max(1, count / clusterSize);
+            
+            // Generate cluster centers
+            var clusterCenters = GenerateSpawnPoints(bounds, clusters, minSpacing * 2);
+            
+            // Generate points around each cluster
+            foreach (var center in clusterCenters)
+            {
+                int pointsInCluster = Math.Min(clusterSize, count - points.Count);
+                
+                for (int i = 0; i < pointsInCluster; i++)
+                {
+                    // Spawn near cluster center with some randomness
+                    float angle = (float)(random.NextDouble() * Math.PI * 2);
+                    float distance = (float)(random.NextDouble() * minSpacing * 0.8f);
+                    
+                    Vector2 offset = new Vector2(
+                        (float)Math.Cos(angle) * distance,
+                        (float)Math.Sin(angle) * distance
+                    );
+                    
+                    Vector2 candidate = center + offset;
+                    
+                    // Validate position
+                    if (!bounds.Contains(candidate))
+                        continue;
+                    
+                    Point tile = tilemap.WorldToTile(candidate);
+                    if (!tilemap.IsTileWalkable(tile.X, tile.Y))
+                        continue;
+                    
+                    if (tilemap.IsWaterTile(tile.X, tile.Y))
+                        continue;
+                    
+                    points.Add(candidate);
+                    
+                    if (points.Count >= count)
+                        break;
+                }
+                
+                if (points.Count >= count)
+                    break;
+            }
+            
+            return points;
+        }
+
+        /// <summary>
+        /// ✅ IMPROVED: Better distributed spawn points
+        /// </summary>
         private List<Vector2> GenerateSpawnPoints(Rectangle bounds, int count, float minSpacing = 48f)
         {
+            // ✅ Use enhanced Poisson Disk Sampling
             var sampler = new PoissonDiskSampler(minSpacing, random);
-            var points = sampler.GeneratePoints(bounds, count * 3);
+            var candidates = sampler.GeneratePoints(bounds, count * 4); // More candidates
             
             var validPoints = new List<Vector2>();
             
-            foreach (var point in points)
+            foreach (var point in candidates)
             {
                 Point tile = tilemap.WorldToTile(point);
+                
+                // Check if tile is valid
+                if (tile.X < 0 || tile.X >= tilemap.Width || 
+                    tile.Y < 0 || tile.Y >= tilemap.Height)
+                    continue;
                 
                 if (!tilemap.IsTileWalkable(tile.X, tile.Y))
                     continue;
@@ -251,12 +342,69 @@ namespace TribeBuild.World
                     break;
             }
             
+            // ✅ If not enough points, try grid-based fallback
+            if (validPoints.Count < count / 2)
+            {
+                Console.WriteLine($"[SpawnZone] ⚠️ Low spawn points, using grid fallback");
+                validPoints.AddRange(GenerateGridSpawnPoints(bounds, count - validPoints.Count, minSpacing));
+            }
+            
             return validPoints;
         }
 
+        /// <summary>
+        /// ✅ NEW: Grid-based fallback for difficult zones
+        /// </summary>
+        private List<Vector2> GenerateGridSpawnPoints(Rectangle bounds, int count, float spacing)
+        {
+            var points = new List<Vector2>();
+            int cols = (int)(bounds.Width / spacing);
+            int rows = (int)(bounds.Height / spacing);
+            
+            // Create shuffled grid positions
+            var positions = new List<(int x, int y)>();
+            for (int y = 0; y < rows; y++)
+            {
+                for (int x = 0; x < cols; x++)
+                {
+                    positions.Add((x, y));
+                }
+            }
+            
+            // Shuffle for randomness
+            positions = positions.OrderBy(p => random.Next()).ToList();
+            
+            foreach (var (x, y) in positions)
+            {
+                Vector2 pos = new Vector2(
+                    bounds.X + x * spacing + spacing / 2,
+                    bounds.Y + y * spacing + spacing / 2
+                );
+                
+                Point tile = tilemap.WorldToTile(pos);
+                if (!tilemap.IsTileWalkable(tile.X, tile.Y))
+                    continue;
+                
+                if (tilemap.IsWaterTile(tile.X, tile.Y))
+                    continue;
+                
+                points.Add(pos);
+                
+                if (points.Count >= count)
+                    break;
+            }
+            
+            return points;
+        }
+
+        /// <summary>
+        /// ✅ IMPROVED: Natural tree distribution
+        /// </summary>
         private void QueueTreeSpawns(SpawnZone zone)
         {
-            var spawnPoints = GenerateSpawnPoints(zone.Bounds, zone.SpawnCount, minSpacing: 64f);
+            // ✅ Trees use clustering for forest look
+            var spawnPoints = GenerateClusteredSpawnPoints(zone.Bounds, zone.SpawnCount, 
+                minSpacing: 48f, clusterSize: 4);
             
             foreach (var point in spawnPoints)
             {
@@ -272,12 +420,17 @@ namespace TribeBuild.World
                 });
             }
             
-            Console.WriteLine($"[SpawnZone] Queued {spawnPoints.Count}/{zone.SpawnCount} trees in '{zone.Name}'");
+            Console.WriteLine($"[SpawnZone] Queued {spawnPoints.Count}/{zone.SpawnCount} trees (clustered)");
         }
 
+        /// <summary>
+        /// ✅ IMPROVED: Bush spawning along riversides
+        /// </summary>
         private void QueueBushSpawns(SpawnZone zone)
         {
-            var spawnPoints = GenerateSpawnPoints(zone.Bounds, zone.SpawnCount, minSpacing: 48f);
+            // ✅ Bushes use loose clustering
+            var spawnPoints = GenerateClusteredSpawnPoints(zone.Bounds, zone.SpawnCount, 
+                minSpacing: 40f, clusterSize: 2);
             
             foreach (var point in spawnPoints)
             {
@@ -293,12 +446,13 @@ namespace TribeBuild.World
                 });
             }
             
-            Console.WriteLine($"[SpawnZone] Queued {spawnPoints.Count}/{zone.SpawnCount} bushes in '{zone.Name}'");
+            Console.WriteLine($"[SpawnZone] Queued {spawnPoints.Count}/{zone.SpawnCount} bushes (riverside)");
         }
 
         private void QueueAnimalSpawns(SpawnZone zone)
         {
-            var spawnPoints = GenerateSpawnPoints(zone.Bounds, zone.SpawnCount, minSpacing: 80f);
+            var spawnPoints = GenerateClusteredSpawnPoints(zone.Bounds, zone.SpawnCount, 
+                minSpacing: 80f, clusterSize: 2);
             
             string[] animalTypes = { "chicken", "sheep" };
             
@@ -315,12 +469,12 @@ namespace TribeBuild.World
                 });
             }
             
-            Console.WriteLine($"[SpawnZone] Queued {spawnPoints.Count}/{zone.SpawnCount} animals in '{zone.Name}'");
+            Console.WriteLine($"[SpawnZone] Queued {spawnPoints.Count}/{zone.SpawnCount} animals (grazing)");
         }
 
         private void QueueAggressiveAnimalSpawns(SpawnZone zone)
         {
-            var spawnPoints = GenerateSpawnPoints(zone.Bounds, zone.SpawnCount, minSpacing: 100f);
+            var spawnPoints = GenerateSpawnPoints(zone.Bounds, zone.SpawnCount, minSpacing: 120f);
             
             foreach (var point in spawnPoints)
             {
@@ -333,27 +487,25 @@ namespace TribeBuild.World
                 });
             }
             
-            Console.WriteLine($"[SpawnZone] Queued {spawnPoints.Count}/{zone.SpawnCount} boars in '{zone.Name}'");
+            Console.WriteLine($"[SpawnZone] Queued {spawnPoints.Count}/{zone.SpawnCount} boars (wild)");
         }
 
-        /// <summary>
-        /// ✅ Update with day/night cycle management
-        /// </summary>
         public void Update(GameTime gameTime)
         {
-            // Process spawn queue
             ProcessSpawnQueue();
-            
-            // ✅ Handle dawn respawn
             CheckDawnRespawn();
         }
 
+        /// <summary>
+        /// ✅ IMPROVED: Smooth spawn processing with progress
+        /// </summary>
         private void ProcessSpawnQueue()
         {
             if (spawnQueue.Count == 0)
                 return;
             
             int spawned = 0;
+            int totalCount = spawnQueue.Count;
             
             while (spawnQueue.Count > 0 && spawned < MAX_SPAWNS_PER_FRAME)
             {
@@ -362,19 +514,23 @@ namespace TribeBuild.World
                 spawned++;
             }
             
-            if (spawnQueue.Count > 0 && spawnQueue.Count % 50 == 0)
+            // ✅ Progress logging
+            if (totalCount > 10)
             {
-                Console.WriteLine($"[SpawnZoneManager] ⏳ {spawnQueue.Count} entities remaining...");
-            }
-            else if (spawnQueue.Count == 0 && spawned > 0)
-            {
-                Console.WriteLine($"[SpawnZoneManager] ✅ All entities spawned!");
+                int remaining = spawnQueue.Count;
+                float progress = ((float)(totalCount - remaining) / totalCount) * 100f;
+                
+                if (remaining > 0 && remaining % 20 == 0)
+                {
+                    Console.WriteLine($"[SpawnZoneManager] ⏳ Spawning... {progress:F0}% ({remaining} remaining)");
+                }
+                else if (remaining == 0)
+                {
+                    Console.WriteLine($"[SpawnZoneManager] ✅ All entities spawned! (100%)");
+                }
             }
         }
 
-        /// <summary>
-        /// ✅ Check for dawn and respawn animals
-        /// </summary>
         private void CheckDawnRespawn()
         {
             var gameManager = GameManager.Instance;
@@ -382,7 +538,6 @@ namespace TribeBuild.World
 
             float timeOfDay = gameManager.TimeOfDay;
 
-            // Dawn is between 6:00 and 7:00
             if (timeOfDay >= 6f && timeOfDay < 7f)
             {
                 if (!hasRespawnedToday)
@@ -393,14 +548,10 @@ namespace TribeBuild.World
             }
             else if (timeOfDay >= 7f)
             {
-                // Reset flag after dawn period
                 hasRespawnedToday = false;
             }
         }
 
-        /// <summary>
-        /// ✅ Respawn all despawned animals at dawn
-        /// </summary>
         private void RespawnAnimalsAtDawn()
         {
             Console.WriteLine("[SpawnZoneManager] ☀️ DAWN - Respawning animals...");
@@ -418,16 +569,12 @@ namespace TribeBuild.World
                     totalRespawned++;
                 }
 
-                // Clear the despawned list
                 animals.Clear();
             }
 
             Console.WriteLine($"[SpawnZoneManager] ✅ Respawned {totalRespawned} animals at dawn");
         }
 
-        /// <summary>
-        /// ✅ Called when an animal despawns at night
-        /// </summary>
         public void OnAnimalDespawned(PassiveAnimal animal, SpawnZone zone)
         {
             if (!despawnedAnimals.ContainsKey(zone))
@@ -443,9 +590,6 @@ namespace TribeBuild.World
             Console.WriteLine($"[SpawnZoneManager] 🌙 Tracked despawned {animal.Type} for respawn");
         }
 
-        /// <summary>
-        /// ✅ Called when an aggressive animal despawns
-        /// </summary>
         public void OnAggressiveAnimalDespawned(AggressiveAnimal animal, SpawnZone zone)
         {
             if (!despawnedAnimals.ContainsKey(zone))
@@ -501,9 +645,6 @@ namespace TribeBuild.World
             world.SpawnBush(position, BushType.Berry, atlas);
         }
 
-        /// <summary>
-        /// ✅ FIXED: Spawn passive animal with zone reference
-        /// </summary>
         private void SpawnAnimalWithZone(Vector2 position, string subType, SpawnZone zone)
         {
             AnimalType type = subType switch
@@ -520,19 +661,14 @@ namespace TribeBuild.World
                 return;
             }
 
-            // ✅ Spawn and get reference
             var animal = world.SpawnPassiveAnimal(position, type, atlas);
             
-            // ✅ Set spawn zone on the animal
             if (animal != null)
             {
                 animal.SetSpawnZone(zone.Bounds);
             }
         }
 
-        /// <summary>
-        /// ✅ Spawn aggressive animal with zone reference
-        /// </summary>
         private void SpawnAggressiveAnimalWithZone(Vector2 position, string subType, SpawnZone zone)
         {
             var atlas = atlases.ContainsKey(subType) ? atlases[subType] : null;
@@ -582,8 +718,6 @@ namespace TribeBuild.World
         public Rectangle Bounds { get; set; }
         public SpawnType Type { get; set; }
         public int SpawnCount { get; set; }
-
-        
     }
 
     public enum SpawnType

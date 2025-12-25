@@ -13,6 +13,7 @@ namespace TribeBuild.UI
     {
         private bool isVisible = false;
         private World.DaySummary summary;
+        
         // UI Settings
         private Rectangle panelRect;
         private Color backgroundColor = new Color(20, 20, 30, 240);

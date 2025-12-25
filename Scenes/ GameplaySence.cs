@@ -12,25 +12,36 @@ using TribeBuild.Player;
 namespace TribeBuild.Scenes
 {
     /// <summary>
-    /// ✅ FIXED: GameplayScene with proper Day Summary rendering
+    /// ✅ GameplayScene - Chạy được cả khi không có font
     /// </summary>
     public class GameplayScene : Scene
     {
         // Game systems
         private MyraUIManager uiManager;
         private GameManager gameManager;
-        public RPGCamera rpgCamera { get; set; }
+        private RPGCamera rpgCamera;
         
         // Rendering
         private Tilemap tilemap;
         private Camera2D camera;
         private CameraController cameraController;
         
+        // Fonts - CÓ THỂ NULL
+        private SpriteFont titleFont;
+        private SpriteFont normalFont;
+        private SpriteFont smallFont;
+        private SpriteFont debugFont;
+        private bool hasFonts = false;
+        
         // Debug
         private bool showDebugInfo = false;
-        private SpriteFont debugFont;
         private float debugToggleCooldown = 0f;
         private const float DEBUG_TOGGLE_DELAY = 0.2f;
+        
+        // FPS Counter
+        private int frameCount = 0;
+        private double elapsedTime = 0;
+        private int currentFPS = 0;
 
         public override void Initialize()
         {
@@ -39,28 +50,38 @@ namespace TribeBuild.Scenes
             Console.WriteLine("[GameplayScene] Initializing...");
         }
 
+        /// <summary>
+        /// Set fonts - CÓ THỂ NULL
+        /// </summary>
+        public void SetFonts(SpriteFont title, SpriteFont normal, SpriteFont small)
+        {
+            titleFont = title;
+            normalFont = normal;
+            smallFont = small;
+            debugFont = normal;
+            hasFonts = (title != null);
+            
+            if (hasFonts)
+            {
+                Console.WriteLine("[GameplayScene] ✅ Fonts configured");
+            }
+            else
+            {
+                Console.WriteLine("[GameplayScene] ⚠️ No fonts - UI text will be invisible");
+            }
+        }
+
         public override void LoadContent()
         {
             base.LoadContent();
             Console.WriteLine("[GameplayScene] Loading content...");
             
-            InitializeUI();
             LoadTilemap();
             SetupCamera();
             InitializeGameManager();
-            LoadDebugResources();
-            
-            // ✅ IMPORTANT: Initialize Day Summary UI with fonts
-            InitializeDaySummaryUI();
+            InitializeUI();
             
             Console.WriteLine("[GameplayScene] ✅ Content loaded successfully!");
-        }
-
-        private void InitializeUI()
-        {
-            uiManager = new MyraUIManager(Core.Instance);
-            uiManager.ShowMainMenu();
-            Console.WriteLine("[GameplayScene] UI initialized");
         }
 
         private void LoadTilemap()
@@ -79,14 +100,9 @@ namespace TribeBuild.Scenes
             );
             
             tilemap.BuildCollisionMatrix("", 249);
+            tilemap.SetDebugMode(grid: false, collision: false, entities: false);
             
-            tilemap.SetDebugMode(
-                grid: false,
-                collision: false,
-                entities: false
-            );
-            
-            Console.WriteLine($"[GameplayScene] Tilemap loaded: {tilemap.Width}x{tilemap.Height} tiles");
+            Console.WriteLine($"[GameplayScene] ✅ Tilemap loaded: {tilemap.Width}x{tilemap.Height} tiles");
         }
 
         private void SetupCamera()
@@ -103,8 +119,8 @@ namespace TribeBuild.Scenes
             ));
             
             camera.Position = new Vector2(
-                tilemap.TileToWorld(10, 10).X,
-                tilemap.TileToWorld(10, 10).Y
+                tilemap.TileToWorld(22, 18).X,
+                tilemap.TileToWorld(22, 18).Y
             );
             camera.Zoom = 1f;
             
@@ -124,51 +140,55 @@ namespace TribeBuild.Scenes
             );
             camera.SetZoomLimitsFromFit(fitZoom, 0.5f, 3.0f);
             
-            Console.WriteLine($"[GameplayScene] Camera initialized");
+            Console.WriteLine($"[GameplayScene] ✅ Camera initialized");
         }
 
         private void InitializeGameManager()
         {
             gameManager = new GameManager(tilemap);
             gameManager.Initialize();
-            gameManager.StartGame();
             
-            Console.WriteLine("[GameplayScene] GameManager initialized");
+            // ✅ Only init UI if we have fonts
+            if (hasFonts && titleFont != null)
+            {
+                try
+                {
+                    gameManager.InitializeUI(titleFont, normalFont, smallFont, Core.GraphicsDevice);
+                    Console.WriteLine("[GameplayScene] ✅ GameManager UI initialized");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[GameplayScene] ⚠️ Could not init UI: {ex.Message}");
+                }
+            }
+            else
+            {
+                Console.WriteLine("[GameplayScene] ⚠️ Skipping GameManager UI (no fonts)");
+            }
+            
+            Console.WriteLine("[GameplayScene] ✅ GameManager initialized");
         }
 
-        /// <summary>
-        /// ✅ Initialize Day Summary UI with proper fonts
-        /// </summary>
-        private void InitializeDaySummaryUI()
+        private void InitializeUI()
         {
             try
             {
-                // Load fonts for day summary
-                SpriteFont titleFont = Core.Content.Load<SpriteFont>("Fonts/Debug"); // Use Debug font as title
-                SpriteFont normalFont = Core.Content.Load<SpriteFont>("Fonts/Debug");
-                SpriteFont smallFont = Core.Content.Load<SpriteFont>("Fonts/Debug");
-                
-                gameManager.InitializeUI(titleFont, normalFont, smallFont, Core.GraphicsDevice);
-                
-                Console.WriteLine("[GameplayScene] ✅ Day Summary UI initialized");
+                // ✅ Only create UI if we have fonts
+                if (hasFonts && titleFont != null)
+                {
+                    uiManager = new MyraUIManager(Core.Instance);
+                    // Don't show main menu, go straight to game
+                    uiManager.ShowGame();
+                    Console.WriteLine("[GameplayScene] ✅ UI initialized");
+                }
+                else
+                {
+                    Console.WriteLine("[GameplayScene] ⚠️ Skipping UI (no fonts)");
+                }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[GameplayScene] ⚠️ WARNING: Could not initialize Day Summary UI: {ex.Message}");
-                Console.WriteLine("[GameplayScene] Day will auto-advance without summary screen");
-            }
-        }
-
-        private void LoadDebugResources()
-        {
-            try
-            {
-                debugFont = Core.Content.Load<SpriteFont>("Fonts/Debug");
-                Console.WriteLine("[GameplayScene] Debug font loaded");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"[GameplayScene] Warning: Debug font not found - {ex.Message}");
+                Console.WriteLine($"[GameplayScene] ⚠️ UI init failed: {ex.Message}");
             }
         }
 
@@ -178,24 +198,45 @@ namespace TribeBuild.Scenes
             
             float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
             
+            UpdateFPS(gameTime);
             HandleDebugInput(deltaTime);
             tilemap.UpdateAnimations(gameTime);
             
-            // Update RPG camera (follows player)
+            // Update RPG camera
             if (gameManager.World.GetPlayerCharacter != null)
             {
-                rpgCamera = new RPGCamera(camera, gameManager.World.GetPlayerCharacter);
+                if (rpgCamera == null)
+                {
+                    rpgCamera = new RPGCamera(camera, gameManager.World.GetPlayerCharacter);
+                }
                 rpgCamera.Update(gameTime);
             }
             
-            // ✅ Always update game manager (it handles all states)
+            // Update game
+            UpdatePlayingState(gameTime);
+        }
+
+        private void UpdateFPS(GameTime gameTime)
+        {
+            elapsedTime += gameTime.ElapsedGameTime.TotalMilliseconds;
+            frameCount++;
+            
+            if (elapsedTime >= 1000)
+            {
+                currentFPS = frameCount;
+                frameCount = 0;
+                elapsedTime = 0;
+            }
+        }
+
+        private void UpdatePlayingState(GameTime gameTime)
+        {
             gameManager.Update(gameTime);
             
-            // ✅ Only update Myra UI when in Playing or Paused state
-            if (gameManager.CurrentState == GameState.Playing || 
-                gameManager.CurrentState == GameState.Paused)
+            // ✅ Only update UI if it exists
+            if (uiManager != null)
             {
-                uiManager?.Update(gameTime);
+                uiManager.Update(gameTime);
             }
         }
 
@@ -209,43 +250,56 @@ namespace TribeBuild.Scenes
             if (debugToggleCooldown > 0f)
                 return;
             
+            // F3 - Toggle grid
             if (kb.WasKeyPressed(Keys.F3))
             {
                 tilemap.ToggleDebugGrid();
                 debugToggleCooldown = DEBUG_TOGGLE_DELAY;
             }
             
+            // F4 - Toggle collision
             if (kb.WasKeyPressed(Keys.F4))
             {
                 tilemap.ToggleCollisionGrid();
                 debugToggleCooldown = DEBUG_TOGGLE_DELAY;
             }
             
+            // F5 - Toggle entity positions
             if (kb.WasKeyPressed(Keys.F5))
             {
                 tilemap.ToggleEntityPositions();
                 debugToggleCooldown = DEBUG_TOGGLE_DELAY;
             }
             
-            if (kb.WasKeyPressed(Keys.F6))
+            // F6 - Toggle debug overlay (only if we have fonts)
+            if (kb.WasKeyPressed(Keys.F6) && hasFonts)
             {
                 showDebugInfo = !showDebugInfo;
                 debugToggleCooldown = DEBUG_TOGGLE_DELAY;
-                Console.WriteLine($"[Debug] Debug info: {(showDebugInfo ? "ON" : "OFF")}");
+                Console.WriteLine($"[Debug] Debug overlay: {(showDebugInfo ? "ON" : "OFF")}");
             }
             
+            // F7 - Print stats
             if (kb.WasKeyPressed(Keys.F7))
             {
                 gameManager.World.ForceDebugLog();
+                tilemap.PrintInfo();
                 debugToggleCooldown = DEBUG_TOGGLE_DELAY;
             }
-        }   
+            
+            // F8 - Print resources
+            if (kb.WasKeyPressed(Keys.F8))
+            {
+                gameManager.World.LogStatistics();
+                debugToggleCooldown = DEBUG_TOGGLE_DELAY;
+            }
+        }
 
         public override void Draw(GameTime gameTime)
         {
-            Core.GraphicsDevice.Clear(Color.CornflowerBlue);
+            Core.GraphicsDevice.Clear(new Color(20, 30, 40));
 
-            // ==================== WORLD RENDERING (with camera) ====================
+            // ==================== WORLD RENDERING ====================
             
             Core.SpriteBatch.Begin(
                 samplerState: SamplerState.PointClamp,
@@ -255,32 +309,44 @@ namespace TribeBuild.Scenes
             tilemap.Draw(Core.SpriteBatch, Vector2.Zero, camera);
             
             var viewBounds = camera.GetViewBounds();
-            gameManager.World.Draw(Core.SpriteBatch, gameTime, viewBounds);
+            gameManager.Draw(Core.SpriteBatch, gameTime, viewBounds);
             
             tilemap.DrawDebug(Core.SpriteBatch, Vector2.Zero, camera);
             
             Core.SpriteBatch.End();
 
-            // ==================== UI RENDERING (no camera transform) ====================
+            // ==================== UI RENDERING ====================
             
             Core.SpriteBatch.Begin(samplerState: SamplerState.PointClamp);
             
-            // ✅ Draw Myra UI only when NOT showing day summary
-            if (gameManager.CurrentState != GameState.DaySummary)
+            // ✅ Only draw UI if it exists
+            if (uiManager != null && gameManager.CurrentState != GameState.DaySummary)
             {
-                uiManager?.Draw();
+                uiManager.Draw();
             }
             
-            // ✅ Draw Day Summary overlay (drawn OVER everything)
             if (gameManager.CurrentState == GameState.DaySummary)
             {
-                gameManager.DrawUI(Core.SpriteBatch, gameTime);
+                gameManager.Draw(Core.SpriteBatch, gameTime, viewBounds);
             }
             
-            // Draw debug overlays
-            if (showDebugInfo)
+            // ✅ Only draw debug info if we have fonts
+            if (showDebugInfo && hasFonts && debugFont != null)
             {
                 DrawDebugOverlay(gameTime);
+            }
+            
+            // ✅ Warning if no fonts
+            if (!hasFonts)
+            {
+                // Draw a colored rectangle to show game is running
+                var pixel = new Texture2D(Core.GraphicsDevice, 1, 1);
+                pixel.SetData(new[] { Color.White });
+                
+                // Top-left corner indicator (green = running)
+                Core.SpriteBatch.Draw(pixel, new Rectangle(10, 10, 20, 20), Color.LimeGreen);
+                
+                pixel.Dispose();
             }
             
             Core.SpriteBatch.End();
@@ -290,8 +356,7 @@ namespace TribeBuild.Scenes
 
         private void DrawDebugOverlay(GameTime gameTime)
         {
-            if (debugFont == null)
-                return;
+            if (debugFont == null) return;
             
             int y = 10;
             int lineHeight = 20;
@@ -312,32 +377,25 @@ namespace TribeBuild.Scenes
                 y += lineHeight;
             }
             
-            if (showDebugInfo)
-            {
-                var stats = gameManager.World.GetStatistics();
-                
-                DrawDebugText($"=== GAME INFO ===");
-                DrawDebugText($"Day {gameManager.CurrentDay} | {gameManager.GetTimeString()} ({gameManager.GetTimeOfDayName()})");
-                DrawDebugText($"State: {gameManager.CurrentState}");
-                y += 5;
-                
-                DrawDebugText($"=== ENTITIES ===");
-                DrawDebugText($"Total: {stats.TotalEntities} | KD-Tree: {stats.SpatialTreeSize}");
-                DrawDebugText($"Enemies: {stats.NightEnemyCount} | Resources: {stats.ResourceCount}");
-                y += 5;
-                
-                DrawDebugText($"=== PLAYER ===");
-                var player = gameManager.World.GetPlayerCharacter;
-                if (player != null)
-                {
-                    DrawDebugText($"HP: {player.Health:F0}/{player.MaxHealth:F0}");
-                    DrawDebugText($"Pos: ({player.Position.X:F0}, {player.Position.Y:F0})");
-                }
-                y += 5;
-                
-                DrawDebugText($"=== RESOURCES ===");
-                DrawDebugText($"Wood: {gameManager.WoodCollected} | Food: {gameManager.FoodCollected}");
-            }
+            DrawDebugText($"=== PERFORMANCE ===");
+            DrawDebugText($"FPS: {currentFPS}");
+            y += 5;
+            
+            DrawDebugText($"=== GAME STATE ===");
+            DrawDebugText($"Day {gameManager.CurrentDay} | {gameManager.GetTimeString()}");
+            DrawDebugText($"State: {gameManager.CurrentState}");
+            y += 5;
+            
+            var stats = gameManager.World.GetStatistics();
+            DrawDebugText($"=== WORLD ===");
+            DrawDebugText($"Entities: {stats.TotalEntities}");
+            DrawDebugText($"Resources: {stats.ResourceCount}");
+            y += 5;
+            
+            DrawDebugText($"=== CONTROLS ===");
+            DrawDebugText($"WASD: Move | E: Interact");
+            DrawDebugText($"F3: Grid | F4: Collision | F5: Entities");
+            DrawDebugText($"F7: Stats | F8: Resources");
         }
 
         public override void UnloadContent()
@@ -345,7 +403,17 @@ namespace TribeBuild.Scenes
             base.UnloadContent();
             gameManager?.Shutdown();
             uiManager = null;
-            Console.WriteLine("[GameplayScene] Unloaded");
+            Console.WriteLine("[GameplayScene] ✅ Unloaded");
+        }
+
+        public GameWorld GetGameWorld()
+        {
+            return gameManager?.World;
+        }
+
+        public GameManager GetGameManager()
+        {
+            return gameManager;
         }
     }
 }

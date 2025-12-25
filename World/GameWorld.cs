@@ -190,6 +190,7 @@ namespace TribeBuild.World
         public void Draw(SpriteBatch spriteBatch, GameTime gameTime, Rectangle viewportBounds)
         {
             drawableEntities.Clear();
+            
 
             foreach (var entity in allEntities.Values)
             {
@@ -198,9 +199,7 @@ namespace TribeBuild.World
 
                 drawableEntities.Add(new DrawableEntity(entity));
             }
-
             drawableEntities.Sort((a, b) => a.Depth.CompareTo(b.Depth));
-
             foreach (var drawable in drawableEntities)
             {
                 drawable.Entity.Draw(spriteBatch);

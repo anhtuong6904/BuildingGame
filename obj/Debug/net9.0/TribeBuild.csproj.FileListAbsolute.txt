@@ -95,3 +95,9 @@ D:\tai_lieu_hoc\Game_Dev\TribeBuild\bin\Debug\net9.0\Content\Images\punyworld-ov
 D:\tai_lieu_hoc\Game_Dev\TribeBuild\bin\Debug\net9.0\Content\Images\punyworld-overworld-tileset-sheet.xnb
 D:\tai_lieu_hoc\Game_Dev\TribeBuild\bin\Debug\net9.0\Content\Images\AssasinTemplate-sheet.xnb
 D:\tai_lieu_hoc\Game_Dev\TribeBuild\bin\Debug\net9.0\Content\Images\Assassin.xml
+D:\tai_lieu_hoc\Game_Dev\TribeBuild\bin\Debug\net9.0\Content\Font\Baskic8.xnb
+D:\tai_lieu_hoc\Game_Dev\TribeBuild\bin\Debug\net9.0\Content\Font\Essentle4.xnb
+D:\tai_lieu_hoc\Game_Dev\TribeBuild\bin\Debug\net9.0\Content\Font\File.xnb
+D:\tai_lieu_hoc\Game_Dev\TribeBuild\bin\Debug\net9.0\Content\Sound\After a long journey there will always be someone returning home By Soundmashine.ogg
+D:\tai_lieu_hoc\Game_Dev\TribeBuild\bin\Debug\net9.0\Content\Sound\After a long journey there will always be someone returning home By Soundmashine.xnb
+D:\tai_lieu_hoc\Game_Dev\TribeBuild\bin\Debug\net9.0\Content\Sound\mixkit-grass-step-1920.wav

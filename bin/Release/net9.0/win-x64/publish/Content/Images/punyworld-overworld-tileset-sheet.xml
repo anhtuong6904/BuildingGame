@@ -1,0 +1,557 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tileset version="1.10" tiledversion="1.11.2" name="punyworld-overworld" tilewidth="16" tileheight="16" tilecount="1755" columns="27">
+ <Texture>Images/punyworld-overworld-tileset-sheet</Texture>
+ <tile id="243">
+  <animation delay = "100">
+   <frame tileid="243"/>
+   <frame tileid="351"/>
+   <frame tileid="459"/>
+   <frame tileid="567"/>
+  </animation>
+ </tile>
+ <tile id="244">
+  <animation delay = "100">
+   <frame tileid="244"/>
+   <frame tileid="352"/>
+   <frame tileid="460"/>
+   <frame tileid="568"/>
+  </animation>
+ </tile>
+ <tile id="245">
+  <animation delay = "100">
+   <frame tileid="245"/>
+   <frame tileid="353"/>
+   <frame tileid="461"/>
+   <frame tileid="569"/>
+  </animation>
+ </tile>
+ <tile id="246">
+  <animation delay = "100">
+   <frame tileid="246"/>
+   <frame tileid="354"/>
+   <frame tileid="462"/>
+   <frame tileid="570"/>
+  </animation>
+ </tile>
+ <tile id="248">
+  <animation delay = "100">
+   <frame tileid="248"/>
+   <frame tileid="329"/>
+   <frame tileid="410"/>
+   <frame tileid="491"/>
+  </animation>
+ </tile>
+ <tile id="250">
+  <animation delay = "100">
+   <frame tileid="250"/>
+   <frame tileid="331"/>
+   <frame tileid="412"/>
+   <frame tileid="493"/>
+  </animation>
+ </tile>
+ <tile id="251">
+  <animation delay = "100">
+   <frame tileid="251"/>
+   <frame tileid="332"/>
+   <frame tileid="413"/>
+   <frame tileid="494"/>
+  </animation>
+ </tile>
+ <tile id="252">
+  <animation delay = "100">
+   <frame tileid="333"/>
+   <frame tileid="414"/>
+   <frame tileid="495"/>
+   <frame tileid="252"/>
+  </animation>
+ </tile>
+ <tile id="253">
+  <animation delay = "100">
+   <frame tileid="253"/>
+   <frame tileid="307"/>
+   <frame tileid="361"/>
+   <frame tileid="415"/>
+  </animation>
+ </tile>
+ <tile id="254">
+  <animation delay = "100">
+   <frame tileid="254"/>
+   <frame tileid="308"/>
+   <frame tileid="362"/>
+   <frame tileid="416"/>
+  </animation>
+ </tile>
+ <tile id="255">
+  <animation delay = "100">
+   <frame tileid="255"/>
+   <frame tileid="336"/>
+   <frame tileid="417"/>
+   <frame tileid="498"/>
+  </animation>
+ </tile>
+ <tile id="256">
+  <animation delay = "100">
+   <frame tileid="256"/>
+   <frame tileid="337"/>
+   <frame tileid="418"/>
+   <frame tileid="499"/>
+  </animation>
+ </tile>
+ <tile id="257">
+  <animation delay = "100">
+   <frame tileid="257"/>
+   <frame tileid="338"/>
+   <frame tileid="419"/>
+   <frame tileid="500"/>
+  </animation>
+ </tile>
+ <tile id="258">
+  <animation delay = "100">
+   <frame tileid="258"/>
+   <frame tileid="312"/>
+   <frame tileid="366"/>
+   <frame tileid="420"/>
+  </animation>
+ </tile>
+ <tile id="259">
+  <animation delay = "100">
+   <frame tileid="259"/>
+   <frame tileid="313"/>
+   <frame tileid="367"/>
+   <frame tileid="421"/>
+  </animation>
+ </tile>
+ <tile id="260">
+  <animation delay = "100">
+   <frame tileid="260"/>
+   <frame tileid="341"/>
+   <frame tileid="422"/>
+   <frame tileid="503"/>
+  </animation>
+ </tile>
+ <tile id="261">
+  <animation delay = "100">
+   <frame tileid="261"/>
+   <frame tileid="342"/>
+   <frame tileid="423"/>
+   <frame tileid="504"/>
+  </animation>
+ </tile>
+ <tile id="262">
+  <animation delay = "100">
+   <frame tileid="262"/>
+   <frame tileid="343"/>
+   <frame tileid="424"/>
+   <frame tileid="505"/>
+  </animation>
+ </tile>
+ <tile id="263">
+  <animation delay = "100">
+   <frame tileid="263"/>
+   <frame tileid="344"/>
+   <frame tileid="425"/>
+   <frame tileid="506"/>
+  </animation>
+ </tile>
+ <tile id="264">
+  <animation delay = "100">
+   <frame tileid="264"/>
+   <frame tileid="345"/>
+   <frame tileid="426"/>
+   <frame tileid="507"/>
+  </animation>
+ </tile>
+ <tile id="265">
+  <animation delay = "100">
+   <frame tileid="265"/>
+   <frame tileid="346"/>
+   <frame tileid="427"/>
+   <frame tileid="508"/>
+  </animation>
+ </tile>
+ <tile id="266">
+  <animation delay = "100">
+   <frame tileid="266"/>
+   <frame tileid="347"/>
+   <frame tileid="428"/>
+   <frame tileid="509"/>
+  </animation>
+ </tile>
+ <tile id="267">
+  <animation delay = "100">
+   <frame tileid="267"/>
+   <frame tileid="348"/>
+   <frame tileid="429"/>
+   <frame tileid="510"/>
+  </animation>
+ </tile>
+ <tile id="268">
+  <animation delay = "100">
+   <frame tileid="268"/>
+   <frame tileid="349"/>
+   <frame tileid="430"/>
+   <frame tileid="511"/>
+  </animation>
+ </tile>
+ <tile id="269">
+  <animation delay = "100">
+   <frame tileid="269"/>
+   <frame tileid="350"/>
+   <frame tileid="431"/>
+   <frame tileid="512"/>
+  </animation>
+ </tile>
+ <tile id="270">
+  <animation delay = "100">
+   <frame tileid="594"/>
+   <frame tileid="270"/>
+   <frame tileid="378"/>
+   <frame tileid="486"/>
+  </animation>
+ </tile>
+ <tile id="271">
+  <animation delay = "100">
+   <frame tileid="379"/>
+   <frame tileid="487"/>
+   <frame tileid="595"/>
+   <frame tileid="271"/>
+  </animation>
+ </tile>
+ <tile id="272">
+  <animation delay = "100">
+   <frame tileid="272"/>
+   <frame tileid="380"/>
+   <frame tileid="488"/>
+   <frame tileid="596"/>
+  </animation>
+ </tile>
+ <tile id="273">
+  <animation delay = "100">
+   <frame tileid="273"/>
+   <frame tileid="381"/>
+   <frame tileid="489"/>
+   <frame tileid="597"/>
+  </animation>
+ </tile>
+ <tile id="274">
+  <animation delay = "100">
+   <frame tileid="274"/>
+   <frame tileid="355"/>
+   <frame tileid="436"/>
+   <frame tileid="517"/>
+  </animation>
+ </tile>
+ <tile id="275">
+  <animation delay = "100">
+   <frame tileid="275"/>
+   <frame tileid="356"/>
+   <frame tileid="437"/>
+   <frame tileid="518"/>
+  </animation>
+ </tile>
+ <tile id="276">
+  <animation delay = "100">
+   <frame tileid="276"/>
+   <frame tileid="357"/>
+   <frame tileid="438"/>
+   <frame tileid="519"/>
+  </animation>
+ </tile>
+ <tile id="277">
+  <animation delay = "100">
+   <frame tileid="277"/>
+   <frame tileid="358"/>
+   <frame tileid="439"/>
+   <frame tileid="520"/>
+  </animation>
+ </tile>
+ <tile id="279">
+  <animation delay = "100">
+   <frame tileid="279"/>
+   <frame tileid="360"/>
+   <frame tileid="441"/>
+   <frame tileid="522"/>
+  </animation>
+ </tile>
+ <tile id="280">
+  <animation delay = "100">
+   <frame tileid="442"/>
+   <frame tileid="388"/>
+   <frame tileid="334"/>
+   <frame tileid="280"/>
+  </animation>
+ </tile>
+ <tile id="281">
+  <animation delay = "100">
+   <frame tileid="281"/>
+   <frame tileid="335"/>
+   <frame tileid="389"/>
+   <frame tileid="443"/>
+  </animation>
+ </tile>
+ <tile id="282">
+  <animation delay = "100">
+   <frame tileid="282"/>
+   <frame tileid="363"/>
+   <frame tileid="444"/>
+   <frame tileid="525"/>
+  </animation>
+ </tile>
+ <tile id="284">
+  <animation delay = "100">
+   <frame tileid="284"/>
+   <frame tileid="365"/>
+   <frame tileid="446"/>
+   <frame tileid="527"/>
+  </animation>
+ </tile>
+ <tile id="285">
+  <animation delay = "100">
+   <frame tileid="285"/>
+   <frame tileid="339"/>
+   <frame tileid="393"/>
+   <frame tileid="447"/>
+  </animation>
+ </tile>
+ <tile id="286">
+  <animation delay = "100">
+   <frame tileid="286"/>
+   <frame tileid="340"/>
+   <frame tileid="394"/>
+   <frame tileid="448"/>
+  </animation>
+ </tile>
+ <tile id="287">
+  <animation delay = "100">
+   <frame tileid="287"/>
+   <frame tileid="368"/>
+   <frame tileid="449"/>
+   <frame tileid="530"/>
+  </animation>
+ </tile>
+ <tile id="289">
+  <animation delay = "100">
+   <frame tileid="289"/>
+   <frame tileid="370"/>
+   <frame tileid="451"/>
+   <frame tileid="532"/>
+  </animation>
+ </tile>
+ <tile id="290">
+  <animation delay = "100">
+   <frame tileid="290"/>
+   <frame tileid="371"/>
+   <frame tileid="452"/>
+   <frame tileid="533"/>
+  </animation>
+ </tile>
+ <tile id="291">
+  <animation delay = "100">
+   <frame tileid="291"/>
+   <frame tileid="372"/>
+   <frame tileid="453"/>
+   <frame tileid="534"/>
+  </animation>
+ </tile>
+ <tile id="292">
+  <animation delay = "100">
+   <frame tileid="292"/>
+   <frame tileid="373"/>
+   <frame tileid="454"/>
+   <frame tileid="535"/>
+  </animation>
+ </tile>
+ <tile id="294">
+  <animation delay = "100">
+   <frame tileid="294"/>
+   <frame tileid="375"/>
+   <frame tileid="456"/>
+   <frame tileid="537"/>
+  </animation>
+ </tile>
+ <tile id="295">
+  <animation delay = "100">
+   <frame tileid="295"/>
+   <frame tileid="376"/>
+   <frame tileid="457"/>
+   <frame tileid="538"/>
+  </animation>
+ </tile>
+ <tile id="296">
+  <animation delay = "100">
+   <frame tileid="296"/>
+   <frame tileid="377"/>
+   <frame tileid="458"/>
+   <frame tileid="539"/>
+  </animation>
+ </tile>
+ <tile id="297">
+  <animation delay = "100">
+   <frame tileid="297"/>
+   <frame tileid="405"/>
+   <frame tileid="513"/>
+   <frame tileid="621"/>
+  </animation>
+ </tile>
+ <tile id="298">
+  <animation delay = "100">
+   <frame tileid="298"/>
+   <frame tileid="406"/>
+   <frame tileid="514"/>
+   <frame tileid="622"/>
+  </animation>
+ </tile>
+ <tile id="299">
+  <animation delay = "100">
+   <frame tileid="299"/>
+   <frame tileid="407"/>
+   <frame tileid="515"/>
+   <frame tileid="623"/>
+  </animation>
+ </tile>
+ <tile id="300">
+  <animation delay = "100">
+   <frame tileid="408"/>
+   <frame tileid="300"/>
+   <frame tileid="516"/>
+   <frame tileid="624"/>
+  </animation>
+ </tile>
+ <tile id="302">
+  <animation delay = "100">
+   <frame tileid="545"/>
+   <frame tileid="464"/>
+   <frame tileid="383"/>
+   <frame tileid="302"/>
+  </animation>
+ </tile>
+ <tile id="304">
+  <animation delay = "100">
+   <frame tileid="304"/>
+   <frame tileid="385"/>
+   <frame tileid="466"/>
+   <frame tileid="547"/>
+  </animation>
+ </tile>
+ <tile id="305">
+  <animation delay = "100">
+   <frame tileid="548"/>
+   <frame tileid="467"/>
+   <frame tileid="386"/>
+   <frame tileid="305"/>
+  </animation>
+ </tile>
+ <tile id="306">
+  <animation delay = "100">
+   <frame tileid="306"/>
+   <frame tileid="387"/>
+   <frame tileid="468"/>
+   <frame tileid="549"/>
+   <frame tileid="306"/>
+  </animation>
+ </tile>
+ <tile id="309">
+  <animation delay = "100">
+   <frame tileid="309"/>
+   <frame tileid="390"/>
+   <frame tileid="471"/>
+   <frame tileid="552"/>
+  </animation>
+ </tile>
+ <tile id="310">
+  <animation delay = "100">
+   <frame tileid="310"/>
+   <frame tileid="391"/>
+   <frame tileid="472"/>
+   <frame tileid="553"/>
+  </animation>
+ </tile>
+ <tile id="311">
+  <animation delay = "100">
+   <frame tileid="311"/>
+   <frame tileid="392"/>
+   <frame tileid="473"/>
+   <frame tileid="554"/>
+  </animation>
+ </tile>
+ <tile id="314">
+  <animation delay = "100">
+   <frame tileid="314"/>
+   <frame tileid="395"/>
+   <frame tileid="476"/>
+   <frame tileid="557"/>
+  </animation>
+ </tile>
+ <tile id="315">
+  <animation delay = "100">
+   <frame tileid="315"/>
+   <frame tileid="396"/>
+   <frame tileid="477"/>
+   <frame tileid="558"/>
+  </animation>
+ </tile>
+ <tile id="316">
+  <animation delay = "100">
+   <frame tileid="316"/>
+   <frame tileid="397"/>
+   <frame tileid="478"/>
+   <frame tileid="559"/>
+  </animation>
+ </tile>
+ <tile id="319">
+  <animation delay = "100">
+   <frame tileid="319"/>
+   <frame tileid="400"/>
+   <frame tileid="481"/>
+   <frame tileid="562"/>
+  </animation>
+ </tile>
+ <tile id="320">
+  <animation delay = "100">
+   <frame tileid="320"/>
+   <frame tileid="401"/>
+   <frame tileid="482"/>
+   <frame tileid="563"/>
+  </animation>
+ </tile>
+ <tile id="321">
+  <animation delay = "100">
+   <frame tileid="321"/>
+   <frame tileid="402"/>
+   <frame tileid="483"/>
+   <frame tileid="564"/>
+  </animation>
+ </tile>
+ <tile id="324">
+  <animation delay = "100">
+   <frame tileid="648"/>
+   <frame tileid="540"/>
+   <frame tileid="432"/>
+   <frame tileid="324"/>
+  </animation>
+ </tile>
+ <tile id="325">
+  <animation delay = "100">
+   <frame tileid="325"/>
+   <frame tileid="433"/>
+   <frame tileid="541"/>
+   <frame tileid="649"/>
+  </animation>
+ </tile>
+ <tile id="326">
+  <animation delay = "100">
+   <frame tileid="326"/>
+   <frame tileid="434"/>
+   <frame tileid="542"/>
+   <frame tileid="650"/>
+  </animation>
+ </tile>
+ <tile id="327">
+  <animation delay = "100">
+   <frame tileid="651"/>
+   <frame tileid="327"/>
+   <frame tileid="435"/>
+   <frame tileid="543"/>
+  </animation>
+ </tile>
+</tileset>

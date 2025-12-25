@@ -1,0 +1,64 @@
+<?xml version='1.0' encoding='utf-8'?>
+<TextureAtlas>
+    <Texture>Images/chicken-sheet</Texture>
+    <Regions>
+        <Region name="chicken 0" x="0" y="0" width="16" height="16" />
+        <Region name="chicken 1" x="0" y="0" width="16" height="16" />
+        <Region name="chicken 2" x="16" y="0" width="16" height="16" />
+        <Region name="chicken 3" x="0" y="0" width="16" height="16" />
+        <Region name="chicken 4" x="32" y="0" width="16" height="16" />
+        <Region name="chicken 5" x="48" y="0" width="16" height="16" />
+        <Region name="chicken 6" x="48" y="0" width="16" height="16" />
+        <Region name="chicken 7" x="0" y="16" width="16" height="16" />
+        <Region name="chicken 8" x="48" y="0" width="16" height="16" />
+        <Region name="chicken 9" x="16" y="16" width="16" height="16" />
+        <Region name="chicken 10" x="32" y="16" width="16" height="16" />
+        <Region name="chicken 11" x="32" y="16" width="16" height="16" />
+        <Region name="chicken 12" x="48" y="16" width="16" height="16" />
+        <Region name="chicken 13" x="32" y="16" width="16" height="16" />
+        <Region name="chicken 14" x="0" y="32" width="16" height="16" />
+        <Region name="chicken 15" x="16" y="32" width="16" height="16" />
+        <Region name="chicken 16" x="16" y="32" width="16" height="16" />
+        <Region name="chicken 17" x="32" y="32" width="16" height="16" />
+        <Region name="chicken 18" x="16" y="32" width="16" height="16" />
+        <Region name="chicken 19" x="48" y="32" width="16" height="16" />
+    </Regions>
+    <Animations>
+        <Animation name="idle-font" delay="200">
+            <Frame region="chicken 0"  />
+        </Animation>
+        <Animation name="walk-font" delay="200">
+            <Frame region="chicken 1"  />
+            <Frame region="chicken 2"  />
+            <Frame region="chicken 3"  />
+            <Frame region="chicken 4"  />
+        </Animation>
+        <Animation name="idle-back" delay="200">
+            <Frame region="chicken 5"  />
+        </Animation>
+        <Animation name="walk-back" delay="200">
+            <Frame region="chicken 6"  />
+            <Frame region="chicken 7"  />
+            <Frame region="chicken 8"  />
+            <Frame region="chicken 9"  />
+        </Animation>
+        <Animation name="idle-left" delay="200">
+            <Frame region="chicken 10"  />
+        </Animation>
+        <Animation name="walk-left" delay="200">
+            <Frame region="chicken 11"  />
+            <Frame region="chicken 12"  />
+            <Frame region="chicken 13"  />
+            <Frame region="chicken 14"  />
+        </Animation>
+        <Animation name="idle-right" delay="200">
+            <Frame region="chicken 15"  />
+        </Animation>
+        <Animation name="walk-right" delay="200">
+            <Frame region="chicken 16"  />
+            <Frame region="chicken 17"  />
+            <Frame region="chicken 18"  />
+            <Frame region="chicken 19"  />
+        </Animation>
+    </Animations>
+</TextureAtlas>

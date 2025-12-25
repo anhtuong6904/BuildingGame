@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "eq8iQjSerpE=",
+  "dgSpecHash": "MIXqHTCRSCc=",
   "success": true,
   "projectFilePath": "D:\\tai_lieu_hoc\\Game_Dev\\TribeBuild\\TribeBuild.csproj",
   "expectedPackageFiles": [
@@ -21,7 +21,10 @@
     "C:\\Users\\Lenovo\\.nuget\\packages\\system.memory\\4.5.3\\system.memory.4.5.3.nupkg.sha512",
     "C:\\Users\\Lenovo\\.nuget\\packages\\system.valuetuple\\4.5.0\\system.valuetuple.4.5.0.nupkg.sha512",
     "C:\\Users\\Lenovo\\.nuget\\packages\\xnassets.fontstashsharp.monogame\\0.8.2\\xnassets.fontstashsharp.monogame.0.8.2.nupkg.sha512",
-    "C:\\Users\\Lenovo\\.nuget\\packages\\xnassets.monogame\\0.8.2\\xnassets.monogame.0.8.2.nupkg.sha512"
+    "C:\\Users\\Lenovo\\.nuget\\packages\\xnassets.monogame\\0.8.2\\xnassets.monogame.0.8.2.nupkg.sha512",
+    "C:\\Users\\Lenovo\\.nuget\\packages\\microsoft.netcore.app.runtime.win-x64\\9.0.8\\microsoft.netcore.app.runtime.win-x64.9.0.8.nupkg.sha512",
+    "C:\\Users\\Lenovo\\.nuget\\packages\\microsoft.windowsdesktop.app.runtime.win-x64\\9.0.8\\microsoft.windowsdesktop.app.runtime.win-x64.9.0.8.nupkg.sha512",
+    "C:\\Users\\Lenovo\\.nuget\\packages\\microsoft.aspnetcore.app.runtime.win-x64\\9.0.8\\microsoft.aspnetcore.app.runtime.win-x64.9.0.8.nupkg.sha512"
   ],
   "logs": []
 }

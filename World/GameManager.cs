@@ -118,7 +118,7 @@ namespace TribeBuild.World
                 atlasChicken = TextureAtlas.FromFile(Core.Content, "Images/Chicken.xml");
                 atlasSheep = TextureAtlas.FromFile(Core.Content, "Images/sheep.xml");
                 atlasBoar = TextureAtlas.FromFile(Core.Content, "Images/boar.xml");
-                atlasAssassin = TextureAtlas.FromFile(Core.Content, "Images/Assassin.xml");; // TODO: Load proper assassin atlas
+                atlasAssassin = TextureAtlas.FromFile(Core.Content, "Images/Assassin.xml"); // TODO: Load proper assassin atlas
                 
                 Console.WriteLine("[GameManager] ✅ All atlases loaded");
             }
@@ -187,8 +187,10 @@ namespace TribeBuild.World
         {
             Console.WriteLine($"[GameManager] ☀️ Day {CurrentDay} started!");
             
-            // ✅ Don't reset stats - they accumulate across days
-            // WoodCollected, StoneCollected, FoodCollected keep growing
+            // Reset daily stats (optional)
+            WoodCollected = 0;
+            StoneCollected = 0;
+            FoodCollected = 0;
         }
         
         private void OnNightStart()
@@ -314,38 +316,22 @@ namespace TribeBuild.World
         }
         
         /// <summary>
-        /// ✅ Update game time with proper 6 AM → 2 AM cycle
+        /// ✅ Update game time
         /// </summary>
         private void UpdateTime(float deltaTime)
         {
             // Get day length from DayNightCycleManager
-            // Day cycle is 20 game hours (6 AM to 2 AM next day)
             float dayLength = DayNightCycle.DayLengthInSeconds;
-            float gameHoursPerSecond = 20f / dayLength; // 20 hours in a cycle
             
-            TimeOfDay += gameHoursPerSecond * deltaTime;
+            TimeOfDay += (24f / dayLength) * deltaTime;
             
-            // ✅ CRITICAL: When reaching 24:00, wrap to 0:00 (midnight)
+            // Handle day rollover (shouldn't happen now, but keep as safety)
             if (TimeOfDay >= 24f)
             {
                 TimeOfDay -= 24f;
-                Console.WriteLine("[GameManager] ⏰ Time wrapped to midnight (00:00)");
-            }
-            
-            // ✅ Time stops at 2 AM when day summary is shown
-            if (CurrentState == GameState.DaySummary)
-            {
-                TimeOfDay = 2f; // Lock at 2 AM
             }
         }
-        public void DrawUI(SpriteBatch spriteBatch, GameTime gameTime)
-        {
-            if (CurrentState == GameState.DaySummary && daySummaryScreen != null)
-            {
-                daySummaryScreen.Draw(spriteBatch, gameTime);
-            }
-        }
-                
+        
         /// <summary>
         /// ✅ Check if player is dead
         /// </summary>

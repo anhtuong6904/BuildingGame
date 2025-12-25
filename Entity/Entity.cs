@@ -378,9 +378,9 @@ namespace TribeBuild.Entity
             else
                 Sprite?.Draw(spriteBatch, Position);
                 
-            #if DEBUG
-            DrawDebugAABB(spriteBatch);
-            #endif
+            // #if DEBUG
+            // DrawDebugAABB(spriteBatch);
+            // #endif
         }
 
         // ==================== DEPTH SORTING ====================

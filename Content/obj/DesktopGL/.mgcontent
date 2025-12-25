@@ -4,6 +4,9 @@
   <Platform>DesktopGL</Platform>
   <Config />
   <SourceFiles>
+    <File>d:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Font/Baskic8.spritefont</File>
+    <File>d:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Font/Essentle4.spritefont</File>
+    <File>d:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Font/File.spritefont</File>
     <File>d:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/AssasinTemplate-sheet.png</File>
     <File>d:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/Boar-sheet.png</File>
     <File>d:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/BowmanTemplate-sheet.png</File>
@@ -17,8 +20,13 @@
     <File>d:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/Sheep-sheet.png</File>
     <File>d:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/Sprite-0001.png</File>
     <File>d:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/tree.png</File>
+    <File>d:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Sound/After a long journey there will always be someone returning home By Soundmashine.wav</File>
   </SourceFiles>
   <DestFiles>
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />

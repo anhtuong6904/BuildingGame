@@ -1,0 +1,64 @@
+<?xml version='1.0' encoding='utf-8'?>
+<TextureAtlas>
+    <Texture>Images/Sheep-sheet</Texture>
+    <Regions>
+        <Region name="Sheep 0" x="0" y="0" width="16" height="16" />
+        <Region name="Sheep 1" x="0" y="0" width="16" height="16" />
+        <Region name="Sheep 2" x="16" y="0" width="16" height="16" />
+        <Region name="Sheep 3" x="0" y="0" width="16" height="16" />
+        <Region name="Sheep 4" x="32" y="0" width="16" height="16" />
+        <Region name="Sheep 5" x="48" y="0" width="16" height="16" />
+        <Region name="Sheep 6" x="48" y="0" width="16" height="16" />
+        <Region name="Sheep 7" x="0" y="16" width="16" height="16" />
+        <Region name="Sheep 8" x="16" y="16" width="16" height="16" />
+        <Region name="Sheep 9" x="32" y="16" width="16" height="16" />
+        <Region name="Sheep 10" x="48" y="16" width="16" height="16" />
+        <Region name="Sheep 11" x="48" y="16" width="16" height="16" />
+        <Region name="Sheep 12" x="0" y="32" width="16" height="16" />
+        <Region name="Sheep 13" x="16" y="32" width="16" height="16" />
+        <Region name="Sheep 14" x="32" y="32" width="16" height="16" />
+        <Region name="Sheep 15" x="48" y="32" width="16" height="16" />
+        <Region name="Sheep 16" x="48" y="32" width="16" height="16" />
+        <Region name="Sheep 17" x="0" y="48" width="16" height="16" />
+        <Region name="Sheep 18" x="16" y="48" width="16" height="16" />
+        <Region name="Sheep 19" x="32" y="48" width="16" height="16" />
+    </Regions>
+    <Animations>
+        <Animation name="idle-font" delay="200">
+            <Frame region="Sheep 0"/>
+        </Animation>
+        <Animation name="walk-font" delay="200">
+            <Frame region="Sheep 1"/>
+            <Frame region="Sheep 2"/>
+            <Frame region="Sheep 3"/>
+            <Frame region="Sheep 4"/>
+        </Animation>
+        <Animation name="idle-back" delay="200">
+            <Frame region="Sheep 5"/>
+        </Animation>
+        <Animation name="walk-back" delay="200">
+            <Frame region="Sheep 6"/>
+            <Frame region="Sheep 7"/>
+            <Frame region="Sheep 8"/>
+            <Frame region="Sheep 9"/>
+        </Animation>
+        <Animation name="idle-right" delay="200">
+            <Frame region="Sheep 10"/>
+        </Animation>
+        <Animation name="walk-right" delay="200">
+            <Frame region="Sheep 11"/>
+            <Frame region="Sheep 12"/>
+            <Frame region="Sheep 13"/>
+            <Frame region="Sheep 14"/>
+        </Animation>
+        <Animation name="idle-left" delay="200">
+            <Frame region="Sheep 15"/>
+        </Animation>
+        <Animation name="walk-left" delay="200">
+            <Frame region="Sheep 16"/>
+            <Frame region="Sheep 17"/>
+            <Frame region="Sheep 18"/>
+            <Frame region="Sheep 19"/>
+        </Animation>
+    </Animations>
+</TextureAtlas>

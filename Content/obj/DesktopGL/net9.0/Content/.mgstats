@@ -1,9 +1,9 @@
 Source File,Dest File,Processor Type,Content Type,Source File Size,Dest File Size,Build Seconds
 "D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Font/Baskic8.otf","D:\tai_lieu_hoc\Game_Dev\TribeBuild\Content\bin\DesktopGL\Content\Font/Baskic8.otf","CopyItem","File",51180,51180,0.0013346
-"D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Font/Baskic8.spritefont","D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/bin/DesktopGL/Content/Font/Baskic8.xnb","FontDescriptionProcessor","SpriteFontContent",2074,21529,0.1259411
+"D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Font/Baskic8.spritefont","D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/bin/DesktopGL/Content/Font/Baskic8.xnb","FontDescriptionProcessor","SpriteFontContent",2074,21529,0.1193463
 "D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Font/Essentle4.otf","D:\tai_lieu_hoc\Game_Dev\TribeBuild\Content\bin\DesktopGL\Content\Font/Essentle4.otf","CopyItem","File",17848,17848,0.0006777
-"D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Font/Essentle4.spritefont","D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/bin/DesktopGL/Content/Font/Essentle4.xnb","FontDescriptionProcessor","SpriteFontContent",2076,37913,0.0153132
-"D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Font/File.spritefont","D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/bin/DesktopGL/Content/Font/File.xnb","FontDescriptionProcessor","SpriteFontContent",2076,37913,0.0146562
+"D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Font/Essentle4.spritefont","D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/bin/DesktopGL/Content/Font/Essentle4.xnb","FontDescriptionProcessor","SpriteFontContent",2076,37913,0.0152226
+"D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Font/File.spritefont","D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/bin/DesktopGL/Content/Font/File.xnb","FontDescriptionProcessor","SpriteFontContent",2076,37913,0.0144139
 "D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Font/Wongdongs.otf","D:\tai_lieu_hoc\Game_Dev\TribeBuild\Content\bin\DesktopGL\Content\Font/Wongdongs.otf","CopyItem","File",233896,233896,0.0006375
 "D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/AssasinTemplate-sheet.png","D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/bin/DesktopGL/Content/Images/AssasinTemplate-sheet.xnb","TextureProcessor","Texture2DContent",4968,50261,0.1334169
 "D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/Assassin.xml","D:\tai_lieu_hoc\Game_Dev\TribeBuild\Content\bin\DesktopGL\Content\Images/Assassin.xml","CopyItem","File",9395,9395,0.0012815
@@ -25,3 +25,5 @@ Source File,Dest File,Processor Type,Content Type,Source File Size,Dest File Siz
 "D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/Sprite-0001.png","D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/bin/DesktopGL/Content/Images/Sprite-0001.xnb","TextureProcessor","Texture2DContent",1480,12373,0.1132422
 "D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/Sprite-0001.xml","D:\tai_lieu_hoc\Game_Dev\TribeBuild\Content\bin\DesktopGL\Content\Images/Sprite-0001.xml","CopyItem","File",217,217,0.000904
 "D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Images/tree.png","D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/bin/DesktopGL/Content/Images/tree.xnb","TextureProcessor","Texture2DContent",1301,4181,0.0116214
+"D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Sound/After a long journey there will always be someone returning home By Soundmashine.wav","D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/bin/DesktopGL/Content/Sound/After a long journey there will always be someone returning home By Soundmashine.xnb","SongProcessor","SongContent",27195928,198,1.7167886
+"D:/tai_lieu_hoc/Game_Dev/TribeBuild/Content/Sound/mixkit-grass-step-1920.wav","D:\tai_lieu_hoc\Game_Dev\TribeBuild\Content\bin\DesktopGL\Content\Sound/mixkit-grass-step-1920.wav","CopyItem","File",154076,154076,0.0024445

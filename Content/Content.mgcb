@@ -17,16 +17,28 @@
 /copy:Font/Baskic8.otf
 
 #begin Font/Baskic8.spritefont
-/copy:Font/Baskic8.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:Font/Baskic8.spritefont
 
 #begin Font/Essentle4.otf
 /copy:Font/Essentle4.otf
 
 #begin Font/Essentle4.spritefont
-/copy:Font/Essentle4.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:Font/Essentle4.spritefont
 
 #begin Font/File.spritefont
-/copy:Font/File.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:Font/File.spritefont
 
 #begin Font/Wongdongs.otf
 /copy:Font/Wongdongs.otf
@@ -231,4 +243,13 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Images/tree.png
+
+#begin Sound/After a long journey there will always be someone returning home By Soundmashine.wav
+/importer:WavImporter
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Sound/After a long journey there will always be someone returning home By Soundmashine.wav
+
+#begin Sound/mixkit-grass-step-1920.wav
+/copy:Sound/mixkit-grass-step-1920.wav
 
